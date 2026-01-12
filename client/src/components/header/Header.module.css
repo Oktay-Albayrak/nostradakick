@@ -1,0 +1,38 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 5%;
+  background: var(--primary);
+}
+
+.logo {
+  max-width: 100px;
+  max-height: 100px;
+}
+
+.buttons {
+  text-align: center;
+
+  .button {
+    padding: 0.3rem;
+    border-radius: 10px;
+  }
+
+  .button:nth-child(1) {
+    margin-right: .5rem;
+    background: var(--light-grey);
+  }
+
+  .button:nth-child(1):hover {
+    background: var(--dark-grey);
+  }
+
+  .button:nth-child(2) {
+    background: var(--action-color);
+  }
+
+  .button:nth-child(2):hover {
+    background: var(--action-color-hover);
+  }
+}
