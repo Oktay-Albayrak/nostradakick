@@ -33,12 +33,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} ${ubuntu.variable}`}>
-        <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-          <main style={{ flex: 1 }}>
             {children}
-          </main>
           <Footer />
-        </div>
       </body>
     </html>
   );
