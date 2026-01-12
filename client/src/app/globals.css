@@ -1,4 +1,15 @@
 :root {
+  --primary: #1a3a7a;
+  --secondary: #3562a6;
+  --action-color: #ffd700;
+  --action-color-hover: #e0bf00;
+  --dark-grey: #e6e6e6;
+  --light-grey: #eff0f1;
+  --dark: #000;
+  --white: #fff;
+  --primary-font: "Ubuntu", sans-serif;
+  --box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
+  --hover-box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.6);
   --background: #ffffff;
   --foreground: #171717;
 }
