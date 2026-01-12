@@ -1,0 +1,101 @@
+.footer {
+  width: 100%;
+  margin-top: auto; /* fonctionne grâce au layout flex colonne */
+  background-color: #1a3a7a;
+  color: #ffffff;
+  padding: 2rem 1rem;
+  font-family: var(--font-ubuntu, sans-serif);
+}
+
+.footerContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* NAV */
+.footerNav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.footerNav li {
+  margin: 0;
+}
+
+.footerNav a {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.footerNav a:hover {
+  text-decoration: underline;
+}
+
+/* ✅ Accessibilité clavier */
+.footerNav a:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+/* LOGO */
+.footerLogo {
+  order: -1; /* mobile : logo en premier */
+}
+
+.footerLogo img {
+  height: 50px;
+  width: auto;
+  display: block;
+}
+
+/* Texte droite (copyright) */
+.footerRight {
+  font-size: 0.95rem;
+  opacity: 0.95;
+}
+
+/* Desktop */
+@media (min-width: 768px) {
+  .footerContainer {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    /* ✅ évite les chevauchements avec le logo en absolute */
+    padding: 0 3.5rem;
+  }
+
+  .footerNav {
+    flex: 1;
+  }
+
+  .footerNav ul {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 2rem;
+  }
+
+  .footerLogo {
+    order: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .footerRight {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+  }
+}
