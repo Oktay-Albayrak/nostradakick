@@ -4,6 +4,8 @@ export const config = {
     //jwtSecret: getEnv(process.env.JWT_SECRET, "JWT_SECRET")
 };
 
+
+// Cette fonction sert à vérifier que les variable d'environnement sont bien configurer et nous mettre une erreur si aucune donnée dans un .env 
 function getEnv(variable: string | undefined, variableName: string): string {
     if (!variable) { throw new Error(`Missing Environnement variable ${variableName}`)}
 
