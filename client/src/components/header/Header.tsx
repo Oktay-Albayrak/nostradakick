@@ -5,15 +5,20 @@ import styles from "./Header.module.css"
 export default function Header() {
   return (
     <header className={styles.header}>
-      <Link href="/">
-        <Image
-          className={styles.logo}
-          src="/logo-nostradakick.png"
-          width={500}
-          height={500}
-          alt="Logo - Retourner vers l'accueil"
-        />
-      </Link>
+      <nav className={styles.nav}>
+        <Link href="/">
+          <Image
+            className={styles.logo}
+            src="/logo-nostradakick.png"
+            width={500}
+            height={500}
+            alt="Logo - Retourner vers l'accueil"
+          />
+        </Link>
+        <Link className={styles.navlinks} href="/accueil">Accueil</Link>
+        <Link className={styles.navlinks} href="/matchs">Matchs</Link>
+        <Link className={styles.navlinks} href="/pronos">Pronos</Link>
+      </nav>
       <div className={styles.buttons}>
         <Link className={styles.button} href="/register">S&apos;inscrire</Link>
         <Link className={styles.button} href="/login">Se connecter</Link>
