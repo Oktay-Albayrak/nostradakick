@@ -1,3 +1,4 @@
+import Image from "next/image";
 import styles from "./Footer.module.css";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,7 +23,7 @@ export default function Footer() {
           </ul>
         </nav>
 
-        <Link className={styles.footerLogo} href="/">
+        <Link className={styles.footerLogo} href="/" aria-label="NostradaKick">
           <Image
             className={styles.logo}
             src="/logo-nostradakick.png"
