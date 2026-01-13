@@ -1,0 +1,158 @@
+.page {
+  padding: 2rem 1rem;
+}
+
+/* SEARCH */
+.searchSection {
+  max-width: 900px;
+  margin: 0 auto 2rem;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border-radius: 999px;
+  border: 1px solid var(--dark-grey);
+  font-size: 1rem;
+  background: var(--white);
+  color: var(--dark);
+}
+
+/* GRID (mobile-first) */
+.mainGrid {
+  max-width: 1200px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: 1fr; /* ✅ mobile */
+  gap: 2rem;
+}
+
+.sectionTitle {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  color: var(--white);
+}
+
+/* MATCHS (mobile-first : 1 colonne) */
+.matchGrid {
+  display: grid;
+  grid-template-columns: 1fr; /* ✅ mobile */
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* ✅ Tablette : 2 colonnes (2x2) */
+@media (min-width: 520px) {
+  .matchGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.matchCard {
+  border: 1px solid var(--dark-grey);
+  border-radius: 16px;
+  padding: 1rem;
+  text-align: center;
+  background: var(--white);
+  color: var(--dark);
+}
+
+.teams {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.matchMeta {
+  margin: 0.2rem 0;
+  opacity: 0.9;
+}
+
+/* PRONOS */
+.pronoList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.pronoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--dark-grey);
+  border-radius: 16px;
+  padding: 0.75rem 1rem;
+  background: var(--white);
+  color: var(--dark);
+  gap: 1rem;
+}
+
+/* LABEL = TEXTE SIMPLE */
+.pronoLabel {
+  font-weight: 500;
+  color: var(--dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* CHOIX 1 / N / 2 */
+.picks {
+  display: flex;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.pick {
+  padding: 0.4rem 0.6rem;
+  border-radius: 10px;
+  background: var(--light-grey);
+  color: var(--white);
+  font-weight: 700;
+  min-width: 40px;
+  text-align: center;
+}
+
+.pickActive {
+  background-color: var(--primary);
+  color: var(--white);
+}
+
+/* BUTTON */
+.primaryButton {
+  width: 100%;
+  padding: 0.9rem;
+  background-color: #3562a6;
+  color: #ffffff;
+  border-radius: 999px;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.primaryButton:hover {
+  opacity: 0.9;
+}
+
+/* ✅ Desktop : layout maquette (2 colonnes globales) */
+@media (min-width: 900px) {
+  .mainGrid {
+    grid-template-columns: 2fr 1fr;
+    align-items: start;
+  }
+}
+
+/* MOBILE : pronos empilés */
+@media (max-width: 520px) {
+  .pronoRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .picks {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
