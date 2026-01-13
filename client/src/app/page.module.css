@@ -12,54 +12,49 @@
   width: 100%;
   padding: 1rem 1.25rem;
   border-radius: 999px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--dark-grey);
   font-size: 1rem;
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--white);
+  color: var(--dark);
 }
 
-@media (prefers-color-scheme: dark) {
-  .searchInput {
-    border-color: #444;
-  }
-}
-
-/* GRID */
+/* GRID (mobile-first) */
 .mainGrid {
   max-width: 1200px;
   margin: auto;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr; /* ✅ mobile */
   gap: 2rem;
 }
 
 .sectionTitle {
   font-size: 1.4rem;
   margin-bottom: 1rem;
-  color: var(--foreground);
+  color: var(--white);
 }
 
-/* MATCHS */
+/* MATCHS (mobile-first : 1 colonne) */
 .matchGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: 1fr; /* ✅ mobile */
   gap: 1rem;
   margin-bottom: 1rem;
 }
 
+/* ✅ Tablette : 2 colonnes (2x2) */
+@media (min-width: 520px) {
+  .matchGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .matchCard {
-  border: 1px solid #ddd;
+  border: 1px solid var(--dark-grey);
   border-radius: 16px;
   padding: 1rem;
   text-align: center;
-  background: var(--background);
-  color: var(--foreground);
-}
-
-@media (prefers-color-scheme: dark) {
-  .matchCard {
-    border-color: #333;
-  }
+  background: var(--white);
+  color: var(--dark);
 }
 
 .teams {
@@ -84,23 +79,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid #ddd;
+  border: 1px solid var(--dark-grey);
   border-radius: 16px;
   padding: 0.75rem 1rem;
-  background: var(--background);
-  color: var(--foreground);
-}
-
-@media (prefers-color-scheme: dark) {
-  .pronoRow {
-    border-color: #333;
-  }
+  background: var(--white);
+  color: var(--dark);
+  gap: 1rem;
 }
 
 /* LABEL = TEXTE SIMPLE */
 .pronoLabel {
   font-weight: 500;
-  color: var(--foreground);
+  color: var(--dark);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -116,22 +106,16 @@
 .pick {
   padding: 0.4rem 0.6rem;
   border-radius: 10px;
-  background: #eee;
-  color: var(--foreground);
+  background: var(--light-grey);
+  color: var(--white);
   font-weight: 700;
   min-width: 40px;
   text-align: center;
 }
 
-@media (prefers-color-scheme: dark) {
-  .pick {
-    background: #1a1a1a;
-  }
-}
-
 .pickActive {
-  background-color: #355fa3;
-  color: #ffffff;
+  background-color: var(--primary);
+  color: var(--white);
 }
 
 /* BUTTON */
@@ -151,14 +135,15 @@
   opacity: 0.9;
 }
 
-/* DESKTOP */
-@media (min-width: 768px) {
+/* ✅ Desktop : layout maquette (2 colonnes globales) */
+@media (min-width: 900px) {
   .mainGrid {
     grid-template-columns: 2fr 1fr;
+    align-items: start;
   }
 }
 
-/* MOBILE */
+/* MOBILE : pronos empilés */
 @media (max-width: 520px) {
   .pronoRow {
     flex-direction: column;
