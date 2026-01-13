@@ -42,5 +42,7 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
+
+    "rewriteRelativeImportExtensions": true // Autoriser les imports avec l'extension .ts
   }
 }
