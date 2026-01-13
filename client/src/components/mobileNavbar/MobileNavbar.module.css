@@ -1,0 +1,17 @@
+.nav {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  padding: .5rem 0;
+  background: var(--primary);
+  opacity: 95%;
+}
+
+.icon {
+  width: 30px;
+  height: 30px;
+}
