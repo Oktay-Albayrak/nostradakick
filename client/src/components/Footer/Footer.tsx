@@ -1,3 +1,4 @@
+import Image from "next/image";
 import styles from "./Footer.module.css";
 import Link from "next/link";
 
@@ -22,8 +23,12 @@ export default function Footer() {
         </nav>
 
         <div className={styles.footerLogo} aria-label="NostradaKick">
-          {/* Remplace le src par ton vrai chemin d'asset */}
-          <img src="/logo-nostradakick.png" alt="Logo NostradaKick" />
+          <Image
+            src="/logo-nostradakick.png"
+            alt="Logo NostradaKick"
+            width={150}
+            height={50}
+          />
         </div>
 
         <div className={styles.footerRight}>
