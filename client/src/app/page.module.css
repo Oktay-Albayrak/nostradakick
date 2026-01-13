@@ -14,14 +14,8 @@
   border-radius: 999px;
   border: 1px solid var(--dark-grey);
   font-size: 1rem;
-  background: var(dark);
-  color: var(--white);
-}
-
-@media (prefers-color-scheme: dark) {
-  .searchInput {
-    border-color: var(--dark-grey);
-  }
+  background: var(--white);
+  color: var(--dark);
 }
 
 /* GRID (mobile-first) */
@@ -59,14 +53,8 @@
   border-radius: 16px;
   padding: 1rem;
   text-align: center;
-  background: var(dark);
-  color: var(--white);
-}
-
-@media (prefers-color-scheme: dark) {
-  .matchCard {
-    border-color: var(--dark-grey);
-  }
+  background: var(--white);
+  color: var(--dark);
 }
 
 .teams {
@@ -94,15 +82,9 @@
   border: 1px solid var(--dark-grey);
   border-radius: 16px;
   padding: 0.75rem 1rem;
-  background: var(dark);
-  color: var(--white);
+  background: var(--white);
+  color: var(--dark);
   gap: 1rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  .pronoRow {
-    border-color: var(--dark-grey);
-  }
 }
 
 /* LABEL = TEXTE SIMPLE */
@@ -125,17 +107,10 @@
   padding: 0.4rem 0.6rem;
   border-radius: 10px;
   background: var(--light-grey);
-  color: var(dark);
+  color: var(--white);
   font-weight: 700;
   min-width: 40px;
   text-align: center;
-}
-
-@media (prefers-color-scheme: dark) {
-  .pick {
-    background: #1a1a1a; /* ✅ lisible */
-    opacity: 1;          /* ✅ pas d'opacité */
-  }
 }
 
 .pickActive {
