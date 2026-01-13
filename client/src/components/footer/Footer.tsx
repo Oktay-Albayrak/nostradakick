@@ -22,7 +22,7 @@ export default function Footer() {
           </ul>
         </nav>
 
-        <Link className={styles.footerLogo} href="/">
+        <Link className={styles.footerLogo} href="/" aria-label="NostradaKick">
           <Image
             className={styles.logo}
             src="/logo-nostradakick.png"
