@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "seed": "ts-node prisma/seed.ts"
-  },
+  "scripts": {},
   "keywords": [],
   "author": "",
   "license": "ISC",
