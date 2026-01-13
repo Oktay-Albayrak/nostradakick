@@ -1,4 +1,5 @@
 import styles from "./Footer.module.css";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Footer() {
@@ -21,10 +22,15 @@ export default function Footer() {
           </ul>
         </nav>
 
-        <div className={styles.footerLogo} aria-label="NostradaKick">
-          {/* Remplace le src par ton vrai chemin d'asset */}
-          <img src="/logo-nostradakick.png" alt="Logo NostradaKick" />
-        </div>
+        <Link className={styles.footerLogo} href="/">
+          <Image
+            className={styles.logo}
+            src="/logo-nostradakick.png"
+            width={500}
+            height={500}
+            alt="Logo - Retourner vers l'accueil"
+          />
+        </Link>
 
         <div className={styles.footerRight}>
           <span>© {year} NostradaKick — Projet pédagogique</span>
