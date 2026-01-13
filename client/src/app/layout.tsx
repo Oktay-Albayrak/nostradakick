@@ -14,11 +14,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr">
-      <body>
-          <Header />
-            {children}
-          <Footer />
+    <html lang="en">
+      <body className={`${geistSans.variable} ${geistMono.variable} ${ubuntu.variable}`}>
+        <Header />
+          {children}
+        <Footer />
+        <MobileNavbar />
       </body>
     </html>
   );
