@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "@/components/footer/Footer";
 import Header from "@/components/header/Header";
+import MobileNavbar from "@/components/mobileNavbar/MobileNavbar";
 
 export const metadata: Metadata = {
   title: "NostradaKick",
