@@ -8,7 +8,7 @@ export default function Header() {
       <Link href="/">
         <Image
           className={styles.logo}
-          src="/nostrada-logo.png"
+          src="/logo-nostradakick.png"
           width={500}
           height={500}
           alt="Logo - Retourner vers l'accueil"
