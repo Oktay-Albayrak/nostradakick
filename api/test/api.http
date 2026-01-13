@@ -3,3 +3,9 @@ GET http://localhost:3000/api/health
 
 ### Get All Matches
 GET http://localhost:3000/api/matches
+
+### Get All Users
+GET http://localhost:3000/api/users
+
+### Get One User
+GET http://localhost:3000/api/users/user_5

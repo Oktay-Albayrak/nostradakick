@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { getAllUsers } from "../controllers/users.controller.ts";
+import { getAllUsers, getOneUser,  } from "../controllers/users.controller.ts";
 
-export const router = Router();
+export const router: Router = Router();
 
 
-router.get("/users", getAllUsers)
-router.get("/user/:id", )
+router.get("/users", getAllUsers);
+router.get("/users/:username",  getOneUser);
