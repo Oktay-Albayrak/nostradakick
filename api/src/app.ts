@@ -4,6 +4,5 @@ import { router as apiRouter } from "./routers/index.routes.ts";
 
 export const app: Application = express();
 
-export const app: Application = express();
 // Configuration
 app.use("/api", apiRouter);
