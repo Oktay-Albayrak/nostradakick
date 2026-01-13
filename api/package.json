@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-
+    
+    "========= Pour la BDD prisma =========": "===========================",
+    "seed": "ts-node prisma/seed.ts"
+    
     "========= Pour le dev =========": "===========================",
     "dev": "node --watch --env-file=.env index.ts",
     "lint": "eslint .",
