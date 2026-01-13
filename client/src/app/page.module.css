@@ -90,7 +90,7 @@
 /* LABEL = TEXTE SIMPLE */
 .pronoLabel {
   font-weight: 500;
-  color: var(--foreground);
+  color: var(--dark);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
