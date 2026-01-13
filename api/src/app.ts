@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { type Application } from 'express';
 
 
-export const app = express();
+export const app: Application = express();
