@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-
+    
+    "========= Pour la BDD prisma =========": "===========================",
+    "seed": "ts-node prisma/seed.ts",
+    
     "========= Pour le dev =========": "===========================",
     "dev": "node --watch --env-file=.env index.ts",
     "lint": "eslint .",
@@ -23,9 +26,10 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
-    "@types/node": "^25.0.6",
+    "@types/node": "^25.0.7",
     "@types/pg": "^8.16.0",
     "prisma": "^7.2.0",
+    "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
