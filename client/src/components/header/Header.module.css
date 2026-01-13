@@ -2,9 +2,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  color: var(--white);
   padding: 0 1%;
   background: var(--primary);
-  margin-bottom: 20px;
+}
+
+.navlinks {
+  display: none;
 }
 
 .logo {
@@ -14,6 +18,7 @@
 
 .buttons {
   text-align: center;
+  color: var(--dark);
 
   .button {
     border-radius: 10px;
@@ -35,6 +40,24 @@
 
   .button:nth-child(2):hover {
     background: var(--action-color-hover);
+  }
+}
+
+@media (min-width: 650px) {
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 50%;
+    max-width: 400px;
+  }
+
+  .navlinks {
+    display: inline;
+  }
+
+  .navlinks:hover {
+    text-decoration: underline;
   }
 }
 
