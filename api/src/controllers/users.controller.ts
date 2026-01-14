@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.ts";
-import { z } from "zod";
+import { includes, z } from "zod";
+import { PredictionValue } from "../../generated/prisma/enums.ts";
 
 
 
@@ -10,7 +11,10 @@ export async function getAllUsers(req: Request, res: Response) {
     // Récupère tout les utilisateurs en base de donnée
     // "omit" permet d'exclure les champs sensibles (password_hash ici)
     const users = await prisma.user.findMany({ 
-        omit: { password_hash: true } 
+        omit: { password_hash: true },
+        orderBy: { 
+            created_at: "asc",
+        },
     });
 
     // Retourne la liste des utilisateurs sans filtrage en format JSON
@@ -52,6 +56,34 @@ export async function getOneUser(req: Request, res: Response) {
     omit: { 
         password_hash: true, 
         email: true },
+    include: {
+        stats: true,
+        predictions: {
+            include: {
+                match: {
+                    include: {
+                        home_team: { 
+                            omit: { 
+                                created_at: true, 
+                                updated_at: true, 
+                                api_id: true 
+                            }},
+                        away_team:  { 
+                            omit: { 
+                                created_at: true, 
+                                updated_at: true, 
+                                api_id: true 
+                            }},
+                    },
+                    omit: {
+                        created_at: true,
+                        updated_at: true,
+                        api_id: true,
+                    }
+                },
+            }
+        },
+    },
     });
 
     // si l'utilisateur n'existe pas on renvoie une 404
