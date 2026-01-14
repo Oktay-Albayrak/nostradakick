@@ -22,7 +22,7 @@ export default async function Pronos() {
         {/* CONTENU PRINCIPAL - Liste des pronostics */}
         <section className={styles.mainGrid}>
           
-          <h1 className={styles.sectionTitleH1}>Pronostics des membre du sites</h1>
+          <h1 className={styles.sectionTitleH1}>Pronostics des membres du sites</h1>
 
           <div className={styles.pronoList}>
             <div className={styles.pronoRow}>
