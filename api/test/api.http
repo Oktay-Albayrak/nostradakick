@@ -1,6 +1,9 @@
 ### Health Check
 GET http://localhost:3000/api/health
 
+### Get All Users
+GET http://localhost:3000/api/users
+
 ### Get All Matches
 GET http://localhost:3000/api/matches
 
@@ -9,3 +12,5 @@ GET http://localhost:3000/api/users
 
 ### Get One User
 GET http://localhost:3000/api/users/user_7
+### Get Match by ID
+GET http://localhost:3000/api/matches/2007
