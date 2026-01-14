@@ -1,5 +1,7 @@
 .page {
   padding: 2rem 1rem;
+  background: var(--light-grey);
+  min-height: calc(100vh - 200px);
 }
 
 /* SEARCH */
@@ -30,7 +32,7 @@
 .sectionTitle {
   font-size: 1.4rem;
   margin-bottom: 1rem;
-  color: var(--white);
+  color: var(--dark);
 }
 
 /* MATCHS (mobile-first : 1 colonne) */
@@ -107,7 +109,7 @@
   padding: 0.4rem 0.6rem;
   border-radius: 10px;
   background: var(--light-grey);
-  color: var(--white);
+  color: var(--dark);
   font-weight: 700;
   min-width: 40px;
   text-align: center;
