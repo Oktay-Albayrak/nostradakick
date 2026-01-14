@@ -9,3 +9,6 @@ GET http://localhost:3000/api/matches
 
 ### Get Match by ID
 GET http://localhost:3000/api/matches/2007
+
+### Get All Predictions
+GET http://localhost:3000/api/predictions
