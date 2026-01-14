@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.ts";
+import { z } from "zod";
+
 
 
 // Fonction permettant de récupérer tout les utilisateurs
@@ -15,33 +17,38 @@ export async function getAllUsers(req: Request, res: Response) {
     res.json(users);
 }
 
-//fonction permettant de récupérer un utilisateur via son 'username'
+
+
+
+// Fonction permettant de récupérer un utilisateur via son 'username'
 export async function getOneUser(req: Request, res: Response) {
 
-    // Récupère le paramètre 'username' dans l'URL
-    const { username } = req.params;
+    const usernameSchema = z.string()
+    .min(3)
+    .max(50)
+    .regex(/^[a-zA-Z0-9_]+$/);
 
-    // Vérifie que le 'username' est bien présent et que ce n'est pas un tableau
-    // express peut typer les params en string | string[] | undefined
-    // Prisma fait pas de typage en string[], donc on spécifie que on veut que du string sans tableau
-    // Retour d'un code 400 si le paramètre est mal formé
-    if (!username || Array.isArray(username)) {
-        return res.status(400).json({error: "username invalide"});
+    const parseResult = usernameSchema.safeParse(req.params.username);
+
+    if (!parseResult.success) {
+    return res.status(400).json({
+        error: "Username invalide",
+        details: parseResult.error.issues.map(issue => issue.message)
+    });
     }
 
-    // Recherche de l'utilisateur dans la base de donnée
-    // En excluant le mot de passe du résultat pour la sécurité
+    const username = parseResult.data; 
+
     const user = await prisma.user.findUnique({
-        where: { username : username},
-        omit: { password_hash : true }
+    where: { username },
+    omit: { 
+        password_hash: true, 
+        email: true },
     });
 
-    // Si aucun utilisateur est trouvé on renvoi une 404
     if (!user) {
-        res.status(404).json({error: "User not found" });
-        return;
+    return res.status(404).json({ error: "Utilisateur non trouvé" });
     }
-    
-    // Retourne l'utilisateur en format JSON
+
     res.json(user);
 }
