@@ -1,0 +1,155 @@
+/* LAYOUT GLOBAL */
+.main {
+  padding: 1rem 5%;
+  background: var(--light-grey);
+  min-height: calc(100vh - 400);
+}
+
+/* SEARCH */
+.searchSection {
+  max-width: 900px;
+  margin: 0 auto 2rem;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border-radius: 999px;
+  border: 1px solid var(--dark-grey);
+  font-size: 0.9rem;
+  background: var(--white);
+  color: var(--dark);
+}
+
+/* GRID (mobile-first) */
+.mainGrid {
+  max-width: 1200px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: 1fr; /* ✅ mobile */
+  background: transparent;
+  padding: 0 0.5rem;
+}
+
+.sectionTitleH1 {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 3.5rem;
+  color: var(--dark);
+}
+
+/* LISTE PRONOS - Conteneur principal des cartes */
+.pronoList {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.5rem;
+  gap: 1rem;
+  width: 100%;
+  max-height: 50vh; /* Hauteur maximale pour activer le défilement */
+  overflow-y: auto; /* Active le défilement vertical */
+  scrollbar-width: none; /* Masque la barre (Firefox) */
+  -ms-overflow-style: none; /* Masque la barre (IE/Edge) */
+}
+
+
+/* CARTES DES PRONOS */
+.pronoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--dark-grey);
+  border-radius: 16px;
+  padding: 1.5rem;
+  background: var(--white);
+  color: var(--dark);
+}
+
+/* INFO UTILISATEUR - Avatar + Pseudo + Timestamp */
+.userInfo {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-right: 0.5rem;
+  width: 100%;
+  flex: 0 0 20%;
+}
+
+/* AVATAR */
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  ;
+}
+
+/* COLONNE DU PROFIL - Pseudo + Timestamp */
+.profilColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+/* PSEUDO DE L'UTILISATEUR */
+.username {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--dark);
+}
+
+/* TIMESTAMP */
+.timestamp {
+  font-size: 0.75rem;
+  color: var(--dark-grey);
+  padding: 5px 0 0 15px;
+  margin-top: 0.25rem;
+}
+
+/* INFOS MATCH - Nom du match + Pronostics */
+.matchInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  text-align: center;
+}
+
+/* LABEL DU MATCH */
+.pronoLabel {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+/* CONTENEUR DES BOUTONS DE PRONOSTICS */
+.picks {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  width: 100%;
+}
+
+/* BOUTON DE PRONOSTIC */
+.pick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  background: var(--dark-grey);
+  color: var(--dark);
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* BOUTON ACTIF - Style quand le pronostic est sélectionné */
+.pickActive {
+  background-color: var(--primary);
+  color: var(--white);
+}
