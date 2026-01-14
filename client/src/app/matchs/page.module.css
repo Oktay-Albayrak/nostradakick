@@ -1,0 +1,197 @@
+/* --- MOBILE FIRST --- */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Caché sur mobile */
+.searchSection,
+.competitionList,
+.featuredSection {
+  display: none;
+}
+
+/* Boutons filtres mobiles */
+.mobileFilters {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto; /* Permet le défilement horizontal */
+  padding-bottom: 10px; /* Espace pour ne pas coller à la barre de défilement */
+  margin-bottom: 2rem;
+  scrollbar-width: none; /* Cache la scrollbar sur Firefox */
+}
+
+.mobileFilters::-webkit-scrollbar {
+  display: none; /* Cache la scrollbar sur Chrome/Safari */
+}
+
+.hotButton,
+.filterButton {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  font-family: var(--primary-font);
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.hotButton {
+  flex: 0 0 auto;
+  padding: 8px 16px;
+  background-color: var(--action-color);
+  color: var(--primary);
+  border-radius: 20px;
+  border: none;
+  font-weight: bold;
+}
+.filterButton {
+  flex: 0 0 auto; /* Empêche le bouton de rétrécir */
+  padding: 8px 16px;
+  background-color: var(--primary);
+  color: var(--white);
+  border-radius: 20px;
+  border: none;
+  font-family: var(--primary-font);
+  font-size: 0.9rem;
+  white-space: nowrap; /* Empêche le texte de revenir à la ligne */
+}
+
+.sectionTitle {
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+  color: var(--primary);
+}
+
+/* Match Cards Mobile */
+.matchCard {
+  background-color: var(--white);
+  color: var(--primary);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--primary);
+}
+
+.teams {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+.matchMeta {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* --- TABLETTE ET DESKTOP (>= 768px) --- */
+@media (min-width: 768px) {
+  .searchSection {
+    display: block;
+    max-width: 900px;
+    margin: 0 auto 2rem;
+  }
+
+  .searchInput {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border-radius: 999px;
+    border: 1px solid var(--dark-grey);
+    font-size: 1rem;
+    background: var(--white);
+    color: var(--dark);
+  }
+  .mobileFilters {
+    display: none;
+  } /* On cache les boutons de scroll */
+
+  .mainGrid {
+    display: grid;
+    grid-template-columns: 200px 1fr 240px;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .competitionList,
+  .featuredSection {
+    display: block;
+    background: var(--primary);
+    color: var(--white);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+    height: fit-content; /* S'adapte au contenu */
+  }
+
+  .sidebarTitle {
+    font-size: 1.1rem;
+    margin-bottom: 1.2rem;
+    color: var(--action-color);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+  }
+
+  /* Liste verticale gauche */
+  .competitionList ul {
+    list-style: none;
+  }
+  .competitionList li {
+    padding: 12px 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  .competitionList li:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--white);
+  }
+
+  /* Petites cartes à droite */
+  .smallCard {
+    position: relative;
+    background: var(--white);
+    color: var(--primary);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.8rem;
+    border: none;
+    box-shadow: var(--box-shadow);
+  }
+
+  .smallCard strong {
+    color: var(--white);
+  }
+
+  .hotBadge {
+    position: absolute;
+    /* On le fait sortir de 15px vers le haut et 10px vers la droite */
+    top: -15px;
+    right: -5px;
+
+    background: var(--action-color);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 1.2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--primary);
+    /* Animation pour rendre le "HOT" vivant */
+    animation: pulseHot 2s infinite;
+  }
+}
+
+@keyframes pulseHot {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
