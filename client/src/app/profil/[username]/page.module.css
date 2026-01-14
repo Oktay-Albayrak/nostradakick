@@ -12,6 +12,7 @@
   overflow: hidden;
   border-radius: 10px;
   box-shadow: var(--box-shadow);
+  background: var(--white);
 }
 
 .avatar {
@@ -52,6 +53,7 @@
   padding: 1rem;
   border-radius: 10px;
   box-shadow: var(--box-shadow);
+  background: var(--white);
 }
 
 .choice {
@@ -94,6 +96,7 @@
   padding: 1rem;
   border-radius: 10px;
   box-shadow: var(--box-shadow);
+  background: var(--white);
 }
 
 @media (min-width: 500px) {
