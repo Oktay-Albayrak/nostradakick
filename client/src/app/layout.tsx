@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Ubuntu } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/footer/Footer";
 import Header from "@/components/header/Header";
@@ -9,13 +10,20 @@ export const metadata: Metadata = {
   description: "Projet de pronostics",
 };
 
+const ubuntu = Ubuntu({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "700"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="fr" className={ubuntu.className}>
       <body>
         <Header />
           {children}
