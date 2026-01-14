@@ -41,12 +41,6 @@ export async function getOneMatch(req: Request, res: Response) {
     },
   });
 
-  if (!match) {
-    return res
-      .status(404)
-      .json({ message: "Match introuvable avec cet API ID." });
-  }
-
   if (!match) return res.status(404).json({ message: "Match non trouvé." });
 
   res.json(match);
