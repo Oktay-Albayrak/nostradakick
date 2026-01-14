@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    
     "========= Pour la BDD prisma =========": "===========================",
     "db:seed": "ts-node prisma/seed.ts",
     "db:generate": "prisma generate",
@@ -13,7 +12,6 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:migrate:reset": "prisma migrate reset --force",
     "db:reset": "npm run db:migrate:reset && npm run db:seed",
-    
     "========= Pour le dev =========": "===========================",
     "dev": "node --watch --env-file=.env index.ts",
     "lint": "eslint .",
@@ -28,7 +26,8 @@
     "@prisma/client": "^7.2.0",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
