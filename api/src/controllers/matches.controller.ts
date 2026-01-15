@@ -2,17 +2,24 @@ import { prisma } from "../lib/prisma.ts";
 import type { Request, Response } from "express";
 
 export async function getAllMatches(req: Request, res: Response) {
-  const matches = await prisma.match.findMany({
-    include: {
-      home_team: true,
-      away_team: true,
-      competition: true,
-    },
-    orderBy: {
-      date: "asc",
-    },
-  });
-  res.json(matches);
+  try {
+    const matches = await prisma.match.findMany({
+      include: {
+        home_team: true,
+        away_team: true,
+        competition: true,
+      },
+      orderBy: {
+        date: "asc",
+      },
+    });
+    res.json(matches);
+  } catch (e) {
+    console.error(e);
+    res
+      .status(500)
+      .json({ message: "Erreur lors de la récupération des matches" });
+  }
 }
 
 export async function getOneMatch(req: Request, res: Response) {
