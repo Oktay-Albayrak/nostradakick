@@ -1,0 +1,70 @@
+import type { Request, Response } from "express";
+import { prisma } from "../lib/prisma.ts";
+import z from "zod";
+import argon2 from "argon2";
+
+export async function registerUser(req: Request, res: Response) {
+  // Validation des données
+  const registerUserSchema = z.object({
+    username: z
+      .string()
+      .min(3, 'Le nom d\'utilisateur doit contenir au moins 3 caractères')
+      .max(50, 'Le nom d\'utilisateur ne peut pas dépasser 50 caractères')
+      .regex(
+        /^[a-zA-Z0-9_-]+$/,
+        'Le nom d\'utilisateur ne peut contenir que des lettres, chiffres, tirets et underscores'
+      ),
+
+    email: z.email('Email invalide'),
+
+    password: z
+      .string()
+      .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
+      .max(100, 'Le mot de passe ne peut pas dépasser 100 caractères')
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+        'Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre'
+      )
+  });
+
+  try {
+    // Récuperation et parsing du body
+    const { username, email, password } = await registerUserSchema.parseAsync(req.body);
+
+    // Vérification : email déjà pris => 409 (Conflict)
+    const alreadyExistingUserMail = await prisma.user.findFirst({ where: { email } });
+    if (alreadyExistingUserMail) {
+      return res.status(409).json({ error: "Email déja utilisée" });
+    }
+
+    // Autre vérification : username déjà pris => 409 (Conflict)
+    const alreadyExistingUsername = await prisma.user.findFirst({ where: { username } });
+    if (alreadyExistingUsername) {
+      return res.status(409).json({ error: "Pseudo déja utilisée" });
+    }
+
+    // Hash du mdp
+    const hashedPassword = await argon2.hash(password);
+
+    // Enregistrement de l'utilisateur dans la BDD
+    const createdUser = await prisma.user.create({
+      data: {
+        username,
+        email,
+        password_hash: hashedPassword
+      },
+      omit: {
+        password_hash: true
+      }
+    })
+
+    res.status(201).json(createdUser);
+
+  } catch (error) {
+    // Gère les erreurs de validation Zod
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ errors: z.prettifyError(error) });
+    }
+    throw error;
+  }
+}
