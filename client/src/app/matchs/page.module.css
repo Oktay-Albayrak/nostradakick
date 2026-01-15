@@ -84,8 +84,8 @@
   color: #666;
 }
 
-/* --- TABLETTE ET DESKTOP (>= 768px) --- */
-@media (min-width: 768px) {
+/* --- TABLETTE ET DESKTOP (>= 650px) --- */
+@media (min-width: 650px) {
   .searchSection {
     display: block;
     max-width: 900px;
@@ -101,6 +101,10 @@
     background: var(--white);
     color: var(--dark);
   }
+}
+
+/* --- TABLETTE ET DESKTOP (>= 870px) --- */
+@media (min-width: 870px) {
   .mobileFilters {
     display: none;
   } /* On cache les boutons de scroll */

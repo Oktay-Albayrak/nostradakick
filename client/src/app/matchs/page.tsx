@@ -1,3 +1,4 @@
+import MatchCard from "@/components/matchCard/MatchCard";
 import styles from "./page.module.css";
 
 export default async function Matchs() {
@@ -36,7 +37,9 @@ export default async function Matchs() {
         </aside>
         {/* 4. COLONNE CENTRALE : MATCHS À VENIR */}
         <main className={styles.matchsContent}>
-          <h2 className={styles.sectionTitle}>Matchs à venir</h2>
+          <h1 className={styles.sectionTitle}>Matchs à venir</h1>
+
+          <MatchCard />
 
           <div className={styles.matchGrid}>
             <div className={styles.matchCard}>
