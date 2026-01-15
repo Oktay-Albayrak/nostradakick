@@ -42,9 +42,11 @@
 .pronoList {
   display: flex;
   flex-direction: column;
+  margin: auto;
   margin-bottom: 0.5rem;
   gap: 1rem;
   width: 100%;
+  max-width: 750px;
   max-height: 50vh; /* Hauteur maximale pour activer le défilement */
   overflow-y: auto; /* Active le défilement vertical */
   scrollbar-width: none; /* Masque la barre (Firefox) */
