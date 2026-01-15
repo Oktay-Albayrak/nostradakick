@@ -1,7 +1,7 @@
 ### Health Check
 GET http://localhost:3000/api/health
 
-### POST user (register)
+### Register user
 POST http://localhost:3000/api/auth/register
 Content-Type: application/json
 
@@ -10,6 +10,20 @@ Content-Type: application/json
   "email": "testdelemail@gmail.com",
   "password": "1MotdepasseINCROYABLE!!!"
 }
+
+### Login user
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "testdelemail@gmail.com",
+  "password": "1MotdepasseINCROYABLE!!!"
+}
+
+### auth/me
+GET http://localhost:3000/api/auth/me
+Cookies: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1YTBlMDMyNi1iMmRiLTQ0YWEtYjY1NC03OTA5NmFhYTQ2MjAiLCJ1c2VyUm9sZSI6Ik1FTUJFUiIsImlhdCI6MTc2ODQ4NTU3MiwiZXhwIjoxNzY4NDg5MTcyfQ.Wg10Gn5LqAR3ePcdd8vUqZgGXLFU8hNn_X85wIkpuiE
+
 
 ### Get All Users
 GET http://localhost:3000/api/users

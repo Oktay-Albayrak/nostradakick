@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.ts";
 import z from "zod";
 import argon2 from "argon2";
+import { generateAccessToken, extractAccessTokenFromRequest, decodeJWT } from "../lib/auth.ts";
 
 export async function registerUser(req: Request, res: Response) {
   // Validation des données
@@ -67,4 +68,70 @@ export async function registerUser(req: Request, res: Response) {
     }
     throw error;
   }
+}
+
+export async function loginUser(req: Request, res: Response) {
+  // Récupérer l'email et le mot de passe depuis le body
+  const loginUserSchema = z.object({
+    email: z.string(),
+    password: z.string()
+  });
+  const { email, password } = loginUserSchema.parse(req.body);
+
+  // Récupérer l'utilisateur en BDD
+  const user = await prisma.user.findUnique({ where: { email } });
+
+  // Si pas d'utilisateur => 401
+  if (!user) {
+    return res.status(401).json({ error: "Mauvais email / mot de passe" });
+  }
+
+  // Compare les mots de passe (celui fourni dans le body avec celui haché de la BDD).
+  const isMatching = await argon2.verify(user.password_hash, password);
+
+  // Si pas de match => 401
+  if (!isMatching) {
+    return res.status(401).json({ error: "Mauvais email / mot de passe" });
+  }
+
+  // Générer le JWT
+  const accessToken = generateAccessToken(user);
+
+  // Le renvoyer dans les cookies
+  setTokensInCookies(res, accessToken);
+
+  res.json({ accessToken });
+}
+
+export async function getAuthenticatedUser(req: Request, res: Response) {
+  // Controler si l'utilisateur qui fait la requête (req) fourni un JWT
+  const accessToken = extractAccessTokenFromRequest(req);
+
+  const payload = decodeJWT(accessToken);
+
+  // Condition pour enlever erreur prisma
+  if (!payload?.userId) {
+    throw new Error("Utilisateur non identifié");
+  }
+
+  // Récupérer le user en BDD (sans son mot de passe)
+  const user = await prisma.user.findUnique({
+    where: { id: payload?.userId },
+    omit: { password_hash: true }
+  });
+
+  // Si pas d'utilisateur correspondant au JWT fourni
+  if (!user) {
+    throw new Error("Provided JWT does not match any user currently in database");
+  }
+
+  // Le renvoyer
+  res.json(user);
+}
+
+function setTokensInCookies(res: Response, accessToken: string) {
+  res.cookie("accessToken", accessToken, {
+    maxAge: 1 * 60 * 60 * 1000, // 1h en MS
+    httpOnly: true // en HTTPOnly, les cookies ne sont pas lisible par le code frontend (console.log(document.cookies) -> rien !)) => sécurité !
+  });
 }
