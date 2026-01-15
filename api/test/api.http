@@ -1,6 +1,16 @@
 ### Health Check
 GET http://localhost:3000/api/health
 
+### POST user (register)
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "PronostiqueurFou",
+  "email": "testdelemail@gmail.com",
+  "password": "1MotdepasseINCROYABLE!!!"
+}
+
 ### Get All Users
 GET http://localhost:3000/api/users
 
