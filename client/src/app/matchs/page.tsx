@@ -3,7 +3,7 @@ import styles from "./page.module.css";
 import { IMatch } from "@/types/match";
 
 export default async function Matchs() {
-  const response = await fetch("http://localhost:3000/api/matchs");
+  const response = await fetch("http://localhost:5000/api/matches");
   if (!response.ok) {
     return <div>Erreur lors du chargement des matchs</div>;
   }
