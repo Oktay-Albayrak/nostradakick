@@ -18,16 +18,21 @@ export async function updateUser(
   // Déstructuration des données d'entrée pour extraire les champs spécifiques
   const { password, username, email, avatar_url } = updateData;
 
+  const trimUsername = username?.trim();
+  const trimEmail = email?.trim();
+  const trimPassword = password?.trim();
+  const trimAvatar = avatar_url?.trim();
+
   // Hachage du mot de passe si celui-ci est fourni dans les données de mise à jour
-  const passwordHash = password ? await argon2.hash(password) : undefined;
+  const passwordHash = trimPassword ? await argon2.hash(trimPassword) : undefined;
 
   // Construction de l'objet de mise à jour pour Prisma
   // Chaque champ est ajouté à dataToUpdate uniquement s'il est défini dans updateData
   // Cela évite d'envoyer des valeurs undefined à la base de données
   const dataToUpdate: Prisma.UserUpdateInput = {
-    ...(username !== undefined && { username }),
-    ...(email !== undefined && { email }),
-    ...(avatar_url !== undefined && { avatar_url }),
+    ...(trimUsername !== undefined && { username: trimUsername }),
+    ...(trimEmail !== undefined && { email: trimEmail }),
+    ...(trimAvatar !== undefined && { avatar_url: trimAvatar }),
     ...(passwordHash !== undefined && { password_hash: passwordHash }),
   };
 
