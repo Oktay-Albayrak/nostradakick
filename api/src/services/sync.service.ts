@@ -1,39 +1,94 @@
 import axios from "axios";
-import { PrismaClient } from "../../generated/prisma/client";
+import { prisma } from "../lib/prisma.ts";
+import { MatchStatus } from "../../generated/prisma/client.ts";
 
-const prisma = new PrismaClient();
+const FOOTBALL_API_URL = "https://api.football-data.org/v4";
+const TOKEN = process.env.FOOTBALL_DATA_API_TOKEN;
 
-export async function syncFootballData() {
-  const TOKEN = process.env.FOOTBALL_DATA_API_TOKEN;
+export async function syncMatchesForCompetition(competitionCode: string) {
+  try {
+    console.log(`🔄 Synchro lancée pour ${competitionCode}...`);
 
-  // On récupère les matchs d'une compétition spécifique (ex: PL pour Premier League)
-  const response = await axios.get(
-    "https://api.football-data.org/v4/competitions/PL/matches",
-    {
-      headers: { "X-Auth-Token": TOKEN },
-    }
-  );
+    const response = await axios.get(
+      `${FOOTBALL_API_URL}/competitions/${competitionCode}/matches`,
+      {
+        headers: { "X-Auth-Token": TOKEN },
+      }
+    );
 
-  const remoteMatches = response.data.matches;
+    // On extrait les données avec des noms clairs
+    const matches = response.data.matches;
+    const compData = response.data.competition;
+    const areaName =
+      response.data.area?.name || compData?.area?.name || "Unknown";
 
-  for (const match of remoteMatches) {
-    // On utilise l'id de l'API pour ne pas créer de doublons
-    await prisma.match.upsert({
-      where: { api_id: match.id },
+    // 1. Upsert de la compétition
+    const dbCompetition = await prisma.competition.upsert({
+      where: { api_id: compData.id },
       update: {
-        status: match.status,
-        home_score: match.score.fullTime.home,
-        away_score: match.score.fullTime.away,
+        name: compData.name,
+        emblem_url: compData.emblem,
       },
       create: {
-        api_id: match.id,
-        date: new Date(match.utcDate),
-        status: match.status,
-        // Ici il faudra s'assurer que les teams existent déjà ou les créer aussi via upsert
-        home_team: { connect: { api_id: match.homeTeam.id } },
-        away_team: { connect: { api_id: match.awayTeam.id } },
-        competition: { connect: { api_id: response.data.competition.id } },
+        api_id: compData.id,
+        name: compData.name,
+        code: compData.code,
+        country: areaName,
+        emblem_url: compData.emblem,
       },
     });
+
+    for (const m of matches) {
+      // 2. Upsert Équipe Domicile
+      const homeTeam = await prisma.team.upsert({
+        where: { api_id: m.homeTeam.id },
+        update: { crest_url: m.homeTeam.crest },
+        create: {
+          api_id: m.homeTeam.id,
+          name: m.homeTeam.name,
+          tla: m.homeTeam.tla || "N/A",
+          crest_url: m.homeTeam.crest || "",
+          country: areaName, // On utilise le pays de la compétition par défaut
+        },
+      });
+
+      // 3. Upsert Équipe Extérieur
+      const awayTeam = await prisma.team.upsert({
+        where: { api_id: m.awayTeam.id },
+        update: { crest_url: m.awayTeam.crest },
+        create: {
+          api_id: m.awayTeam.id,
+          name: m.awayTeam.name,
+          tla: m.awayTeam.tla || "N/A",
+          crest_url: m.awayTeam.crest || "",
+          country: areaName,
+        },
+      });
+
+      // 4. Upsert du Match
+      await prisma.match.upsert({
+        where: { api_id: m.id },
+        update: {
+          status: m.status as MatchStatus,
+          home_score: m.score?.fullTime?.home ?? null,
+          away_score: m.score?.fullTime?.away ?? null,
+          date: new Date(m.utcDate),
+        },
+        create: {
+          api_id: m.id,
+          date: new Date(m.utcDate),
+          status: m.status as MatchStatus,
+          home_team_id: homeTeam.id,
+          away_team_id: awayTeam.id,
+          competition_id: dbCompetition.id,
+          home_score: m.score?.fullTime?.home ?? null,
+          away_score: m.score?.fullTime?.away ?? null,
+        },
+      });
+    }
+    console.log(`✅ ${matches.length} matchs synchronisés avec succès.`);
+  } catch (error) {
+    console.error("❌ Erreur de synchronisation détaillée:", error);
+    throw error;
   }
 }
