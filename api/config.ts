@@ -1,7 +1,7 @@
 export const config = {
     port: Number.parseInt(process.env.PORT || "3000"),
     allowedOrigin: getEnv(process.env.ALLOWED_ORIGIN, "ALLOWED_ORIGIN"),
-    //jwtSecret: getEnv(process.env.JWT_SECRET, "JWT_SECRET")
+    jwtSecret: getEnv(process.env.JWT_SECRET, "JWT_SECRET")
 };
 
 
