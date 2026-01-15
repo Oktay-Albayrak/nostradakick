@@ -1,7 +1,16 @@
 import MatchCard from "@/components/matchCard/MatchCard";
 import styles from "./page.module.css";
+import { IMatch } from "@/types/match";
 
 export default async function Matchs() {
+  const response = await fetch("http://localhost:3000/api/matchs");
+  if (!response.ok) {
+    return <div>Erreur lors du chargement des matchs</div>;
+  }
+
+  const matchs: IMatch[] = await response.json();
+  const featuredMatchs = matchs.slice(0, 3);
+
   return (
     <div className={styles.container}>
       {/* 1. BARRE DE RECHERCHE (Visible uniquement sur Desktop) */}
@@ -38,28 +47,27 @@ export default async function Matchs() {
         {/* 4. COLONNE CENTRALE : MATCHS À VENIR */}
         <main className={styles.matchsContent}>
           <h1 className={styles.sectionTitle}>Matchs à venir</h1>
-          <MatchCard />
-          <MatchCard />
-          <MatchCard isHot={true} />
-          <MatchCard isHot={true} />
-          <MatchCard />
-          <MatchCard isHot={true} />
-          <MatchCard isHot={true} />
-          <MatchCard />
-          <MatchCard isHot={true} />
-          <MatchCard isHot={true} />
+          <div className={styles.matchGrid}>
+            {matchs.length > 0 ? (
+              matchs.map((m) => <MatchCard key={m.id} match={m} />)
+            ) : (
+              <p>Aucun match prévu pour le moment.</p>
+            )}
+          </div>
         </main>
 
         {/* 5. COLONNE DROITE : À L'AFFICHE */}
         <aside className={styles.featuredSection}>
           <h2 className={styles.sidebarTitle}>A l&apos;Affiche</h2>
           <div className={styles.featuredGrid}>
-            {/* Cartes plus petites */}
-            <MatchCard showPredictions={false} isHot={true} />
-            <MatchCard showPredictions={false} />
-            <MatchCard showPredictions={false} />
-            <MatchCard showPredictions={false} />
-            <MatchCard showPredictions={false} />
+            {featuredMatchs.map((m) => (
+              <MatchCard
+                key={`featured-${m.id}`}
+                match={m}
+                showPredictions={false}
+                isHot={true}
+              />
+            ))}
           </div>
         </aside>
       </section>
