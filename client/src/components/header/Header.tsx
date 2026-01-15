@@ -21,7 +21,7 @@ export default function Header() {
             alt="Logo - Retourner vers l'accueil"
           />
         </Link>
-        <Link className={styles.navlinks} href="/accueil">Accueil</Link>
+        <Link className={styles.navlinks} href="/">Accueil</Link>
         <Link className={styles.navlinks} href="/matchs">Matchs</Link>
         <Link className={styles.navlinks} href="/pronos">Pronos</Link>
       </nav>

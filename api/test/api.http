@@ -17,4 +17,14 @@ GET http://localhost:3000/api/matches/2007
 GET http://localhost:3000/api/predictions
 
 ### Get One Predictions
-GET http://localhost:3000/api/predictions/88dde2de-1be4-4cbc-8b1b-4e760728708j
+GET http://localhost:3000/api/predictions/88dde2de-1be4-4cbc-8b1b-4e760728708f
+
+### Create one Prediction
+POST http://localhost:3000/api/predictions
+Content-Type: application/json
+
+{
+  "user_id": "24eeeca0-344f-4634-a60b-90b7fdab5c6f",
+  "match_id": "69d27a15-4fb8-45f2-8018-8ed2bb55359a",
+  "prediction_value": "HOME"
+}

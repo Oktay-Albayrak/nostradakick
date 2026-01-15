@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.ts";
-import { includes, z } from "zod";
-import { PredictionValue } from "../../generated/prisma/enums.ts";
+import { z } from "zod";
 
 
 
@@ -56,7 +55,7 @@ export async function getOneUser(req: Request, res: Response) {
     omit: { 
         password_hash: true, 
         email: true },
-    include: {
+    include: { // on inclut pour un user les données suivants: stats, predictions, matchs; en excluant les données inutiles 
         stats: true,
         predictions: {
             include: {
