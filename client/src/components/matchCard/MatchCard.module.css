@@ -114,7 +114,7 @@
 }
 
 /* --- TABLETTE ET DESKTOP (>= 768px) --- */
-@media (min-width: 768px) {
+@media (min-width: 650px) {
   .btnFullName {
     display: inline; /* Affiche le nom complet */
     font-size: 1rem;
