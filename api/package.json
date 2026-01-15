@@ -6,6 +6,7 @@
   "scripts": {
     "========= Pour la BDD prisma =========": "===========================",
     "db:seed": "ts-node prisma/seed.ts",
+    "db:seed:v2": "ts-node prisma/seedV2.ts",
     "db:generate": "prisma generate",
     "db:migrate:dev": "prisma migrate dev",
     "db:studio": "prisma studio",
