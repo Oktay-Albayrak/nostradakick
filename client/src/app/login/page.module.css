@@ -1,0 +1,131 @@
+.page {
+  min-height: calc(100vh - 200px);
+  padding: 2rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  width: 100%;
+  max-width: 1000px;
+  background: var(--white);
+  border-radius: 10px;
+  box-shadow: var(--box-shadow);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.leftPane,
+.rightPane {
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-size: 1.6rem;
+  margin-bottom: 1.5rem;
+}
+
+.subtitle {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.helperText {
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-weight: 500;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  border: 1px solid var(--dark-grey);
+  font-size: 1rem;
+}
+
+.passwordWrapper {
+  position: relative;
+}
+
+.passwordIcon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.9rem;
+  opacity: 0.6;
+}
+
+.forgotRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.forgotLink {
+  font-size: 0.9rem;
+  text-decoration: underline;
+}
+
+.submitButton {
+  margin-top: 0.5rem;
+  width: 100%;
+  padding: 0.9rem;
+  background: #3562a6;
+  color: var(--white);
+  border: none;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 500;
+  text-transform: none;
+  font-family: var(--primary-font);
+  cursor: pointer;
+}
+
+.submitButton:hover {
+  opacity: 0.9;
+}
+
+.secondaryButton {
+  display: inline-block;
+  width: 100%;
+  padding: 0.9rem;
+  text-align: center;
+  background: #3562a6;
+  color: var(--white);
+  border-radius: 999px;
+  font-weight: 500;
+  text-transform: none;
+  font-family: var(--primary-font);
+}
+
+.secondaryButton:hover {
+  opacity: 0.9;
+}
+
+@media (min-width: 900px) {
+  .card {
+    grid-template-columns: 3fr 2fr;
+    padding: 3rem 3.5rem;
+  }
+}
+
