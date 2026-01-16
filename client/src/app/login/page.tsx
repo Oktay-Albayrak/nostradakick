@@ -1,14 +1,51 @@
+"use client"
+
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import styles from "./page.module.css";
 
 export default function LoginPage() {
+
+  const router = useRouter();
+
+  async function handleForm(formData: FormData) {
+    const email = formData.get("email");
+    const password = formData.get("password");
+
+    try {
+      const response = await fetch("http://localhost:3001/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password
+        }),
+        credentials: 'include',
+      })
+      if (response.status >= 300) {
+        console.log("erreur survenue");
+      } else {
+        //En cas de reussite !
+        const userData = await response.json();
+        console.log(userData);
+        router.refresh();
+        await new Promise(resolve => setTimeout(resolve, 500));
+        router.push("/");
+      }
+    } catch (e) {
+      console.error("error : ", e as Error);
+    }
+  }
+
   return (
     <main className={styles.page}>
       <section className={styles.card}>
         <div className={styles.leftPane}>
           <h1 className={styles.title}>Se connecter</h1>
 
-          <form className={styles.form}>
+          <form action={handleForm} className={styles.form}>
             <label className={styles.field}>
               <span className={styles.label}>Adresse e-mail</span>
               <input
