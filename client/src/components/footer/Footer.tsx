@@ -11,7 +11,7 @@ export default function Footer() {
         <nav className={styles.footerNav} aria-label="Pied de page">
           <ul>
             <li>
-              <Link href="/about">À propos</Link>
+              <Link href="/a-propos">À propos</Link>
             </li>
             <li>
               <Link href="/mentions-legales">Mentions légales</Link>
