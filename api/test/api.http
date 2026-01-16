@@ -67,3 +67,15 @@ Content-Type: application/json
   "match_id": "00000000-4000-4000-9000-00000000000d",
   "prediction_value": "HOME"
 }
+
+### Test sync TOUTES les ligues
+GET http://localhost:4000/api/admin/test-sync-all
+
+### Test sync UNE ligue (Champions League)
+GET http://localhost:4000/api/admin/test-sync-one
+
+### Vérifier les matches créées
+GET http://localhost:4000/api/admin/test-sync-one?league=FL1
+
+### Dans api.http, lance les endpoints de test
+GET http://localhost:4000/api/admin/test-sync-all
