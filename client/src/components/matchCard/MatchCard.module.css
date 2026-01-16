@@ -40,7 +40,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f9f9f9;
+  background: var(--white);
   border-radius: 4px;
   margin-bottom: 0.5rem;
 }
@@ -52,16 +52,21 @@
 }
 
 .dateTime {
-  text-align: center;
-  flex: 0.5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-.dateText {
-  font-size: 0.8rem;
+.dateLabel {
+  font-size: 0.9rem;
+  text-transform: capitalize;
   color: #666;
 }
-.timeText {
-  font-size: 1rem;
+
+.timeLabel {
+  font-size: 1.1rem;
   font-weight: bold;
   color: var(--primary);
 }

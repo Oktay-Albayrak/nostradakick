@@ -17,14 +17,45 @@ export default function MatchCard({
   if (!match) return null;
 
   // On utilise les vraies données issues de Prisma
+  const { day, time } = getFormattedDate(match.date);
   const homeTeam = match.home_team;
   const awayTeam = match.away_team;
 
   // Formatage propre de l'heure
-  const matchTime = new Date(match.date).toLocaleTimeString("fr-FR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  function getFormattedDate(dateString: string) {
+    const matchDate = new Date(dateString);
+    const now = new Date();
+
+    // Comparaison des jours
+    const isToday = matchDate.toDateString() === now.toDateString();
+
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+    const isTomorrow = matchDate.toDateString() === tomorrow.toDateString();
+
+    const time = matchDate.toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    let day = "";
+    if (isToday) {
+      day = "Aujourd'hui";
+    } else if (isTomorrow) {
+      day = "Demain";
+    } else {
+      const dayName = matchDate.toLocaleDateString("fr-FR", {
+        weekday: "long",
+      });
+      const dayMonth = matchDate.toLocaleDateString("fr-FR", {
+        day: "2-digit",
+        month: "2-digit",
+      });
+      day = `${dayName} ${dayMonth}`;
+    }
+
+    return { day, time };
+  }
 
   const cardClassName = `${styles.card} ${
     !showPredictions ? styles.compactCard : ""
@@ -56,7 +87,8 @@ export default function MatchCard({
           </div>
           {/* TIMESTAMP */}
           <div className={styles.dateTime}>
-            <div className={styles.time}>{matchTime}</div>
+            <span className={styles.dateLabel}>{day}</span>
+            <span className={styles.timeLabel}>{time}</span>
           </div>
           {/* AWAY TEAM */}
           <div className={styles.teamBox}>
