@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.ts";
 import * as oneUserService from "../user_services/oneUser.service.ts"
 import * as updateUserService from "../user_services/updateUser.service.ts"
+import * as deleteUserService from "../user_services/deleteOneUser.service.ts"
 import { usernameSchema, uuidSchema } from "../user_validations/utils.validation.ts";
 import { updateUserSchema } from "../user_validations/user.validation.ts";
 import { ZodError } from "zod";
@@ -97,4 +98,33 @@ export async function updateOneUser(req: Request, res: Response) {
     console.error( "Erreur dans le controleur, partie updateOneUser :", error );
     res.status(500).json({ message: "Erreur interne du serveur" })
   }
+}
+
+export async function deleteOneUser(req: Request, res: Response) {
+
+    try {
+    // Validation et récupération de l'ID depuis les paramètres de l'URL
+    const { id } = uuidSchema.parse(req.params);
+
+    // Vérification dans la bdd si l'utilisateur existe
+    const userFound = await oneUserService.findUserById(id);
+
+    // Si aucune correspondance, on affiche une 404 avec un message d'erreur
+    if (!userFound) {
+        return res.status(404).json({ message: "Utilisateur introuvable"});
+    }
+
+    // Si l'utilisateur existe, on le supprime
+    await deleteUserService.deleteUser(id);
+
+    // Message de succès renvoyé à l'utilisateur
+    res.json({message: "Utilisateur supprimé"})
+    
+    // erreur renvoyé en cas de problème du serveur ou autre
+    } catch (error) {
+        console.error("Erreur lors de la suppression de l'utilisateur :", error);
+        res.status(500).json({ 
+            message: "erreur interne du serveur"
+        });
+    }
 }
