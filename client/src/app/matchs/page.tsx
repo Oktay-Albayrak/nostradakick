@@ -11,11 +11,8 @@ export default async function Matchs() {
     return <div>Erreur lors du chargement des matchs</div>;
   }
 
-  /* const matchs: IMatch[] = await response.json(); */
   const initialMatches: IMatch[] = await response.json();
   const featuredMatchs = initialMatches.slice(0, 6);
-  /* const featuredMatchs = matchs.slice(0, 3);
-  const displayMatches = matchs.slice(0, 50); */
 
   return (
     <div className={styles.container}>
@@ -54,11 +51,6 @@ export default async function Matchs() {
         <main className={styles.matchsContent}>
           <h1 className={styles.sectionTitle}>Matchs à venir</h1>
           <div className={styles.matchGrid}>
-            {/* {displayMatches.length > 0 ? (
-              displayMatches.map((m) => <MatchCard key={m.id} match={m} />) 
-            ) : (
-              <p>Aucun match prévu pour le moment.</p>
-            )} */}
             <InfiniteMatches initialMatches={initialMatches} />;
           </div>
         </main>

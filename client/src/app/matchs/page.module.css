@@ -1,5 +1,6 @@
 /* --- MOBILE FIRST --- */
 .container {
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   padding: 1rem;
@@ -64,7 +65,15 @@
   color: var(--primary);
 }
 
+.matchsContent {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  width: 100%;
+}
+
 .matchCard {
+  width: 100%;
   background-color: var(--white);
   color: var(--primary);
   padding: 1.5rem;
@@ -102,17 +111,19 @@
   }
 }
 
-/* --- TABLETTE ET DESKTOP (>= 870px) --- */
-@media (min-width: 998px) {
+/* --- TABLETTE ET DESKTOP (>= 998px) --- */
+@media (min-width: 1120px) {
   .mobileFilters {
     display: none;
   }
 
   .mainGrid {
     display: grid;
-    grid-template-columns: 250px 1fr 300px;
+    grid-template-columns: 250px 1fr 400px;
     gap: 2rem;
     align-items: start;
+    position: relative;
+    width: 100%;
   }
 
   .competitionList,
@@ -124,6 +135,8 @@
     border-radius: 8px;
     box-shadow: var(--box-shadow);
     height: fit-content; /* S'adapte au contenu */
+    position: sticky;
+    top: 20px;
   }
 
   .sidebarTitle {
