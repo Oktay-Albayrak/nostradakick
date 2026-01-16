@@ -16,13 +16,13 @@ import { prisma } from "../src/lib/prisma.ts";
 function generateFixedUuid(type: 'user' | 'comp' | 'team' | 'match' | 'pred', index: number): string {
   const prefixes = { user: '1', comp: '2', team: '3', match: '4', pred: '5' };
   const hexIndex = index.toString(16).padStart(12, '0');
-  return `00000000-0000-4000-${prefixes[type]}000-${hexIndex}`;
+  return `00000000-${prefixes[type]}000-4000-9000-${hexIndex}`;
 }
 
 // --- DONNÉES DE CONFIGURATION ---
 const COMPETITIONS = [
   {
-    id: '10000000-0000-0000-0000-000000000001',
+    id: '10000000-0000-4000-9000-000000000001',
     api_id: 2001,
     name: 'Champions League',
     code: 'CL',
@@ -30,7 +30,7 @@ const COMPETITIONS = [
     emblem_url: 'https://crests.football-data.org/CL.png',
   },
   {
-    id: '10000000-0000-0000-0000-000000000002',
+    id: '10000000-0000-4000-9000-000000000002',
     api_id: 2015,
     name: 'Ligue 1',
     code: 'FL1',
@@ -38,7 +38,7 @@ const COMPETITIONS = [
     emblem_url: 'https://crests.football-data.org/L1.png',
   },
   {
-    id: '10000000-0000-0000-0000-000000000003',
+    id: '10000000-0000-4000-9000-000000000003',
     api_id: 2021,
     name: 'Premier League',
     code: 'PL',
@@ -46,7 +46,7 @@ const COMPETITIONS = [
     emblem_url: 'https://crests.football-data.org/PL.png',
   },
   {
-    id: '10000000-0000-0000-0000-000000000004',
+    id: '10000000-0000-4000-9000-000000000004',
     api_id: 2014,
     name: 'La Liga',
     code: 'PD',
@@ -56,14 +56,14 @@ const COMPETITIONS = [
 ];
 
 const TEAMS = [
-  { id: '20000000-0000-0000-0000-000000000001', api_id: 524, name: 'Paris Saint-Germain', tla: 'PSG', country: 'France' },
-  { id: '20000000-0000-0000-0000-000000000002', api_id: 516, name: 'Marseille', tla: 'OM', country: 'France' },
-  { id: '20000000-0000-0000-0000-000000000003', api_id: 64, name: 'Liverpool FC', tla: 'LIV', country: 'England' },
-  { id: '20000000-0000-0000-0000-000000000004', api_id: 65, name: 'Manchester City', tla: 'MCI', country: 'England' },
-  { id: '20000000-0000-0000-0000-000000000005', api_id: 86, name: 'Real Madrid CF', tla: 'RMA', country: 'Spain' },
-  { id: '20000000-0000-0000-0000-000000000006', api_id: 81, name: 'FC Barcelona', tla: 'FCB', country: 'Spain' },
-  { id: '20000000-0000-0000-0000-000000000007', api_id: 5, name: 'FC Bayern München', tla: 'FCB', country: 'Germany' },
-  { id: '20000000-0000-0000-0000-000000000008', api_id: 4, name: 'Borussia Dortmund', tla: 'BVB', country: 'Germany' },
+  { id: '20000000-0000-4000-9000-000000000001', api_id: 524, name: 'Paris Saint-Germain', tla: 'PSG', country: 'France' },
+  { id: '20000000-0000-4000-9000-000000000002', api_id: 516, name: 'Marseille', tla: 'OM', country: 'France' },
+  { id: '20000000-0000-4000-9000-000000000003', api_id: 64, name: 'Liverpool FC', tla: 'LIV', country: 'England' },
+  { id: '20000000-0000-4000-9000-000000000004', api_id: 65, name: 'Manchester City', tla: 'MCI', country: 'England' },
+  { id: '20000000-0000-4000-9000-000000000005', api_id: 86, name: 'Real Madrid CF', tla: 'RMA', country: 'Spain' },
+  { id: '20000000-0000-4000-9000-000000000006', api_id: 81, name: 'FC Barcelona', tla: 'FCB', country: 'Spain' },
+  { id: '20000000-0000-4000-9000-000000000007', api_id: 5, name: 'FC Bayern München', tla: 'FCB', country: 'Germany' },
+  { id: '20000000-0000-4000-9000-000000000008', api_id: 4, name: 'Borussia Dortmund', tla: 'BVB', country: 'Germany' },
 ];
 
 async function main() {
