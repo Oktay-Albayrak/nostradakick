@@ -1,13 +1,12 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
 import styles from "./Header.module.css"
+import { cookies } from "next/headers";
 
-export default function Header() {
-  const pathname = usePathname();
-  const isDashboard = pathname?.startsWith("/dashboard");
+export default async function Header() {
+
+  const cookieStore = await cookies();
+  const isLoggedIn = cookieStore.has('accessToken');
 
   return (
     <header className={styles.header}>
@@ -26,10 +25,10 @@ export default function Header() {
         <Link className={styles.navlinks} href="/pronos">Pronos</Link>
       </nav>
       <div className={styles.buttons}>
-        {!isDashboard && (
+        {!isLoggedIn && (
           <Link className={`${styles.button} ${styles.registerButton}`} href="/register">S&apos;inscrire</Link>
         )}
-        {isDashboard && (
+        {isLoggedIn && (
           <div className={styles.userIcon}>
             <Image
               src="/user-icon.png"
@@ -39,8 +38,8 @@ export default function Header() {
             />
           </div>
         )}
-        <Link className={`${styles.button} ${styles.loginButton}`} href={isDashboard ? "/logout" : "/login"}>
-          {isDashboard ? "Déconnexion" : "Se connecter"}
+        <Link className={`${styles.button} ${styles.loginButton}`} href={isLoggedIn ? "/logout" : "/login"}>
+          {isLoggedIn ? "Déconnexion" : "Se connecter"}
         </Link>
       </div>
     </header>
