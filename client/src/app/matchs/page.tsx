@@ -1,3 +1,4 @@
+import MatchCard from "@/components/matchCard/MatchCard";
 import styles from "./page.module.css";
 
 export default async function Matchs() {
@@ -18,7 +19,6 @@ export default async function Matchs() {
         <button className={styles.hotButton}>🔥 HOT</button>
         <button className={styles.filterButton}>Compétitions</button>
       </div>
-
       <section className={styles.mainGrid}>
         {/* 3. COLONNE GAUCHE : LISTE DES COMPETITIONS */}
         <aside className={styles.competitionList}>
@@ -34,58 +34,20 @@ export default async function Matchs() {
             <li>FIFA World Cup</li>
           </ul>
         </aside>
+
         {/* 4. COLONNE CENTRALE : MATCHS À VENIR */}
         <main className={styles.matchsContent}>
-          <h2 className={styles.sectionTitle}>Matchs à venir</h2>
-
-          <div className={styles.matchGrid}>
-            <div className={styles.matchCard}>
-              <p className={styles.teams}>HAC - OM</p>
-              <p className={styles.matchMeta}>Ven. 16/01</p>
-              <p className={styles.matchMeta}>21:00</p>
-            </div>
-
-            <div className={styles.matchCard}>
-              <p className={styles.teams}>PFC - OL</p>
-              <p className={styles.matchMeta}>Ven. 16/01</p>
-              <p className={styles.matchMeta}>21:00</p>
-            </div>
-
-            <div className={styles.matchCard}>
-              <p className={styles.teams}>SCF - HCS</p>
-              <p className={styles.matchMeta}>Ven. 16/01</p>
-              <p className={styles.matchMeta}>21:00</p>
-            </div>
-
-            <div className={styles.matchCard}>
-              <p className={styles.teams}>PSG - LOSC</p>
-              <p className={styles.matchMeta}>Ven. 16/01</p>
-              <p className={styles.matchMeta}>21:00</p>
-            </div>
-            <div className={styles.matchCard}>
-              <p className={styles.teams}>HAC - OM</p>
-              <p className={styles.matchMeta}>Ven. 16/01</p>
-              <p className={styles.matchMeta}>21:00</p>
-            </div>
-
-            <div className={styles.matchCard}>
-              <p className={styles.teams}>PFC - OL</p>
-              <p className={styles.matchMeta}>Ven. 16/01</p>
-              <p className={styles.matchMeta}>21:00</p>
-            </div>
-
-            <div className={styles.matchCard}>
-              <p className={styles.teams}>SCF - HCS</p>
-              <p className={styles.matchMeta}>Ven. 16/01</p>
-              <p className={styles.matchMeta}>21:00</p>
-            </div>
-
-            <div className={styles.matchCard}>
-              <p className={styles.teams}>PSG - LOSC</p>
-              <p className={styles.matchMeta}>Ven. 16/01</p>
-              <p className={styles.matchMeta}>21:00</p>
-            </div>
-          </div>
+          <h1 className={styles.sectionTitle}>Matchs à venir</h1>
+          <MatchCard />
+          <MatchCard />
+          <MatchCard isHot={true} />
+          <MatchCard isHot={true} />
+          <MatchCard />
+          <MatchCard isHot={true} />
+          <MatchCard isHot={true} />
+          <MatchCard />
+          <MatchCard isHot={true} />
+          <MatchCard isHot={true} />
         </main>
 
         {/* 5. COLONNE DROITE : À L'AFFICHE */}
@@ -93,28 +55,11 @@ export default async function Matchs() {
           <h2 className={styles.sidebarTitle}>A l&apos;Affiche</h2>
           <div className={styles.featuredGrid}>
             {/* Cartes plus petites */}
-            <div className={`${styles.matchCard} ${styles.smallCard}`}>
-              <span className={styles.hotBadge} title="Match à l'affiche">
-                🔥
-              </span>
-              <p className={styles.teams}>PFC - OL</p>
-              <p className={styles.matchMeta}>Ven. 16/01</p>
-              <p className={styles.matchMeta}>21:00</p>
-            </div>
-
-            <div className={`${styles.matchCard} ${styles.smallCard}`}>
-              {" "}
-              <p className={styles.teams}>SCF - HCS</p>
-              <p className={styles.matchMeta}>Ven. 16/01</p>
-              <p className={styles.matchMeta}>21:00</p>
-            </div>
-
-            <div className={`${styles.matchCard} ${styles.smallCard}`}>
-              {" "}
-              <p className={styles.teams}>PSG - LOSC</p>
-              <p className={styles.matchMeta}>Ven. 16/01</p>
-              <p className={styles.matchMeta}>21:00</p>
-            </div>
+            <MatchCard showPredictions={false} isHot={true} />
+            <MatchCard showPredictions={false} />
+            <MatchCard showPredictions={false} />
+            <MatchCard showPredictions={false} />
+            <MatchCard showPredictions={false} />
           </div>
         </aside>
       </section>

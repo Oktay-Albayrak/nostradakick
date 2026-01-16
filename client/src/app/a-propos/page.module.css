@@ -1,0 +1,39 @@
+.page {
+  padding: 2rem 5%;
+  background: var(--light-grey);
+}
+
+.card {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  background: var(--white);
+  border-radius: 10px;
+  box-shadow: var(--box-shadow);
+  padding: 2.5rem 3rem;
+}
+
+.title {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.section {
+  margin-top: 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.3rem;
+  margin-bottom: 0.75rem;
+}
+
+.paragraph {
+  line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .card {
+    padding: 1.75rem 1.5rem;
+  }
+}
+
