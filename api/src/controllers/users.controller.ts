@@ -1,37 +1,29 @@
 import type { Request, Response } from "express";
-import { prisma } from "../lib/prisma.ts";
-import * as oneUserService from "../user_services/oneUser.service.ts"
-import * as updateUserService from "../user_services/updateUser.service.ts"
-import { usernameSchema, uuidSchema } from "../user_validations/utils.validation.ts";
-import { updateUserSchema } from "../user_validations/user.validation.ts";
+import * as userService from "../services/user.service.ts"
+import { usernameSchema, uuidSchema } from "../validations/utils.user.validation.ts";
+import { updateUserSchema } from "../validations/user.validation.ts";
 import { ZodError } from "zod";
+
 
 
 
 
 // Fonction permettant de récupérer tout les utilisateurs
 export async function getAllUsers(req: Request, res: Response) {
+    try {
+        // Appel du service pour récupérer les utilisateurs
+        const users = await userService.findAllUsers();
 
-    // Récupère tout les utilisateurs en base de donnée
-    // "omit" permet d'exclure les champs sensibles (password_hash ici)
-    const users = await prisma.user.findMany({ 
-        select: {
-            id: true,
-            username: true,
-            email: true,
-            role: true,
-            avatar_url: true,
-            created_at: true,
-            updated_at: true
-        },
-        orderBy: { 
-            created_at: "asc",
-        },
-    });
+        // Retourne la liste des utilisateurs sans filtrage en format JSON
+        res.json(users);
+    } catch (error) {
 
-    // Retourne la liste des utilisateurs sans filtrage en format JSON
-    res.json(users);
+        // retour d'un message d'erreur si le serveur plante
+        console.error("Erreur lors de la récupération des utilisateurs (controller.getAllUser) :", error);
+        res.status(500).json({ message: "Erreur interne du serveur"})
+    }
 }
+
 
 
 
@@ -56,7 +48,7 @@ export async function getOneUser(req: Request, res: Response) {
     const username = parseResult.data; 
 
 // on recherche dans la base de donné via le userService mentionné
-    const user = await oneUserService.findUserByUsername(username)
+    const user = await userService.findUserByUsername(username)
 
     // si l'utilisateur n'existe pas on renvoie une 404
     if (!user) {
@@ -70,6 +62,8 @@ export async function getOneUser(req: Request, res: Response) {
 
 
 
+
+// Fonction permettant la mise à jour d'un utilisateur via son 'ID'
 export async function updateOneUser(req: Request, res: Response) {
   try {
     // validation des paramètres de id
@@ -78,12 +72,12 @@ export async function updateOneUser(req: Request, res: Response) {
     // validation du body
     const updateData = updateUserSchema.parse(req.body);
 
-    const userFound = await oneUserService.findUserById(id);
+    const userFound = await userService.findUserById(id);
     if (!userFound) {
         return res.status(404).json({ message: "L'utilisateur n'existe pas "});
     }
 
-    const user = await updateUserService.updateUser( id, updateData);
+    const user = await userService.updateUser( id, updateData);
     res.json(user);
 
   } catch (error) {
@@ -94,7 +88,41 @@ export async function updateOneUser(req: Request, res: Response) {
       });
     }
 
-    console.error( "Erreur dans le controleur, partie updateOneUser :", error );
+    console.error( "Erreur lors de la mise à jour de l'utilisateur (controller.updateOneUser) :", error );
     res.status(500).json({ message: "Erreur interne du serveur" })
   }
+}
+
+
+
+
+
+// Fonction permettant de supprimer un utilisateur via son 'ID'
+export async function deleteOneUser(req: Request, res: Response) {
+
+    try {
+    // Validation et récupération de l'ID depuis les paramètres de l'URL
+    const { id } = uuidSchema.parse(req.params);
+
+    // Vérification dans la bdd si l'utilisateur existe
+    const userFound = await userService.findUserById(id);
+
+    // Si aucune correspondance, on affiche une 404 avec un message d'erreur
+    if (!userFound) {
+        return res.status(404).json({ message: "Utilisateur introuvable"});
+    }
+
+    // Si l'utilisateur existe, on le supprime
+    await userService.deleteUser(id);
+
+    // Message de succès renvoyé à l'utilisateur
+    res.json({message: "Utilisateur supprimé"})
+    
+    // erreur renvoyé en cas de problème du serveur ou autre
+    } catch (error) {
+        console.error("Erreur lors de la suppression de l'utilisateur (controller.deleteOneUser):", error);
+        res.status(500).json({ 
+            message: "erreur interne du serveur"
+        });
+    }
 }

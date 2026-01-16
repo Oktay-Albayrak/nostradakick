@@ -29,7 +29,7 @@ Cookies: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1YTBlMD
 GET http://localhost:4000/api/users
 
 ### Get One User
-GET http://localhost:4000/api/users/user_1
+GET http://localhost:4000/api/users/user_9
 
 ### Mise à jour multiple de plusieurs champs d'un utilisateur
 PATCH http://localhost:4000/api/users/f5f503b4-5861-4149-b868-5c9597415757
@@ -42,6 +42,9 @@ Content-Type: application/json
   "password": "Jesuis.membre1",
   "confirmPassword": "Jesuis.membre1"
 }
+
+### Delete ONE User
+DELETE http://localhost:4000/api/users/3a9f3244-c29c-4b25-b2ed-3ecf5dae5c21
 
 ### Get All Matches
 GET http://localhost:4000/api/matches
