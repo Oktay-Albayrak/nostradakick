@@ -1,6 +1,11 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.ts";
-import { z } from "zod";
+import * as oneUserService from "../user_services/oneUser.service.ts"
+import * as updateUserService from "../user_services/updateUser.service.ts"
+import { usernameSchema, uuidSchema } from "../user_validations/utils.validation.ts";
+import { updateUserSchema } from "../user_validations/user.validation.ts";
+import { ZodError } from "zod";
+
 
 
 
@@ -10,7 +15,15 @@ export async function getAllUsers(req: Request, res: Response) {
     // Récupère tout les utilisateurs en base de donnée
     // "omit" permet d'exclure les champs sensibles (password_hash ici)
     const users = await prisma.user.findMany({ 
-        omit: { password_hash: true },
+        select: {
+            id: true,
+            username: true,
+            email: true,
+            role: true,
+            avatar_url: true,
+            created_at: true,
+            updated_at: true
+        },
         orderBy: { 
             created_at: "asc",
         },
@@ -26,14 +39,8 @@ export async function getAllUsers(req: Request, res: Response) {
 // Fonction permettant de récupérer un utilisateur via son 'username'
 export async function getOneUser(req: Request, res: Response) {
 
-    // on définit un schéma de validation pour le username (doit être une chaîne de caractères valide)
-    // afin d'éviter des erreurs avec TypeScript et Prisma
-    const usernameSchema = z.string()
-    .min(3) // minimum 3 caractères
-    .max(50) // maximum 50 caractères
-    .regex(/^[a-zA-Z0-9_]+$/); // caractères autorisés
 
-    // On valide le username avec le schéma Zod. Si la validation échoue, on retourne une erreur 400
+    // On valide le username en important le schéma Zod du dossier validations. Si la validation échoue, on retourne une erreur 400
     const parseResult = usernameSchema.safeParse(req.params.username);
 
 
@@ -48,42 +55,8 @@ export async function getOneUser(req: Request, res: Response) {
     // si validation réussi on récupère le username validé de la base de donnée
     const username = parseResult.data; 
 
-
-    // on recherche dans la base de donné pour montré seulement 1 utilisateur en excluant les champs sensibles (password_hash email)
-    const user = await prisma.user.findUnique({
-    where: { username },
-    omit: { 
-        password_hash: true, 
-        email: true },
-    include: { // on inclut pour un user les données suivants: stats, predictions, matchs; en excluant les données inutiles 
-        stats: true,
-        predictions: {
-            include: {
-                match: {
-                    include: {
-                        home_team: { 
-                            omit: { 
-                                created_at: true, 
-                                updated_at: true, 
-                                api_id: true 
-                            }},
-                        away_team:  { 
-                            omit: { 
-                                created_at: true, 
-                                updated_at: true, 
-                                api_id: true 
-                            }},
-                    },
-                    omit: {
-                        created_at: true,
-                        updated_at: true,
-                        api_id: true,
-                    }
-                },
-            }
-        },
-    },
-    });
+// on recherche dans la base de donné via le userService mentionné
+    const user = await oneUserService.findUserByUsername(username)
 
     // si l'utilisateur n'existe pas on renvoie une 404
     if (!user) {
@@ -92,4 +65,36 @@ export async function getOneUser(req: Request, res: Response) {
 
     // on retourne les données au format JSON
     res.json(user);
+}
+
+
+
+
+export async function updateOneUser(req: Request, res: Response) {
+  try {
+    // validation des paramètres de id
+    const { id } = uuidSchema.parse(req.params);
+
+    // validation du body
+    const updateData = updateUserSchema.parse(req.body);
+
+    const userFound = await oneUserService.findUserById(id);
+    if (!userFound) {
+        return res.status(404).json({ message: "L'utilisateur n'existe pas "});
+    }
+
+    const user = await updateUserService.updateUser( id, updateData);
+    res.json(user);
+
+  } catch (error) {
+    if ( error instanceof ZodError) {
+      return res.status(400).json({
+        error: "Données invalide",
+        details: error.issues.map((issue) => issue.message),
+      });
+    }
+
+    console.error( "Erreur dans le controleur, partie updateOneUser :", error );
+    res.status(500).json({ message: "Erreur interne du serveur" })
+  }
 }
