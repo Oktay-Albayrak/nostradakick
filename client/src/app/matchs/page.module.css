@@ -17,7 +17,7 @@
   display: flex;
   gap: 10px;
   overflow-x: auto; /* Permet le défilement horizontal */
-  padding-bottom: 10px; /* Espace pour ne pas coller à la barre de défilement */
+  padding-bottom: 10px;
   margin-bottom: 2rem;
   scrollbar-width: none; /* Cache la scrollbar sur Firefox */
 }
@@ -64,7 +64,6 @@
   color: var(--primary);
 }
 
-/* Match Cards Mobile */
 .matchCard {
   background-color: var(--white);
   color: var(--primary);
@@ -84,8 +83,8 @@
   color: #666;
 }
 
-/* --- TABLETTE ET DESKTOP (>= 768px) --- */
-@media (min-width: 768px) {
+/* --- TABLETTE ET DESKTOP (>= 650px) --- */
+@media (min-width: 650px) {
   .searchSection {
     display: block;
     max-width: 900px;
@@ -101,14 +100,18 @@
     background: var(--white);
     color: var(--dark);
   }
+}
+
+/* --- TABLETTE ET DESKTOP (>= 870px) --- */
+@media (min-width: 998px) {
   .mobileFilters {
     display: none;
-  } /* On cache les boutons de scroll */
+  }
 
   .mainGrid {
     display: grid;
-    grid-template-columns: 200px 1fr 240px;
-    gap: 1.5rem;
+    grid-template-columns: 250px 1fr 300px;
+    gap: 2rem;
     align-items: start;
   }
 
@@ -131,7 +134,7 @@
     padding-bottom: 0.5rem;
   }
 
-  /* Liste verticale gauche */
+  /* COLONNE GAUCHE : LISTE DES COMPETITIONS */
   .competitionList ul {
     list-style: none;
   }
@@ -146,52 +149,10 @@
     color: var(--white);
   }
 
-  /* Petites cartes à droite */
-  .smallCard {
-    position: relative;
-    background: var(--white);
-    color: var(--primary);
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 0.8rem;
-    border: none;
-    box-shadow: var(--box-shadow);
-  }
-
-  .smallCard strong {
-    color: var(--white);
-  }
-
-  .hotBadge {
-    position: absolute;
-    /* On le fait sortir de 15px vers le haut et 10px vers la droite */
-    top: -15px;
-    right: -5px;
-
-    background: var(--action-color);
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
+  /* COLONNE DROITE : À L'AFFICHE */
+  .featuredGrid {
     display: flex;
-    align-items: center;
-    justify-content: center;
-
-    font-size: 1.2rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    border: 2px solid var(--primary);
-    /* Animation pour rendre le "HOT" vivant */
-    animation: pulseHot 2s infinite;
-  }
-}
-
-@keyframes pulseHot {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
+    flex-direction: column;
+    margin-top: 1rem;
   }
 }
