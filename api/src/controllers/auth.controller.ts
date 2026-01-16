@@ -64,7 +64,7 @@ export async function registerUser(req: Request, res: Response) {
   } catch (error) {
     // Gère les erreurs de validation Zod
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ errors: z.prettifyError(error) });
+      return res.status(400).json({ error: z.prettifyError(error) });
     }
     throw error;
   }
@@ -127,6 +127,13 @@ export async function getAuthenticatedUser(req: Request, res: Response) {
 
   // Le renvoyer
   res.json(user);
+}
+
+export async function logoutUser(req: Request, res: Response) {
+  // le backend renvoie des nouveaux cookies "vierges" pour écraser ceux qui sont côté client
+
+  res.clearCookie("accessToken");
+  res.status(204).end(); // No Content
 }
 
 function setTokensInCookies(res: Response, accessToken: string) {

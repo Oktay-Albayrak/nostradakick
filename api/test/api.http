@@ -1,8 +1,8 @@
 ### Health Check
-GET http://localhost:3000/api/health
+GET http://localhost:4000/api/health
 
 ### Register user
-POST http://localhost:3000/api/auth/register
+POST http://localhost:4000/api/auth/register
 Content-Type: application/json
 
 {
@@ -12,7 +12,7 @@ Content-Type: application/json
 }
 
 ### Login user
-POST http://localhost:3000/api/auth/login
+POST http://localhost:4000/api/auth/login
 Content-Type: application/json
 
 {
@@ -21,34 +21,46 @@ Content-Type: application/json
 }
 
 ### auth/me
-GET http://localhost:3000/api/auth/me
+GET http://localhost:4000/api/auth/me
 Cookies: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1YTBlMDMyNi1iMmRiLTQ0YWEtYjY1NC03OTA5NmFhYTQ2MjAiLCJ1c2VyUm9sZSI6Ik1FTUJFUiIsImlhdCI6MTc2ODQ4NTU3MiwiZXhwIjoxNzY4NDg5MTcyfQ.Wg10Gn5LqAR3ePcdd8vUqZgGXLFU8hNn_X85wIkpuiE
 
 
 ### Get All Users
-GET http://localhost:3000/api/users
+GET http://localhost:4000/api/users
 
 ### Get One User
-GET http://localhost:3000/api/users/user_1
+GET http://localhost:4000/api/users/user_1
 
-### Get All Matches
-GET http://localhost:3000/api/matches
-
-### Get Match by ID
-GET http://localhost:3000/api/matches/2007
-
-### Get All Predictions
-GET http://localhost:3000/api/predictions
-
-### Get One Predictions
-GET http://localhost:3000/api/predictions/88dde2de-1be4-4cbc-8b1b-4e760728708f
-
-### Create one Prediction
-POST http://localhost:3000/api/predictions
+### Mise à jour multiple de plusieurs champs d'un utilisateur
+PATCH http://localhost:4000/api/users/f5f503b4-5861-4149-b868-5c9597415757
 Content-Type: application/json
 
 {
-  "user_id": "24eeeca0-344f-4634-a60b-90b7fdab5c6f",
-  "match_id": "69d27a15-4fb8-45f2-8018-8ed2bb55359a",
+  "username": "JesuisAdminMec",
+  "email": "admin@admin.com",
+  "avatar_url": "https://admin.com/grand-admin.png",
+  "password": "Jesuis.membre1",
+  "confirmPassword": "Jesuis.membre1"
+}
+
+### Get All Matches
+GET http://localhost:4000/api/matches
+
+### Get Match by ID
+GET http://localhost:4000/api/matches/2007
+
+### Get All Predictions
+GET http://localhost:4000/api/predictions
+
+### Get One Predictions
+GET http://localhost:4000/api/predictions/00000000-5000-4000-9000-000000000044
+
+### Create one Prediction
+POST http://localhost:4000/api/predictions
+Content-Type: application/json
+
+{
+  "user_id": "00000000-1000-4000-9000-000000000001",
+  "match_id": "00000000-4000-4000-9000-00000000000d",
   "prediction_value": "HOME"
 }
