@@ -1,12 +1,13 @@
+"use client"
+
 import Link from "next/link";
 import Image from "next/image";
 import styles from "./Header.module.css"
-import { cookies } from "next/headers";
+import { useAuth } from "@/context/AuthContext";
 
-export default async function Header() {
+export default function Header() {
 
-  const cookieStore = await cookies();
-  const isLoggedIn = cookieStore.has('accessToken');
+  const { isLoggedIn } = useAuth();
 
   return (
     <header className={styles.header}>
