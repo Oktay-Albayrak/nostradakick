@@ -1,8 +1,8 @@
 ### Health Check
-GET http://localhost:3000/api/health
+GET http://localhost:4000/api/health
 
-### Register user
-POST http://localhost:3000/api/auth/register
+### POST user (register)
+POST http://localhost:4000/api/auth/register
 Content-Type: application/json
 
 {
@@ -26,25 +26,37 @@ Cookies: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1YTBlMD
 
 
 ### Get All Users
-GET http://localhost:3000/api/users
+GET http://localhost:4000/api/users
 
 ### Get One User
-GET http://localhost:3000/api/users/user_1
+GET http://localhost:4000/api/users/user_1
+
+### Mise à jour multiple de plusieurs champs d'un utilisateur
+PATCH http://localhost:4000/api/users/f5f503b4-5861-4149-b868-5c9597415757
+Content-Type: application/json
+
+{
+  "username": "JesuisAdminMec",
+  "email": "admin@admin.com",
+  "avatar_url": "https://admin.com/grand-admin.png",
+  "password": "Jesuis.membre1",
+  "confirmPassword": "Jesuis.membre1"
+}
 
 ### Get All Matches
-GET http://localhost:3000/api/matches
+GET http://localhost:4000/api/matches
 
 ### Get Match by ID
-GET http://localhost:3000/api/matches/2007
+GET http://localhost:4000/api/matches/2007
 
 ### Get All Predictions
-GET http://localhost:3000/api/predictions
+GET http://localhost:4000/api/predictions
 
 ### Get One Predictions
-GET http://localhost:3000/api/predictions/88dde2de-1be4-4cbc-8b1b-4e760728708f
+GET http://localhost:4000/api/predictions/eb52a6aa-5672-4578-a237-b6b993bd2243
 
 ### Create one Prediction
-POST http://localhost:3000/api/predictions
+POST http://localhost:4000/api/predictions
 Content-Type: application/json
 
 {
