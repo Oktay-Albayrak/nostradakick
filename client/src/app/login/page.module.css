@@ -90,7 +90,7 @@
   margin-top: 0.5rem;
   width: 100%;
   padding: 0.9rem;
-  background: #3562a6;
+  background: var(--secondary);
   color: var(--white);
   border: none;
   border-radius: 999px;
@@ -110,7 +110,7 @@
   width: 100%;
   padding: 0.9rem;
   text-align: center;
-  background: #3562a6;
+  background: var(--secondary);
   color: var(--white);
   border-radius: 999px;
   font-weight: 500;
