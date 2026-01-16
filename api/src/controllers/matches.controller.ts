@@ -2,23 +2,49 @@ import { prisma } from "../lib/prisma.ts";
 import type { Request, Response } from "express";
 
 export async function getAllMatches(req: Request, res: Response) {
-  const matches = await prisma.match.findMany({
-    include: {
-      home_team: true,
-      away_team: true,
-      competition: true,
-    },
-    orderBy: {
-      date: "asc",
-    },
-  });
-  res.json(matches);
+  try {
+    // Récupération des paramètres (ex: ?page=1&limit=10)
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    // Exemple: Page demandée: 2 => Calcul: (2 - 1) * 10 = 10 (On saute les 10 premiers, on prends de 11 à 20)
+    const skip = (page - 1) * limit;
+
+    const matches = await prisma.match.findMany({
+      where: {
+        // On ne veut que les matchs qui ne sont pas finis
+        // OU ceux qui commencent à partir de maintenant
+        status: {
+          in: ["SCHEDULED", "TIMED", "IN_PLAY", "PAUSED"],
+        },
+        date: {
+          gte: new Date(), // gte = Greater Than or Equal (Plus grand ou égal à maintenant)
+        },
+      },
+      take: limit,
+      skip: skip,
+      include: {
+        home_team: true,
+        away_team: true,
+        competition: true,
+      },
+      orderBy: {
+        date: "asc", // Les plus proches en premier
+      },
+    });
+    res.json(matches);
+  } catch (e) {
+    console.error(e);
+    res
+      .status(500)
+      .json({ message: "Erreur lors de la récupération des matches" });
+  }
 }
 
 export async function getOneMatch(req: Request, res: Response) {
   const { api_id } = req.params;
 
-  // We check if api_id is present and not an array
+  // On verifie que l'api_id est bien present
   if (!api_id || typeof api_id !== "string") {
     return res.status(400).json({ message: "Paramètre apiId invalide." });
   }
