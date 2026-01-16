@@ -1,0 +1,78 @@
+.page {
+  padding: 2rem 5%;
+  background: var(--light-grey);
+  min-height: calc(100vh - 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  background: var(--white);
+  border-radius: 10px;
+  box-shadow: var(--box-shadow);
+  padding: 2.5rem 3rem;
+  text-align: center;
+}
+
+.title {
+  font-size: 4rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--primary);
+}
+
+.subtitle {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: var(--dark);
+}
+
+.section {
+  margin-top: 1.5rem;
+}
+
+.paragraph {
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.button {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  background: var(--primary);
+  color: var(--white);
+  border-radius: 5px;
+  font-weight: 500;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  text-decoration: none;
+}
+
+.button:hover {
+  background: var(--secondary);
+  box-shadow: var(--hover-box-shadow);
+}
+
+@media (max-width: 600px) {
+  .card {
+    padding: 1.75rem 1.5rem;
+  }
+
+  .title {
+    font-size: 3rem;
+  }
+
+  .subtitle {
+    font-size: 1.5rem;
+  }
+}
