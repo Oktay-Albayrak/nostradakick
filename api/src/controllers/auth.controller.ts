@@ -64,7 +64,7 @@ export async function registerUser(req: Request, res: Response) {
   } catch (error) {
     // Gère les erreurs de validation Zod
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ errors: z.prettifyError(error) });
+      return res.status(400).json({ error: z.prettifyError(error) });
     }
     throw error;
   }
