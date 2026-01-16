@@ -129,6 +129,13 @@ export async function getAuthenticatedUser(req: Request, res: Response) {
   res.json(user);
 }
 
+export async function logoutUser(req: Request, res: Response) {
+  // le backend renvoie des nouveaux cookies "vierges" pour écraser ceux qui sont côté client
+
+  res.clearCookie("accessToken");
+  res.status(204).end(); // No Content
+}
+
 function setTokensInCookies(res: Response, accessToken: string) {
   res.cookie("accessToken", accessToken, {
     maxAge: 1 * 60 * 60 * 1000, // 1h en MS
