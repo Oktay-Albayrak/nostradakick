@@ -1,22 +1,24 @@
 "use client"
 
+import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
 export default function LogoutPage() {
   const router = useRouter();
 
-  async function logout() {
+  const { logout } = useAuth();
+
+  async function disconnection() {
     try {
       const response = await fetch("http://localhost:4000/api/auth/logout", {
-        method: "GET",
+        method: "POST",
         credentials: 'include'
       })
 
       if (!response.ok) {
         router.push("/404");
       }
-      router.refresh();
-      await new Promise(resolve => setTimeout(resolve, 500));
+      logout();
       router.push("/");
 
     } catch (e) {
@@ -24,7 +26,7 @@ export default function LogoutPage() {
     }
   }
 
-  logout();
+  disconnection();
   
   return (
     <></>

@@ -122,6 +122,10 @@
   opacity: 0.9;
 }
 
+.error {
+  color: red;
+}
+
 @media (min-width: 900px) {
   .card {
     grid-template-columns: 3fr 2fr;
