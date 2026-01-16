@@ -17,6 +17,18 @@ GET http://localhost:3000/api/users
 ### Get One User
 GET http://localhost:3000/api/users/user_1
 
+### Mise à jour multiple de plusieurs champs d'un utilisateur
+PATCH http://localhost:3000/api/users/ecc8e9b5-988a-45b9-af23-a4a87b488721
+Content-Type: application/json
+
+{
+  "username": "roi1",
+  "email": "admin@example.com",
+  "avatar_url": "https://exemple.com/nouvel_avatar.png",
+  "password": "NouveauMotDePasse123!",
+  "confirmPassword": "NouveauMotDePasse123!"
+}
+
 ### Get All Matches
 GET http://localhost:3000/api/matches
 
