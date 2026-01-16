@@ -3,13 +3,14 @@ import styles from "./page.module.css";
 import { IMatch } from "@/types/match";
 
 export default async function Matchs() {
-  const response = await fetch("http://localhost:5000/api/matches");
+  const response = await fetch("http://localhost:4000/api/matches");
   if (!response.ok) {
     return <div>Erreur lors du chargement des matchs</div>;
   }
 
   const matchs: IMatch[] = await response.json();
   const featuredMatchs = matchs.slice(0, 3);
+  const displayMatches = matchs.slice(0, 50);
 
   return (
     <div className={styles.container}>
@@ -48,8 +49,8 @@ export default async function Matchs() {
         <main className={styles.matchsContent}>
           <h1 className={styles.sectionTitle}>Matchs à venir</h1>
           <div className={styles.matchGrid}>
-            {matchs.length > 0 ? (
-              matchs.map((m) => <MatchCard key={m.id} match={m} />)
+            {displayMatches.length > 0 ? (
+              displayMatches.map((m) => <MatchCard key={m.id} match={m} />)
             ) : (
               <p>Aucun match prévu pour le moment.</p>
             )}

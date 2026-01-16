@@ -1,12 +1,31 @@
 import { app } from "./src/app.ts";
 import { config } from "./config.ts";
-import { syncMatchesForCompetition } from "./src/services/sync.service.ts";
+import {
+  syncAllCompetitions,
+  syncMatchesForCompetition,
+} from "./src/services/sync.service.ts";
 
 // Route temporaire pour tester le Token et la synchro
-app.get("/api/admin/test-sync", async (req, res) => {
+app.get("/api/admin/test-sync-all", async (req, res) => {
   try {
-    // On teste avec la Ligue 1 (code: FL1)
-    await syncMatchesForCompetition("FL1");
+    // On teste avec toutes les compétitions
+    await syncAllCompetitions();
+    res.json({
+      message:
+        "Synchro réussie ! Vérifie ton interface client ou Prisma Studio.",
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      error: "La synchro a échoué",
+      details: error.message,
+    });
+  }
+});
+
+app.get("/api/admin/test-sync-one", async (req, res) => {
+  try {
+    // On teste avec une compétition
+    await syncMatchesForCompetition("CL");
     res.json({
       message:
         "Synchro réussie ! Vérifie ton interface client ou Prisma Studio.",

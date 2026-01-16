@@ -1,6 +1,16 @@
 import styles from "./page.module.css";
+import MatchCard from "@/components/matchCard/MatchCard";
+import { IMatch } from "../types/match";
 
-export default function Home() {
+export default async function Home() {
+  const response = await fetch("http://localhost:4000/api/matches");
+  if (!response.ok) {
+    return <div>Erreur lors du chargement des matchs</div>;
+  }
+
+  const matchs: IMatch[] = await response.json();
+  const homeMatchs = matchs.slice(0, 6);
+
   return (
     <div className={styles.page}>
       {/* SEARCH BAR */}
@@ -20,29 +30,11 @@ export default function Home() {
           <h2 className={styles.sectionTitle}>Matchs à venir</h2>
 
           <div className={styles.matchGrid}>
-            <div className={styles.matchCard}>
-              <p className={styles.teams}>HAC - OM</p>
-              <p className={styles.matchMeta}>Ven. 16/01</p>
-              <p className={styles.matchMeta}>21:00</p>
-            </div>
-
-            <div className={styles.matchCard}>
-              <p className={styles.teams}>PFC - OL</p>
-              <p className={styles.matchMeta}>Ven. 16/01</p>
-              <p className={styles.matchMeta}>21:00</p>
-            </div>
-
-            <div className={styles.matchCard}>
-              <p className={styles.teams}>SCF - HCS</p>
-              <p className={styles.matchMeta}>Ven. 16/01</p>
-              <p className={styles.matchMeta}>21:00</p>
-            </div>
-
-            <div className={styles.matchCard}>
-              <p className={styles.teams}>PSG - LOSC</p>
-              <p className={styles.matchMeta}>Ven. 16/01</p>
-              <p className={styles.matchMeta}>21:00</p>
-            </div>
+            {matchs.length > 0 ? (
+              homeMatchs.map((m) => <MatchCard key={m.id} match={m} />)
+            ) : (
+              <p>Aucun match prévu pour le moment.</p>
+            )}
           </div>
 
           <button className={styles.primaryButton} type="button">
@@ -74,7 +66,9 @@ export default function Home() {
             </div>
 
             <div className={styles.pronoRow}>
-              <span className={styles.pronoLabel}>ParisienFou | PSG - LOSC</span>
+              <span className={styles.pronoLabel}>
+                ParisienFou | PSG - LOSC
+              </span>
               <div className={styles.picks}>
                 <span className={`${styles.pick} ${styles.pickActive}`}>1</span>
                 <span className={styles.pick}>N</span>
