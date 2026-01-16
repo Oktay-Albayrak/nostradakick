@@ -5,7 +5,7 @@ import Link from "next/link";
 import styles from "./page.module.css";
 
 export default function RegisterPage() {
-  const [messageError, setMessageError] = useState("")
+  const [messageError, setMessageError] = useState("");
   const [isRegistered, setIsRegistered] = useState(false);
   const [username, setUsername] = useState("");
 
@@ -15,7 +15,7 @@ export default function RegisterPage() {
     const password = formData.get("password");
 
     try {
-      const response = await fetch("http://localhost:3001/api/auth/register", {
+      const response = await fetch("http://localhost:4000/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -26,13 +26,13 @@ export default function RegisterPage() {
           password
         }),
       })
+      const result = await response.json();
       if (response.status >= 300) {
-        setMessageError("Une erreur est survenue, veuillez reessayer ulterieurement");
+        setMessageError(result.error);
       } else {
         //En cas de reussite !
-        const userData = await response.json();
-        console.log(userData);
-        setUsername(userData.username);
+        console.log(result);
+        setUsername(result.username);
         setIsRegistered(true);
       }
     } catch (e) {
@@ -92,7 +92,7 @@ export default function RegisterPage() {
               S&apos;inscrire
             </button>
           </form>
-          {messageError && <p>{}{messageError}</p>}
+          {messageError && <p>{messageError}</p>}
           <p className={styles.loginHint}>
             Déjà un compte ?{" "}
             <Link href="/login" className={styles.loginLink}>
