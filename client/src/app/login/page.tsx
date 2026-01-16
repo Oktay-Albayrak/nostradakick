@@ -4,11 +4,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import styles from "./page.module.css";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const [messageError, setMessageError] = useState("");
 
   const router = useRouter();
+  const { login } = useAuth();
 
   async function handleForm(formData: FormData) {
     const email = formData.get("email");
@@ -30,10 +32,7 @@ export default function LoginPage() {
       if (response.status >= 300) {
         setMessageError(result.error);
       } else {
-        //En cas de reussite !
-        console.log(result);
-        router.refresh();
-        await new Promise(resolve => setTimeout(resolve, 500));
+        login();
         router.push("/");
       }
     } catch (e) {
@@ -83,12 +82,12 @@ export default function LoginPage() {
                 Mot de passe oublié ?
               </Link>
             </div>
-
+            {messageError && <p className={styles.error}>{messageError}</p>}
             <button type="submit" className={styles.submitButton}>
               Se connecter
             </button>
           </form>
-          {messageError && <p>{messageError}</p>}
+          
         </div>
 
         <div className={styles.rightPane}>
