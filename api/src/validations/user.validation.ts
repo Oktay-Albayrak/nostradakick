@@ -1,5 +1,5 @@
 import z from "zod";
-import { usernameSchema } from "./utils.validation.ts";
+import { usernameSchema } from "./utils.user.validation.ts";
 
 export const updateUserSchema = z.object({
     username: usernameSchema.optional(),

@@ -9,6 +9,9 @@ import z from "zod";
     .regex(/^[a-zA-Z0-9_]+$/, { message: "Le username ne peut contenir que des lettres, chiffres et underscores" }); // caractères autorisés
 
 
+
+
+    
   export const uuidSchema = z.object({
     id: z.uuid(),
   });
