@@ -30,8 +30,6 @@ export default function RegisterPage() {
       if (response.status >= 300) {
         setMessageError(result.error);
       } else {
-        //En cas de reussite !
-        console.log(result);
         setUsername(result.username);
         setIsRegistered(true);
       }
@@ -87,12 +85,12 @@ export default function RegisterPage() {
                   placeholder="Au minimum une majuscule, une minuscule, un chiffre"
               />
             </label>
-
+            {messageError && <p className={styles.error}>{messageError}</p>}
             <button type="submit" className={styles.submitButton}>
               S&apos;inscrire
             </button>
           </form>
-          {messageError && <p>{messageError}</p>}
+          
           <p className={styles.loginHint}>
             Déjà un compte ?{" "}
             <Link href="/login" className={styles.loginLink}>
