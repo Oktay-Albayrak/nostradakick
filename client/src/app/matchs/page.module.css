@@ -124,6 +124,7 @@
     align-items: start;
     position: relative;
     width: 100%;
+    height: 100%;
   }
 
   .competitionList,
@@ -134,9 +135,24 @@
     padding: 1.5rem;
     border-radius: 8px;
     box-shadow: var(--box-shadow);
-    height: fit-content; /* S'adapte au contenu */
+    /*   height: fit-content; */ /* S'adapte au contenu */
     position: sticky;
     top: 20px;
+    height: auto;
+  }
+
+  .featuredSection {
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+  }
+
+  /* Pour rendre le scroll invisible mais fonctionnel */
+  .featuredSection::-webkit-scrollbar {
+    width: 5px;
+  }
+  .featuredSection::-webkit-scrollbar-thumb {
+    background: var(--action-color);
+    border-radius: 10px;
   }
 
   .sidebarTitle {
