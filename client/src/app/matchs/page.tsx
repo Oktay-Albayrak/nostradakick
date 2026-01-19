@@ -5,7 +5,7 @@ import InfiniteMatches from "@/components/InfiniteMatches/InfiniteMatches";
 
 export default async function Matchs() {
   const response = await fetch(
-    "http://localhost:4000/api/matches?page=1&limit=10"
+    "http://localhost:4000/api/matches?page=1&limit=10",
   );
   if (!response.ok) {
     return <div>Erreur lors du chargement des matchs</div>;
@@ -36,12 +36,11 @@ export default async function Matchs() {
         <aside className={styles.competitionList}>
           <h2 className={styles.sidebarTitle}>Top Compétitions</h2>
           <ul>
-            <li>CAN 2025</li>
+            <li>Champions League</li>
             <li>Ligue 1</li>
-            <li>Premer League</li>
+            <li>Premier League</li>
             <li>Liga</li>
             <li>Bundesliga</li>
-            <li>Champions League</li>
             <li>Serie A</li>
             <li>FIFA World Cup</li>
           </ul>
