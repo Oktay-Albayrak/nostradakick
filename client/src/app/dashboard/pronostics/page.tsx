@@ -18,7 +18,6 @@ export default async function MesPronostics() {
 
       {/* 2. FILTRES MOBILES (Cachés sur Desktop) */}
       <div className={styles.mobileFilters}>
-        <button className={styles.hotButton}>🔥 HOT</button>
         <button className={styles.filterButton}>Filtres</button>
       </div>
 
