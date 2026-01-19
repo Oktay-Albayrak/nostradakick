@@ -26,27 +26,6 @@
   display: none;
 }
 
-.hotButton,
-.filterButton {
-  flex: 1;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
-  font-family: var(--primary-font);
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.hotButton {
-  flex: 0 0 auto;
-  padding: 8px 16px;
-  background-color: var(--action-color);
-  color: var(--primary);
-  border-radius: 20px;
-  border: none;
-  font-weight: bold;
-}
-
 .filterButton {
   flex: 0 0 auto;
   padding: 8px 16px;
