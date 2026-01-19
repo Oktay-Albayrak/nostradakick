@@ -68,11 +68,14 @@ Content-Type: application/json
   "prediction_value": "HOME"
 }
 
-### Test sync TOUTES les ligues
-GET http://localhost:4000/api/admin/test-sync-all
+### Test sync TOUTES les compétitions
+GET http://localhost:4000/api/admin/test-sync-competitions
 
 ### Test sync UNE ligue (Champions League)
-GET http://localhost:4000/api/admin/test-sync-one
+GET http://localhost:4000/api/admin/test-sync-one?league=CL
 
-### Vérifier les matches créées
+### Teste sync UNE ligue (Ligue 1)
 GET http://localhost:4000/api/admin/test-sync-one?league=FL1
+
+### Test sync TOUS les matchs (6 ligues en parallèle)
+GET http://localhost:4000/api/admin/test-sync-matches
