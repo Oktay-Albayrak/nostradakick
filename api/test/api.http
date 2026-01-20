@@ -46,6 +46,9 @@ Content-Type: application/json
 ### Delete ONE User
 DELETE http://localhost:4000/api/users/3a9f3244-c29c-4b25-b2ed-3ecf5dae5c21
 
+### Get All Competitions
+GET http://localhost:4000/api/competitions
+
 ### Get All Matches
 GET http://localhost:4000/api/matches
 

@@ -10,17 +10,23 @@ export async function getAllMatches(req: Request, res: Response) {
     // Exemple: Page demandée: 2 => Calcul: (2 - 1) * 10 = 10 (On saute les 10 premiers, on prends de 11 à 20)
     const skip = (page - 1) * limit;
 
-    const matches = await prisma.match.findMany({
-      where: {
-        // On ne veut que les matchs qui ne sont pas finis
-        // OU ceux qui commencent à partir de maintenant
-        status: {
-          in: ["SCHEDULED", "TIMED", "IN_PLAY", "PAUSED"],
-        },
-        date: {
-          gte: new Date(), // gte = Greater Than or Equal (Plus grand ou égal à maintenant)
-        },
+    const leagueCode = req.query.league;
+    const whereConditions: any = {
+      status: {
+        in: ["SCHEDULED", "TIMED", "IN_PLAY", "PAUSED"],
       },
+      date: {
+        gte: new Date(),
+      },
+    };
+    if (leagueCode) {
+      whereConditions.competition = {
+        code: leagueCode,
+      };
+    }
+
+    const matches = await prisma.match.findMany({
+      where: whereConditions,
       take: limit,
       skip: skip,
       include: {
