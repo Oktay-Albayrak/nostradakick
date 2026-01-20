@@ -29,7 +29,7 @@ Cookies: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1YTBlMD
 GET http://localhost:4000/api/users
 
 ### Get One User
-GET http://localhost:4000/api/users/user_1
+GET http://localhost:4000/api/users/user_9
 
 ### Mise à jour multiple de plusieurs champs d'un utilisateur
 PATCH http://localhost:4000/api/users/f5f503b4-5861-4149-b868-5c9597415757
@@ -42,6 +42,9 @@ Content-Type: application/json
   "password": "Jesuis.membre1",
   "confirmPassword": "Jesuis.membre1"
 }
+
+### Delete ONE User
+DELETE http://localhost:4000/api/users/3a9f3244-c29c-4b25-b2ed-3ecf5dae5c21
 
 ### Get All Matches
 GET http://localhost:4000/api/matches
@@ -64,3 +67,15 @@ Content-Type: application/json
   "match_id": "00000000-4000-4000-9000-00000000000d",
   "prediction_value": "HOME"
 }
+
+### Test sync TOUTES les compétitions
+GET http://localhost:4000/api/admin/test-sync-competitions
+
+### Test sync UNE ligue (Champions League)
+GET http://localhost:4000/api/admin/test-sync-one?league=CL
+
+### Teste sync UNE ligue (Ligue 1)
+GET http://localhost:4000/api/admin/test-sync-one?league=FL1
+
+### Test sync TOUS les matchs (6 ligues en parallèle)
+GET http://localhost:4000/api/admin/test-sync-matches

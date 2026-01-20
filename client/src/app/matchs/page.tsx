@@ -1,16 +1,18 @@
 import MatchCard from "@/components/matchCard/MatchCard";
 import styles from "./page.module.css";
 import { IMatch } from "@/types/match";
+import InfiniteMatches from "@/components/InfiniteMatches/InfiniteMatches";
 
 export default async function Matchs() {
-  const response = await fetch("http://localhost:4000/api/matches");
+  const response = await fetch(
+    "http://localhost:4000/api/matches?page=1&limit=10",
+  );
   if (!response.ok) {
     return <div>Erreur lors du chargement des matchs</div>;
   }
 
-  const matchs: IMatch[] = await response.json();
-  const featuredMatchs = matchs.slice(0, 3);
-  const displayMatches = matchs.slice(0, 50);
+  const initialMatches: IMatch[] = await response.json();
+  const featuredMatchs = initialMatches.slice(0, 6);
 
   return (
     <div className={styles.container}>
@@ -34,12 +36,11 @@ export default async function Matchs() {
         <aside className={styles.competitionList}>
           <h2 className={styles.sidebarTitle}>Top Compétitions</h2>
           <ul>
-            <li>CAN 2025</li>
+            <li>Champions League</li>
             <li>Ligue 1</li>
-            <li>Premer League</li>
+            <li>Premier League</li>
             <li>Liga</li>
             <li>Bundesliga</li>
-            <li>Champions League</li>
             <li>Serie A</li>
             <li>FIFA World Cup</li>
           </ul>
@@ -49,11 +50,7 @@ export default async function Matchs() {
         <main className={styles.matchsContent}>
           <h1 className={styles.sectionTitle}>Matchs à venir</h1>
           <div className={styles.matchGrid}>
-            {displayMatches.length > 0 ? (
-              displayMatches.map((m) => <MatchCard key={m.id} match={m} />)
-            ) : (
-              <p>Aucun match prévu pour le moment.</p>
-            )}
+            <InfiniteMatches initialMatches={initialMatches} />;
           </div>
         </main>
 
