@@ -1,18 +1,46 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import styles from "./page.module.css";
 import { IAdminStats } from "@/types/admin";
+import { IUser } from "@/types/user";
 
 function formatNumber(num: number): string {
   return num.toLocaleString("fr-FR");
 }
 
 export default async function AdminDashboard() {
+  // Vérification de l'authentification et du rôle ADMIN
+  let currentUser: IUser | null = null;
+  try {
+    const userResponse = await fetch("http://localhost:4000/api/auth/me", {
+      cache: "no-store",
+      credentials: "include",
+    });
+
+    if (userResponse.ok) {
+      currentUser = await userResponse.json();
+    }
+  } catch (e) {
+    console.error("Erreur lors de la vérification de l'utilisateur:", e);
+  }
+
+  // Redirection si non authentifié ou non admin
+  if (!currentUser) {
+    redirect("/login");
+  }
+
+  if (currentUser.role !== "ADMIN") {
+    redirect("/dashboard");
+  }
+
+  // Récupération des statistiques
   let stats: IAdminStats | null = null;
   let error: string | null = null;
 
   try {
     const response = await fetch("http://localhost:4000/api/admin/stats", {
       cache: "no-store",
+      credentials: "include",
     });
 
     if (!response.ok) {
