@@ -25,10 +25,8 @@ console.log('🌍 Cron pour les Compétitions démarré - Synchronisation le 1er
 
 
 
-// ## SYNCHRONISATION AU DÉMARRAGE DU SERVEUR
-// Permet de récupérer les infos (pays, etc.) et d'avoir des données fraîches dès le lancement du serveur
-/*console.log('\n📡 Synchronisation initiale des competitions au démarrage...\n');
-syncAllCompetitions().catch(err => console.error('Erreur sync initiale competitions:', err));*/
+// Lance une synchronisation 2 minutes après le démarrage du serveur
+// Permet de récupérer les infos (pays des équipes, etc.) sans surcharger l'API au démarrage
 
 console.log('⏳ Synchronisation des Competitions prévue dans 2 minutes...');
 

@@ -20,8 +20,8 @@ teamsCountriesCronJob.start();
 console.log('🌎 Cron pour les pays des équipes démarré - Synchronisation le 15 août à 4h02');
 
 /**
- * Lance une synchronisation 3 minutes après le démarrage du serveur
- * Permet de compléter les pays manquants sans bloquer le démarrage
+ * Lance une synchronisation 4 minutes après le démarrage du serveur
+ * Permet de compléter les pays manquant (competitions) sans bloquer le démarrage
  */
 
 console.log('⏳ Synchronisation des Teams prévue dans 4 minutes...');
