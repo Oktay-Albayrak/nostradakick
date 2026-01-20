@@ -79,3 +79,69 @@ GET http://localhost:4000/api/admin/test-sync-one?league=FL1
 
 ### Test sync TOUS les matchs (6 ligues en parallèle)
 GET http://localhost:4000/api/admin/test-sync-matches
+
+
+### TESTS PROTECTION ROUTE /admin/stats
+
+### Test 1: Accès /admin/stats SANS authentification (doit retourner 401)
+GET http://localhost:4000/api/admin/stats
+
+### Test 2: Créer un utilisateur MEMBER pour les tests
+POST http://localhost:4000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "test_member",
+  "email": "test_member@example.com",
+  "password": "TestPassword123"
+}
+
+### Test 3: Login avec l'utilisateur MEMBER créé
+POST http://localhost:4000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test_member@example.com",
+  "password": "TestPassword123"
+}
+
+### Test 4: Accès /admin/stats avec un utilisateur MEMBER (doit retourner 403)
+# Remplacez le cookie accessToken ci-dessous par celui reçu après le login (Test 3)
+GET http://localhost:4000/api/admin/stats
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI5YmE5MzRhNS04YWEzLTQ1ZTUtYTVhNi1iODVjZTUyMzUzOTMiLCJ1c2VyUm9sZSI6Ik1FTUJFUiIsImlhdCI6MTc2ODkyNDg5MSwiZXhwIjoxNzY4OTI4NDkxfQ.kEYJQ6Q__v6iUrp1K_gDMXM0jfpxqWJYbP5nzc3m0fM
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        ../api/src/controllers/admin.controller.ts
+
+nothing added to commit but untracked files present (use "git add" to track
+
+### Test 5: Créer un utilisateur ADMIN pour les tests
+# Note: Vous devrez modifier manuellement le rôle en BDD car /register crée des MEMBER par défaut
+# Ou utiliser un utilisateur admin existant si vous connaissez son mot de passe
+POST http://localhost:4000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "test_admin",
+  "email": "test_admin@example.com",
+  "password": "TestPassword123"
+}
+
+### Test 6: Login avec l'utilisateur ADMIN
+# Utilisez un compte admin existant ou celui créé (après modification du rôle en BDD)
+POST http://localhost:4000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test_admin@example.com",
+  "password": "TestPassword123"
+}
+
+### Test 7: Accès /admin/stats avec un utilisateur ADMIN (doit retourner 200)
+# Remplacez le cookie accessToken ci-dessous par celui reçu après le login admin (Test 6)
+GET http://localhost:4000/api/admin/stats
+Cookie: accessToken=YOUR_ADMIN_TOKEN_HERE
+
+### Test 8: Vérification utilisateur connecté (auth/me) pour voir le rôle
+GET http://localhost:4000/api/auth/me
+Cookie: accessToken=YOUR_TOKEN_HERE
