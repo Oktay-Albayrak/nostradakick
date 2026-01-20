@@ -108,12 +108,7 @@ Content-Type: application/json
 ### Test 4: Accès /admin/stats avec un utilisateur MEMBER (doit retourner 403)
 # Remplacez le cookie accessToken ci-dessous par celui reçu après le login (Test 3)
 GET http://localhost:4000/api/admin/stats
-Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI5YmE5MzRhNS04YWEzLTQ1ZTUtYTVhNi1iODVjZTUyMzUzOTMiLCJ1c2VyUm9sZSI6Ik1FTUJFUiIsImlhdCI6MTc2ODkyNDg5MSwiZXhwIjoxNzY4OTI4NDkxfQ.kEYJQ6Q__v6iUrp1K_gDMXM0jfpxqWJYbP5nzc3m0fM
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-        ../api/src/controllers/admin.controller.ts
-
-nothing added to commit but untracked files present (use "git add" to track
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI5YmE5MzRhNS04YWEzLTQ1ZTUtYTVhNi1iODVjZTUyMzUzOTMiLCJ1c2VyUm9sZSI6Ik1FTUJFUiIsImlhdCI6MTc2ODkyNTIxNCwiZXhwIjoxNzY4OTI4ODE0fQ.rBvdUN9n7kus-nBrwGKyP498gKS_oevBbDXwAb40GxI
 
 ### Test 5: Créer un utilisateur ADMIN pour les tests
 # Note: Vous devrez modifier manuellement le rôle en BDD car /register crée des MEMBER par défaut
@@ -140,7 +135,7 @@ Content-Type: application/json
 ### Test 7: Accès /admin/stats avec un utilisateur ADMIN (doit retourner 200)
 # Remplacez le cookie accessToken ci-dessous par celui reçu après le login admin (Test 6)
 GET http://localhost:4000/api/admin/stats
-Cookie: accessToken=YOUR_ADMIN_TOKEN_HERE
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlNTA1YzVkMS0xNDc2LTQ3NDctYTRhMS03NWMwMDg3NDZmN2YiLCJ1c2VyUm9sZSI6Ik1FTUJFUiIsImlhdCI6MTc2ODkyNTc5NCwiZXhwIjoxNzY4OTI5Mzk0fQ.iTOleTZ2XkBT7sto_J4-CLRWK_px_3Rb8flyp-ueiPI
 
 ### Test 8: Vérification utilisateur connecté (auth/me) pour voir le rôle
 GET http://localhost:4000/api/auth/me
