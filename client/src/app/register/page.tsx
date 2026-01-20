@@ -5,7 +5,7 @@ import Link from "next/link";
 import styles from "./page.module.css";
 
 export default function RegisterPage() {
-  const [messageError, setMessageError] = useState("");
+  const [messageError, setMessageError] = useState([]);
   const [isRegistered, setIsRegistered] = useState(false);
   const [username, setUsername] = useState("");
 
@@ -61,7 +61,7 @@ export default function RegisterPage() {
                 type="text"
                 name="username"
                 className={styles.input}
-                placeholder="Ex: Pseudo123"
+                placeholder="Pseudo123"
                 required
               />
             </label>
@@ -72,7 +72,7 @@ export default function RegisterPage() {
                 type="email"
                 name="email"
                 className={styles.input}
-                placeholder="Ex: name@example.com"
+                placeholder="name@example.com"
               />
             </label>
 
@@ -82,10 +82,13 @@ export default function RegisterPage() {
                 type="password"
                 name="password"
                 className={styles.input}
-                  placeholder="Au minimum une majuscule, une minuscule, un chiffre"
+                  placeholder="Choisissez un mot de passe sécurisé"
               />
+              <p className={styles.condition}>Au minimum une majuscule, une minuscule, un chiffre.</p>
             </label>
-            {messageError && <p className={styles.error}>{messageError}</p>}
+            {messageError && messageError.map((msg, index) => (
+              <p key={index} className={styles.error}>{msg}</p>
+            ))}
             <button type="submit" className={styles.submitButton}>
               S&apos;inscrire
             </button>
