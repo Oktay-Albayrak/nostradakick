@@ -1,0 +1,154 @@
+.main {
+  padding: 2rem 5%;
+  background: var(--light-grey);
+  min-height: calc(100vh - 200px);
+}
+
+.header {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.title {
+  font-size: 2rem;
+  margin: 0;
+  color: var(--primary);
+}
+
+.backLink {
+  color: var(--secondary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+
+.backLink:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto 3rem;
+}
+
+.statCard {
+  background: var(--white);
+  border-radius: 10px;
+  box-shadow: var(--box-shadow);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.statCard:hover {
+  box-shadow: var(--hover-box-shadow);
+  transform: translateY(-2px);
+}
+
+.statIcon {
+  font-size: 2.5rem;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--light-grey);
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.statContent {
+  flex: 1;
+}
+
+.statValue {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
+  color: var(--primary);
+}
+
+.statLabel {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+}
+
+.actionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.actionCard {
+  background: var(--white);
+  border-radius: 10px;
+  box-shadow: var(--box-shadow);
+  padding: 2rem;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.actionCard:hover {
+  box-shadow: var(--hover-box-shadow);
+  transform: translateY(-4px);
+}
+
+.actionIcon {
+  font-size: 3rem;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color: var(--white);
+  border-radius: 50%;
+  margin-bottom: 1rem;
+}
+
+.actionTitle {
+  font-size: 1.5rem;
+  margin: 0 0 0.75rem 0;
+  color: var(--primary);
+}
+
+.actionDescription {
+  font-size: 0.95rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .actionsGrid {
+    grid-template-columns: 1fr;
+  }
+}
