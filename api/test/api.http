@@ -56,7 +56,7 @@ GET http://localhost:4000/api/matches/2007
 GET http://localhost:4000/api/predictions
 
 ### Get One Predictions
-GET http://localhost:4000/api/predictions/00000000-5000-4000-9000-000000000044
+GET http://localhost:4000/api/predictions/023e8d45-cb76-4fe1-ad01-0f4cd04ff0ee
 
 ### Create one Prediction
 POST http://localhost:4000/api/predictions
@@ -64,6 +64,9 @@ Content-Type: application/json
 
 {
   "user_id": "00000000-1000-4000-9000-000000000001",
-  "match_id": "00000000-4000-4000-9000-00000000000d",
+  "match_id": "28549d58-221f-4430-b5a8-a7c4327d25aa",
   "prediction_value": "HOME"
 }
+
+### Delete one Prediction
+DELETE http://localhost:4000/api/predictions/023e8d45-cb76-4fe1-ad01-0f4cd04ff0ee
