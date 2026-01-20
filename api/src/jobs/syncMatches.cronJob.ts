@@ -27,19 +27,9 @@ console.log('⏰ Cron Job démarré (Matchs) - Synchronisation toutes les 20 min
 
 
 
-/**
- * Lance une synchronisation 2 minutes après le démarrage du serveur
- * Récupère tout les infos des matchs (equipes, etc) sans surcharger l'API au démarrage
- */
-
 console.log('⏳ Synchronisation des matchs prévue dans 2 minutes...');
 
-/*setTimeout(() => {
-  console.log("\n🌍 Lancement de la synchronisation des matchs...\n");
-  syncAllMatches().catch(err => console.error('Erreur sync matchs:', err));
-}, 2 * 60 * 1000); // 2 minutes en millisecondes*/
-
 // ## SYNCHRONISATION AU DÉMARRAGE DU SERVEUR
-// Permet de récupérer les infos (pays, etc.) et d'avoir des données fraîches dès le lancement du serveur
+// Récupère tout les infos des matchs (Équipes, etc) et d'avoir des données fraîches dès le lancement du serveur
 console.log('\n📡 Synchronisation initiale des competitions au démarrage...\n');
 syncAllMatches().catch(err => console.error('Erreur sync initiale competitions:', err));
