@@ -2,39 +2,127 @@ import axios from "axios";
 import { prisma } from "../lib/prisma.ts";
 import { MatchStatus } from "../../generated/prisma/client.ts";
 
+
 const FOOTBALL_API_URL = "https://api.football-data.org/v4";
 const TOKEN = process.env.FOOTBALL_DATA_API_TOKEN;
+
+
 
 // Liste des codes de compétitions autorisés par le plan gratuit (Free Tier)
 const LEAGUES_TO_SYNC = ["FL1", "PL", "CL", "BL1", "SA", "PD"];
 
+
+
 /**
- * Fonction principale pour synchroniser toutes les ligues définies ci-dessus
+ * 🎯 FONCTION 1 : Synchronise les MATCHS de toutes les ligues EN PARALLÈLE (via la fonction syncMatchesForCompetition)
+ * Utilisé par le cron toutes les 15 minutes
+ * ⚡ Rapide : ~4-6 secondes (6 appels API en parallèle)
  */
-export async function syncAllCompetitions() {
-  console.log("🚀 Début de la synchronisation globale...");
 
-  for (const code of LEAGUES_TO_SYNC) {
+export async function syncAllMatches() {
+  console.log(`\n⚽ Début de la synchronisation des MATCHS à ${new Date().toLocaleString('fr-FR')}`);
+  console.log(`📋 Ligues: ${LEAGUES_TO_SYNC.join(', ')}\n`);
+
+  // Lancer TOUTES les synchronisations EN MÊME TEMPS
+  const promisesSyncMatches = LEAGUES_TO_SYNC.map(async (leagueCode) => {
     try {
-      // On lance la synchro pour une ligue précise
-      await syncMatchesForCompetition(code);
+      console.log(`🕒 [${leagueCode}] Démarrage...`);
 
-      // Pause de 6 secondes pour ne pas dépasser 10 requêtes / minute (limite API Free), on risque de se faire bloquer si on lance 6 requetes d'un coup
-      console.log(`⏳ Pause de 6s pour respecter le quota API...`);
-      await new Promise((resolve) => setTimeout(resolve, 6000));
+      await syncMatchesForCompetition(leagueCode);
+      
+      console.log(`✅ [${leagueCode}] Terminé`);
+      return { leagueCode, status: 'success' };
+
     } catch (error) {
-      console.error(
-        `⚠️ Échec de la synchronisation pour la ligue ${code}, passage à la suivante.`
-      );
-    }
-  }
+      console.error(`❌ [${leagueCode}] Erreur:`, error);
 
-  console.log("🏁 Toutes les compétitions sélectionnées ont été traitées !");
+      return { leagueCode, status: 'error', error };
+    }
+  });
+
+  const results = await Promise.all(promisesSyncMatches);
+
+  const successCount = results.filter(r => r.status === 'success').length;
+  const errorCount = results.filter(r => r.status === 'error').length;
+
+  console.log(`\n🏁 Synchronisation des matchs terminée`);
+  console.log(`📊 Résultats: ${successCount} succès, ${errorCount} erreurs\n`);
 }
 
+
+
 /**
- * Fonction de synchronisation pour une seule compétition
+ * 🌍 FONCTION 2 : Synchronise les infos des COMPÉTITIONS (pays, emblèmes, etc.)
+ * Utilisé par le cron 1 fois par mois pour mettre à jour les métadonnées
+ * 🐢 Moins urgent car les infos changent rarement
  */
+
+export async function syncAllCompetitions() {
+  console.log(`\n🌍 Début de la synchronisation des COMPÉTITIONS à ${new Date().toLocaleString('fr-FR')}`);
+  console.log(`📋 Ligues: ${LEAGUES_TO_SYNC.join(', ')}\n`);
+
+  const promisesSyncCompetitions = LEAGUES_TO_SYNC.map(async (leagueCode) => {
+    try {
+      console.log(`🕒 [${leagueCode}] Mise à jour des infos...`);
+      
+      if (!TOKEN) {
+        throw new Error("Token API manquant");
+      }
+
+      // Récupérer les infos de la compétition
+      const response = await axios.get(
+        `${FOOTBALL_API_URL}/competitions/${leagueCode}`,
+        { headers: { "X-Auth-Token": TOKEN } }
+      );
+
+      const comp = response.data;
+      const areaName = comp.area?.name || "Unknown";
+
+      // Mettre à jour ou créer UNIQUEMENT la compétition (pas les matchs)
+      await prisma.competition.upsert({
+        where: { api_id: comp.id },
+        update: {
+          name: comp.name,
+          emblem_url: comp.emblem,
+          country: areaName,
+        },
+        create: {
+          api_id: comp.id,
+          name: comp.name,
+          code: comp.code,
+          country: areaName,
+          emblem_url: comp.emblem,
+        },
+      });
+
+      console.log(`✅ [${leagueCode}] Infos mises à jour (pays: ${areaName})`);
+
+      return { leagueCode, status: 'success' };
+
+      
+    } catch (error) {
+      console.error(`❌ [${leagueCode}] Erreur:`, error);
+
+      return { leagueCode, status: 'error', error };
+    }
+  });
+
+  const results = await Promise.all(promisesSyncCompetitions);
+
+  const successCount = results.filter(r => r.status === 'success').length;
+  const errorCount = results.filter(r => r.status === 'error').length;
+
+  console.log(`\n🏁 Synchronisation des compétitions terminée`);
+  console.log(`📊 Résultats: ${successCount} succès, ${errorCount} erreurs\n`);
+}
+
+
+
+/**
+ * 📝 Synchronise les matchs d'UNE SEULE compétition
+ * Appelé par syncAllMatches() pour chaque ligue en parallèle
+ */
+
 export async function syncMatchesForCompetition(competitionCode: string) {
   try {
     console.log(`🔄 Synchro lancée pour ${competitionCode}...`);
