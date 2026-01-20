@@ -7,7 +7,7 @@ import styles from "./page.module.css";
 import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
-  const [messageError, setMessageError] = useState("");
+  const [messageError, setMessageError] = useState([]);
 
   const router = useRouter();
   const { login } = useAuth();
@@ -82,7 +82,9 @@ export default function LoginPage() {
                 Mot de passe oublié ?
               </Link>
             </div>
-            {messageError && <p className={styles.error}>{messageError}</p>}
+            {messageError && messageError.map((msg, index) => (
+              <p key={index} className={styles.error}>{msg}</p>
+            ))}
             <button type="submit" className={styles.submitButton}>
               Se connecter
             </button>

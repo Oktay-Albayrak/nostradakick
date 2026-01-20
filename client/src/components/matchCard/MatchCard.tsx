@@ -45,7 +45,7 @@ export default function MatchCard({
       day = "Demain";
     } else {
       const dayName = matchDate.toLocaleDateString("fr-FR", {
-        weekday: "long",
+        weekday: "short",
       });
       const dayMonth = matchDate.toLocaleDateString("fr-FR", {
         day: "2-digit",
