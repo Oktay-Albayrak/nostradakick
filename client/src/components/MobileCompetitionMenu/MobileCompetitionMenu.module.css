@@ -1,0 +1,59 @@
+.filterButton {
+  flex: 0 0 auto; /* Empêche le bouton de rétrécir */
+  padding: 8px 16px;
+  background-color: var(--primary);
+  color: var(--white);
+  border-radius: 20px;
+  border: none;
+  font-family: var(--primary-font);
+  font-size: 0.9rem;
+  white-space: nowrap; /* Empêche le texte de revenir à la ligne */
+}
+
+.mobileOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #1a3a7afa;
+  z-index: 2000;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.closeButton {
+  padding: 6px;
+  background-color: var(--dark-grey);
+  color: var(--primary);
+  border-radius: 20px;
+  border: none;
+}
+
+.overlayHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 1rem;
+  color: var(--action-color);
+}
+
+.overlayList {
+  list-style: none;
+  overflow-y: auto;
+}
+
+.overlayList li {
+  padding: 1.2rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.overlayList a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.1rem;
+  display: block;
+}

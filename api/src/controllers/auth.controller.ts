@@ -28,22 +28,28 @@ export async function registerUser(req: Request, res: Response) {
       )
   });
 
+  // Récuperation et parsing du body
+  const result = registerUserSchema.safeParse(req.body);
+
+  if(!result.success) {
+    return res.status(400).json({ error: result.error.issues.map((issue) => (issue.message)) });
+  }
+
+  const { username, email, password } = result.data;
+
+  // Vérification : email déjà pris => 409 (Conflict)
+  const alreadyExistingUserMail = await prisma.user.findFirst({ where: { email } });
+  if (alreadyExistingUserMail) {
+    return res.status(409).json({ error: ["Email déja utilisée"] });
+  }
+
+  // Autre vérification : username déjà pris => 409 (Conflict)
+  const alreadyExistingUsername = await prisma.user.findFirst({ where: { username } });
+  if (alreadyExistingUsername) {
+    return res.status(409).json({ error: ["Pseudo déja utilisée"] });
+  }
+
   try {
-    // Récuperation et parsing du body
-    const { username, email, password } = await registerUserSchema.parseAsync(req.body);
-
-    // Vérification : email déjà pris => 409 (Conflict)
-    const alreadyExistingUserMail = await prisma.user.findFirst({ where: { email } });
-    if (alreadyExistingUserMail) {
-      return res.status(409).json({ error: "Email déja utilisée" });
-    }
-
-    // Autre vérification : username déjà pris => 409 (Conflict)
-    const alreadyExistingUsername = await prisma.user.findFirst({ where: { username } });
-    if (alreadyExistingUsername) {
-      return res.status(409).json({ error: "Pseudo déja utilisée" });
-    }
-
     // Hash du mdp
     const hashedPassword = await argon2.hash(password);
 
@@ -62,10 +68,6 @@ export async function registerUser(req: Request, res: Response) {
     res.status(201).json(createdUser);
 
   } catch (error) {
-    // Gère les erreurs de validation Zod
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: z.prettifyError(error) });
-    }
     throw error;
   }
 }
@@ -76,14 +78,21 @@ export async function loginUser(req: Request, res: Response) {
     email: z.string(),
     password: z.string()
   });
-  const { email, password } = loginUserSchema.parse(req.body);
+  
+  const result = loginUserSchema.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({ error: result.error.issues.map((issue) => (issue.message)) });
+  }
+
+  const { email, password } = result.data;
 
   // Récupérer l'utilisateur en BDD
   const user = await prisma.user.findUnique({ where: { email } });
 
   // Si pas d'utilisateur => 401
   if (!user) {
-    return res.status(401).json({ error: "Mauvais email / mot de passe" });
+    return res.status(401).json({ error: ["Mauvais email / mot de passe"] });
   }
 
   // Compare les mots de passe (celui fourni dans le body avec celui haché de la BDD).
@@ -91,7 +100,7 @@ export async function loginUser(req: Request, res: Response) {
 
   // Si pas de match => 401
   if (!isMatching) {
-    return res.status(401).json({ error: "Mauvais email / mot de passe" });
+    return res.status(401).json({ error: ["Mauvais email / mot de passe"] });
   }
 
   // Générer le JWT
@@ -106,6 +115,10 @@ export async function loginUser(req: Request, res: Response) {
 export async function getAuthenticatedUser(req: Request, res: Response) {
   // Controler si l'utilisateur qui fait la requête (req) fourni un JWT
   const accessToken = extractAccessTokenFromRequest(req);
+
+  if (accessToken === null) {
+    throw new Error("Utilisateur non identifié");
+  }
 
   const payload = decodeJWT(accessToken);
 
