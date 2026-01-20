@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { router as authRouter } from "./auth.routes.ts";
+import { router as competitionsRouter } from "./competitions.routes.ts";
 import { router as matchesRouter } from "./matches.routes.ts";
 import { router as usersRouter } from "./users.routes.ts";
 import { router as predictionsRouter } from "./predictions.routes.ts";
@@ -14,3 +15,4 @@ router.use(authRouter);
 router.use(usersRouter);
 router.use(matchesRouter);
 router.use(predictionsRouter);
+router.use(competitionsRouter);
