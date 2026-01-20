@@ -27,16 +27,19 @@ export function extractAccessTokenFromRequest(req: Request) {
     console.log(req.cookies.accessToken);
     return req.cookies.accessToken;
   }
-
-  // Récupérer le header "authorization"
-  const authorizationHeader = req.headers.authorization; // "Bearer eyJhbGciOiJIUzI1..."
-  if (!authorizationHeader || !authorizationHeader.startsWith("Bearer ")) {
-    throw new Error("Authorization header missing or does not contain Bearer keyword");
+  else {
+    return null;
   }
 
+  // Récupérer le header "authorization"
+  // const authorizationHeader = req.headers.authorization; // "Bearer eyJhbGciOiJIUzI1..."
+  // if (!authorizationHeader || !authorizationHeader.startsWith("Bearer ")) {
+  //   throw new Error("Authorization header missing or does not contain Bearer keyword");
+  // }
+
   // Extraire la partie JWT du header (retirer le mot "Bearer")
-  const accessToken = authorizationHeader.substring("Bearer ".length); // "eyJhbGciOiJIUzI1...""
-  return accessToken;
+  // const accessToken = authorizationHeader.substring("Bearer ".length); // "eyJhbGciOiJIUzI1...""
+  // return accessToken;
 }
 
 export interface UserPayload extends JwtPayload {
