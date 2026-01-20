@@ -1,7 +1,7 @@
 import { app } from "./src/app.ts";
 import { config } from "./config.ts";
-import "./src/jobs/syncMatches.cronJob.ts"
-import "./src/jobs/syncCompetitions.cronJob.ts"
+// import "./src/jobs/syncMatches.cronJob.ts"
+// import "./src/jobs/syncCompetitions.cronJob.ts"
 
 import {
   syncAllCompetitions,
