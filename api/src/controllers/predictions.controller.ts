@@ -24,7 +24,13 @@ export async function getOnePrediction(req: Request, res: Response) {
 
   try {
     // Valide que l'ID du paramètre est un UUID valide
-    const paramId = await uuidSchema.parseAsync(req.params.id);
+    const result = uuidSchema.safeParse(req.params.id);
+
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+
+    const paramId = result.data;
 
     // Récupère la prédiction avec tous ses détails associés (match et utilisateur)
     const prediction = await prisma.prediction.findUnique({
@@ -39,7 +45,7 @@ export async function getOnePrediction(req: Request, res: Response) {
 
     // Retourne 404 si la prédiction n'existe pas
     if (!prediction) {
-      return res.status(404).json({ error: "Prediction not found" });
+      return res.status(404).json({ error: ["Prediction not found"] });
     }
 
     res.json(prediction);
@@ -51,8 +57,8 @@ export async function getOnePrediction(req: Request, res: Response) {
   }
 }
 
-// Crée une nouvelle prédiction avec validation des données
-export async function createPrediction(req: Request, res: Response) {
+// Crée ou met à jour une prédiction (Upsert)
+export async function upsertPrediction(req: Request, res: Response) {
   const createPredictionSchema = z.object({
     user_id: z.uuid({
       message: "L'ID utilisateur fourni n'est pas valide."
@@ -67,33 +73,65 @@ export async function createPrediction(req: Request, res: Response) {
 
   try {
     // Valide et récupère les données du corps de la requête
-    const { user_id, match_id, prediction_value } = await createPredictionSchema.parseAsync(req.body);
+    const result = createPredictionSchema.safeParse(req.body);
 
-    // Vérifie si l'utilisateur a déjà une prédiction pour ce match (via la clé composée unique)
-    const existing = await prisma.prediction.findUnique({
-      where: { user_id_match_id: { user_id, match_id } }
-    });
-
-    // Retourne une erreur 409 si la prédiction existe déjà
-    if (existing) {
-      return res.status(409).json({ error: "Vous avez déjà fait un pronostic pour ce match." });
+    if (!result.success) {
+      return res.status(400).json({ error: result.error.issues.map((issue) => (issue.message)) });
     }
 
-    // Crée la nouvelle prédiction en base de données
-    const prediction = await prisma.prediction.create({
-      data: {
+    const { user_id, match_id, prediction_value } = result.data;
+
+    // Utilisation de upsert : 
+    // update si le combo user_id_match_id existe, sinon create
+    const prediction = await prisma.prediction.upsert({
+      where: {
+        user_id_match_id: {
+          user_id,
+          match_id
+        }
+      },
+      update: {
+        prediction_value
+      },
+      create: {
         user_id,
         match_id,
         prediction_value
       }
     });
 
-    res.status(201).json(prediction);
+    // On retourne 200 (OK) car cela peut être une création ou une modification
+    res.status(200).json(prediction);
   } catch (error) {
-    // Gère les erreurs de validation Zod
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ errors: z.prettifyError(error) });
+    throw error;
+  }
+}
+
+// Suppression d'un pronostic
+export async function deletePrediction(req: Request, res: Response) {
+  const uuidSchema = z.uuid({
+    message: "L'identifiant fourni n'est pas valide."
+  });
+
+  try {
+    // 1. Validation des données (on peut les recevoir via req.params ou req.body)
+    const result = uuidSchema.safeParse(req.params.id);
+
+    if (!result.success) {
+      return res.status(400).json({ error: result.error.issues });
     }
+
+    const paramId = result.data;
+
+    // 2. Tentative de suppression via la clé composée
+    const prediction = await prisma.prediction.delete({
+      where: { id: paramId }
+    });
+
+    // 3. Retourner un succès
+    return res.status(204).json(prediction);
+
+  } catch (error) {
     throw error;
   }
 }
