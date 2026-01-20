@@ -3,6 +3,7 @@ import { router as authRouter } from "./auth.routes.ts";
 import { router as matchesRouter } from "./matches.routes.ts";
 import { router as usersRouter } from "./users.routes.ts";
 import { router as predictionsRouter } from "./predictions.routes.ts";
+import { router as adminRouter } from "./admin.routes.ts";
 import { healthCheck } from "../controllers/main.controller.ts";
 
 export const router: Router = Router();
@@ -14,3 +15,4 @@ router.use(authRouter);
 router.use(usersRouter);
 router.use(matchesRouter);
 router.use(predictionsRouter);
+router.use(adminRouter);
