@@ -6,10 +6,48 @@ import { MatchStatus } from "../../generated/prisma/client.ts";
 const FOOTBALL_API_URL = "https://api.football-data.org/v4";
 const TOKEN = process.env.FOOTBALL_DATA_API_TOKEN;
 
-
-
 // Liste des codes de compétitions autorisés par le plan gratuit (Free Tier)
 const LEAGUES_TO_SYNC = ["FL1", "PL", "CL", "BL1", "SA", "PD"];
+
+
+
+// Cache pour les pays des équipes (évite les appels API redondants)
+const teamCountryCache: Record<number, string> = {};
+
+
+
+// 🌎 Fonction pour récupérer le pays d'une équipe
+async function getTeamCountry(teamId: number): Promise<string> {
+  // Vérifie d'abord le cache
+  if (teamCountryCache[teamId]) {
+    return teamCountryCache[teamId];
+  }
+
+  // Vérifie en base de données
+  const teamInDb = await prisma.team.findUnique({
+    where: { api_id: teamId },
+    select: { country: true },
+  });
+
+  if (teamInDb?.country && teamInDb.country !== "Unknown") {
+    teamCountryCache[teamId] = teamInDb.country;
+    return teamInDb.country;
+  }
+
+  // Sinon, appel API
+  try {
+    const response = await axios.get(
+      `${FOOTBALL_API_URL}/teams/${teamId}`,
+      { headers: { "X-Auth-Token": TOKEN } }
+    );
+    const country = response.data.area?.name || "Unknown";
+    teamCountryCache[teamId] = country;
+    return country;
+  } catch (error) {
+    console.error(`Erreur pour l'équipe ${teamId}:`, error);
+    return "Unknown";
+  }
+}
 
 
 
@@ -172,6 +210,13 @@ export async function syncMatchesForCompetition(competitionCode: string) {
         );
         continue; // On passe au match suivant
       }
+
+      // Récupérer le pays de chaque équipe (en attendant les promesses)
+      const [homeTeamCountry, awayTeamCountry] = await Promise.all([getTeamCountry(m.homeTeam.id),
+        getTeamCountry(m.awayTeam.id)
+      ]);
+      
+
       // 2. Mise à jour ou Création Équipe Domicile
       const homeTeam = await prisma.team.upsert({
         where: { api_id: m.homeTeam.id },
@@ -181,7 +226,7 @@ export async function syncMatchesForCompetition(competitionCode: string) {
           name: m.homeTeam.name,
           tla: m.homeTeam.tla || "N/A",
           crest_url: m.homeTeam.crest || "",
-          country: areaName,
+          country: homeTeamCountry,
         },
       });
 
@@ -194,7 +239,7 @@ export async function syncMatchesForCompetition(competitionCode: string) {
           name: m.awayTeam.name,
           tla: m.awayTeam.tla || "N/A",
           crest_url: m.awayTeam.crest || "",
-          country: areaName,
+          country: awayTeamCountry,
         },
       });
 
@@ -230,3 +275,64 @@ export async function syncMatchesForCompetition(competitionCode: string) {
     throw error;
   }
 }
+
+
+
+// 🌎 FONCTION 4 : Synchronise les PAYS des ÉQUIPES
+export async function syncAllTeamsCountries() {
+  console.log(`\n🌎 Début de la synchronisation des PAYS DES ÉQUIPES à ${new Date().toLocaleString('fr-FR')}`);
+
+  try {
+    // Récupère toutes les équipes sans pays ou avec "Unknown"
+    const teams = await prisma.team.findMany({
+      where: { 
+        OR: [ 
+          { country: { equals: "Unknown" } }
+        ] 
+      },
+      select: { api_id: true, name: true }
+    });
+
+    if (teams.length === 0) {
+      console.log("✅ Tous les pays des équipes sont déjà à jour.");
+      return;
+    }
+
+    console.log(`📋 ${teams.length} équipes à mettre à jour...`);
+
+      // Traite les équipes par lots de 10 pour respecter la limite de l'API
+
+    const BATCH_SIZE = 10;
+    for (let i = 0; i < teams.length; i += BATCH_SIZE) {
+      const batch = teams.slice(i, i + BATCH_SIZE)
+      const promises = batch.map(async (team) => {
+      try {
+        const country = await getTeamCountry(team.api_id);
+        await prisma.team.update({
+          where: { api_id: team.api_id },
+          data: { country }
+        });
+        console.log(`✅ [${team.name}] Pays mis à jour: ${country}`);
+      } catch (error) {
+        console.error(`❌ [${team.name}] Erreur:`, error);
+      }
+    });
+
+      // Exécute les requêtes du lot en parallèle
+      await Promise.all(promises);
+
+
+      // Attends 60 secondes entre chaque lot pour respecter la limite de 10 requêtes/minute
+      if (i + BATCH_SIZE < teams.length) {
+        console.log(`⏳ Pause de 60 secondes après le lot ${Math.ceil(i / BATCH_SIZE) + 1}...`);
+        await new Promise(resolve => setTimeout(resolve, 60000));
+      }
+    }
+
+
+      console.log(`\n🏁 Synchronisation des pays des équipes terminée`);
+    } catch (error) {
+      console.error(`❌ Erreur globale:`, error);
+      throw error;
+    }
+  }

@@ -4,14 +4,14 @@ import { syncAllMatches } from "../services/sync.service.ts";
 
 
 /**
- * Synchronise les MATCHS de toutes les ligues toutes les 15 minutes
+ * Synchronise les MATCHS de toutes les ligues toutes les 20 minutes
  * 6 appels API en parallèle (respecte le quota de 10/min)
  */
 
-// ## CRON JOB - TOUTES LES 15 MINUTES
-// Créer le cron job qui s'exécute toutes les 15 minutes
+// ## CRON JOB - TOUTES LES 20 MINUTES
+// Créer le cron job qui s'exécute toutes les 20 minutes
 const matchCronJob = new CronJob(
-  '*/15 * * * *',  // Toutes les 15 minutes
+  '*/20 * * * *',  // Toutes les 20 minutes
   syncAllMatches,  // Fonction à exécuter
   null,
   true,            // Démarre automatiquement
@@ -23,7 +23,7 @@ const matchCronJob = new CronJob(
 // Démarrer le cron
 matchCronJob.start();
 
-console.log('⏰ Cron Job démarré - Synchronisation toutes les 15 minutes');
+console.log('⏰ Cron Job démarré - Synchronisation toutes les 20 minutes');
 
 
 

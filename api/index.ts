@@ -1,7 +1,9 @@
 import { app } from "./src/app.ts";
 import { config } from "./config.ts";
-import "./src/jobs/syncMatches.cronJob.ts"
-import "./src/jobs/syncCompetitions.cronJob.ts"
+
+import "./src/jobs/syncMatches.cronJob.ts"  // Toutes les 20 min
+import "./src/jobs/syncCompetitions.cronJob.ts" // 1er du mois à 3h
+import "./src/jobs/syncTeamsCountries.cronJob.ts" // 15 août à 4h02
 
 import {
   syncAllCompetitions,
