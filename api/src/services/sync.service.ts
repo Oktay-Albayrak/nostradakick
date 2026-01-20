@@ -6,333 +6,246 @@ import { MatchStatus } from "../../generated/prisma/client.ts";
 const FOOTBALL_API_URL = "https://api.football-data.org/v4";
 const TOKEN = process.env.FOOTBALL_DATA_API_TOKEN;
 
-// Liste des codes de compétitions autorisés par le plan gratuit (Free Tier)
 const LEAGUES_TO_SYNC = ["FL1", "PL", "CL", "BL1", "SA", "PD"];
 
-
-
-// Cache pour les pays des équipes (évite les appels API redondants)
-const teamCountryCache: Record<number, string> = {};
-
-
-
-// 🌎 Fonction pour récupérer le pays d'une équipe
-async function getTeamCountry(teamId: number): Promise<string> {
-  // Vérifie d'abord le cache
-  if (teamCountryCache[teamId]) {
-    return teamCountryCache[teamId];
-  }
-
-  // Vérifie en base de données
-  const teamInDb = await prisma.team.findUnique({
-    where: { api_id: teamId },
-    select: { country: true },
-  });
-
-  if (teamInDb?.country && teamInDb.country !== "Unknown") {
-    teamCountryCache[teamId] = teamInDb.country;
-    return teamInDb.country;
-  }
-
-  // Sinon, appel API
-  try {
-    const response = await axios.get(
-      `${FOOTBALL_API_URL}/teams/${teamId}`,
-      { headers: { "X-Auth-Token": TOKEN } }
-    );
-    const country = response.data.area?.name || "Unknown";
-    teamCountryCache[teamId] = country;
-    return country;
-  } catch (error) {
-    console.error(`Erreur pour l'équipe ${teamId}:`, error);
-    return "Unknown";
-  }
-}
-
-
-
 /**
- * 🎯 FONCTION 1 : Synchronise les MATCHS de toutes les ligues EN PARALLÈLE (via la fonction syncMatchesForCompetition)
- * Utilisé par le cron toutes les 15 minutes
- * ⚡ Rapide : ~4-6 secondes (6 appels API en parallèle)
+ * SYNCHRONISATION DES MATCHS (Parallèle possible)
  */
-
 export async function syncAllMatches() {
-  console.log(`\n⚽ Début de la synchronisation des MATCHS à ${new Date().toLocaleString('fr-FR')}`);
-  console.log(`📋 Ligues: ${LEAGUES_TO_SYNC.join(', ')}\n`);
+  console.log(`\n⚽ Lancement synchro matchs : ${new Date().toISOString()}`);
 
-  // Lancer TOUTES les synchronisations EN MÊME TEMPS
-  const promisesSyncMatches = LEAGUES_TO_SYNC.map(async (leagueCode) => {
+  const promises = LEAGUES_TO_SYNC.map(async (leagueCode) => {
     try {
-      console.log(`🕒 [${leagueCode}] Démarrage...`);
+      const response = await axios.get(`${FOOTBALL_API_URL}/competitions/${leagueCode}/matches`, {
+        headers: { "X-Auth-Token": TOKEN }
+      });
 
-      await syncMatchesForCompetition(leagueCode);
-      
-      console.log(`✅ [${leagueCode}] Terminé`);
-      return { leagueCode, status: 'success' };
+      const { matches, competition } = response.data;
 
-    } catch (error) {
-      console.error(`❌ [${leagueCode}] Erreur:`, error);
+      const dbComp = await prisma.competition.upsert({
+        where: 
+        { 
+          api_id: competition.id 
+        },
+        update: 
+        { 
+          name: competition.name, 
+          emblem_url: competition.emblem 
+        },
+        create: 
+        { 
+          api_id: competition.id, 
+          name: competition.name, 
+          code: competition.code, 
+          emblem_url: competition.emblem,
+          country: competition.area?.name || "Unknown"
+        }
+      });
 
-      return { leagueCode, status: 'error', error };
+      // On traite les matchs de la ligue
+      for (const m of matches) {
+        if (!m.homeTeam?.id || !m.awayTeam?.id) continue;
+
+        // Note: On crée l'équipe si elle n'existe pas, sans faire d'appel API supplémentaire
+        const [homeTeam, awayTeam] = await Promise.all([
+          prisma.team.upsert({
+            where: 
+            { 
+              api_id: m.homeTeam.id 
+            },
+            update: 
+            { 
+              crest_url: m.homeTeam.crest 
+            },
+            create: { 
+              api_id: m.homeTeam.id, 
+              name: m.homeTeam.shortName, 
+              tla: m.homeTeam.tla || "N/A", 
+              crest_url: m.homeTeam.crest || "", 
+              country: "Unknown" 
+            }
+          }),
+          prisma.team.upsert({
+            where: 
+            { 
+              api_id: m.awayTeam.id 
+            },
+            update: 
+            { 
+              crest_url: m.awayTeam.crest 
+            },
+            create: 
+            { 
+              api_id: m.awayTeam.id, 
+              name: m.awayTeam.shortName, 
+              tla: m.awayTeam.tla || "N/A", 
+              crest_url: m.awayTeam.crest || "", 
+              country: "Unknown" 
+            }
+          })
+        ]);
+
+        await prisma.match.upsert({
+          where: 
+          { 
+            api_id: m.id 
+          },
+          update: 
+          {
+            status: m.status as MatchStatus,
+            home_score: m.score?.fullTime?.home ?? null,
+            away_score: m.score?.fullTime?.away ?? null,
+            date: new Date(m.utcDate),
+          },
+          create:
+          {
+            api_id: m.id,
+            date: new Date(m.utcDate),
+            status: m.status as MatchStatus,
+            home_team_id: homeTeam.id,
+            away_team_id: awayTeam.id,
+            competition_id: dbComp.id,
+            home_score: m.score?.fullTime?.home ?? null,
+            away_score: m.score?.fullTime?.away ?? null,
+          }
+        });
+      }
+      return leagueCode;
+    } catch (error: any) {
+      console.error(`❌ Erreur ${leagueCode}:`, error.message);
     }
   });
 
-  const results = await Promise.all(promisesSyncMatches);
+  await Promise.all(promises);
+  console.log("🏁 Fin de synchro des matchs.");
+}
 
-  const successCount = results.filter(r => r.status === 'success').length;
-  const errorCount = results.filter(r => r.status === 'error').length;
+/**
+ * 🌍 SYNCHRO COMPÉTITIONS + ÉQUIPES + PAYS + RELATIONS
+ * Cette fonction règle ton problème de "Country" pour tout le monde en 6 requêtes.
+ */
+export async function syncAllCompetitions() {
+  console.log(`\n🌍 Maj des Compétitions et Pays...`);
 
-  console.log(`\n🏁 Synchronisation des matchs terminée`);
-  console.log(`📊 Résultats: ${successCount} succès, ${errorCount} erreurs\n`);
+  // On lance en parallèle pour les 6 ligues (6 requêtes < 10)
+  const promises = LEAGUES_TO_SYNC.map(async (leagueCode) => {
+    try {
+      // On récupère les équipes, ce qui nous donne aussi les infos de la compétition
+      const response = await axios.get(`${FOOTBALL_API_URL}/competitions/${leagueCode}/teams`, {
+        headers: { "X-Auth-Token": TOKEN }
+      });
+
+      const { competition, teams } = response.data;
+
+      // 🔍 L'API renvoie le pays dans competition.area.name
+      const countryName = competition.area?.name || "Unknown";
+
+
+      // 1. Mise à jour de la Compétition avec son pays
+      const dbComp = await prisma.competition.upsert({
+        where: 
+        { 
+          api_id: competition.id 
+        },
+        update: 
+        { 
+          name: competition.name,
+          emblem_url: competition.emblem,
+          country: countryName
+        },
+        create: { 
+          api_id: competition.id, 
+          name: competition.name, 
+          code: competition.code, 
+          emblem_url: competition.emblem, 
+          country: countryName
+        }
+      });
+
+      // 2. Mise à jour des équipes et de leur pays (via team.area.name)
+      for (const team of teams) {
+        const teamCountry = team.area?.name || "Unknown";
+
+        const dbTeam = await prisma.team.upsert({
+          where: 
+          { 
+            api_id: team.id 
+          },
+          update: 
+          { 
+            country: teamCountry, 
+            crest_url: team.crest 
+          },
+          create: 
+          { 
+            api_id: team.id, 
+            name: team.shortName, 
+            tla: team.tla || "N/A", 
+            crest_url: team.crest || "", 
+            country: teamCountry
+          }
+        });
+
+        // 3. Relation Competition <-> Team
+        await prisma.competitionTeam.upsert({
+          where: { 
+            team_id_competition_id: { 
+              team_id: dbTeam.id, 
+              competition_id: dbComp.id 
+            } 
+          },
+          update: {},
+          create: { 
+            team_id: dbTeam.id, 
+            competition_id: dbComp.id 
+          }
+        });
+      }
+      console.log(`✅ ${leagueCode} Pays enregistré : ${countryName}`);
+    } catch (error: any) {
+      console.error(`❌ Erreur ${leagueCode}:`, error.response?.data?.message || error.message);
+    }
+  });
+
+  await Promise.all(promises);
 }
 
 
 
 /**
- * 🌍 FONCTION 2 : Synchronise les infos des COMPÉTITIONS (pays, emblèmes, etc.)
- * Utilisé par le cron 1 fois par mois pour mettre à jour les métadonnées
- * 🐢 Moins urgent car les infos changent rarement
+ * 🌍 FONCTION : Met à jour uniquement le PAYS et l'EMBLÈME des compétitions
+ * Appelée 4 minutes après le démarrage, puis 1 fois par an.
  */
+export async function syncCompetitionsMetadata() {
+  console.log(`\n🏆 Maj des pays des compétitions : ${new Date().toISOString()}`);
 
-export async function syncAllCompetitions() {
-  console.log(`\n🌍 Début de la synchronisation des COMPÉTITIONS à ${new Date().toLocaleString('fr-FR')}`);
-  console.log(`📋 Ligues: ${LEAGUES_TO_SYNC.join(', ')}\n`);
-
-  const promisesSyncCompetitions = LEAGUES_TO_SYNC.map(async (leagueCode) => {
+  const promises = LEAGUES_TO_SYNC.map(async (leagueCode) => {
     try {
-      console.log(`🕒 [${leagueCode}] Mise à jour des infos...`);
-      
-      if (!TOKEN) {
-        throw new Error("Token API manquant");
-      }
-
-      // Récupérer les infos de la compétition
-      const response = await axios.get(
-        `${FOOTBALL_API_URL}/competitions/${leagueCode}`,
-        { headers: { "X-Auth-Token": TOKEN } }
-      );
+      const response = await axios.get(`${FOOTBALL_API_URL}/competitions/${leagueCode}`, {
+        headers: { "X-Auth-Token": TOKEN }
+      });
 
       const comp = response.data;
-      const areaName = comp.area?.name || "Unknown";
-
-      // Mettre à jour ou créer UNIQUEMENT la compétition (pas les matchs)
+      
       await prisma.competition.upsert({
         where: { api_id: comp.id },
-        update: {
-          name: comp.name,
-          emblem_url: comp.emblem,
-          country: areaName,
+        update: { 
+          country: comp.area?.name || "Unknown",
+          emblem_url: comp.emblem 
         },
-        create: {
-          api_id: comp.id,
-          name: comp.name,
-          code: comp.code,
-          country: areaName,
-          emblem_url: comp.emblem,
-        },
+        create: { 
+          api_id: comp.id, 
+          name: comp.name, 
+          code: comp.code, 
+          country: comp.area?.name || "Unknown",
+          emblem_url: comp.emblem 
+        }
       });
-
-      console.log(`✅ [${leagueCode}] Infos mises à jour (pays: ${areaName})`);
-
-      return { leagueCode, status: 'success' };
-
-      
-    } catch (error) {
-      console.error(`❌ [${leagueCode}] Erreur:`, error);
-
-      return { leagueCode, status: 'error', error };
+      console.log(`✅ [${leagueCode}] Pays mis à jour: ${comp.area?.name}`);
+    } catch (error: any) {
+      console.error(`❌ [${leagueCode}] Erreur Metadata:`, error.message);
     }
   });
 
-  const results = await Promise.all(promisesSyncCompetitions);
-
-  const successCount = results.filter(r => r.status === 'success').length;
-  const errorCount = results.filter(r => r.status === 'error').length;
-
-  console.log(`\n🏁 Synchronisation des compétitions terminée`);
-  console.log(`📊 Résultats: ${successCount} succès, ${errorCount} erreurs\n`);
+  await Promise.all(promises);
 }
-
-
-
-/**
- * 📝 Synchronise les matchs d'UNE SEULE compétition
- * Appelé par syncAllMatches() pour chaque ligue en parallèle
- */
-
-export async function syncMatchesForCompetition(competitionCode: string) {
-  try {
-    console.log(`🔄 Synchro lancée pour ${competitionCode}...`);
-
-    if (!TOKEN) {
-      throw new Error(
-        "Le Token API Football-Data est manquant dans le fichier .env"
-      );
-    }
-
-    const response = await axios.get(
-      `${FOOTBALL_API_URL}/competitions/${competitionCode}/matches`,
-      {
-        headers: { "X-Auth-Token": TOKEN },
-      }
-    );
-
-    const matches = response.data.matches;
-    const competitionData = response.data.competition;
-    // On sécurise la récupération du pays (area)
-    const areaName =
-      response.data.area?.name || competitionData?.area?.name || "Unknown";
-
-    // 1. Mise à jour ou Création de la compétition
-    const dbCompetition = await prisma.competition.upsert({
-      where: { api_id: competitionData.id },
-      update: {
-        name: competitionData.name,
-        emblem_url: competitionData.emblem,
-      },
-      create: {
-        api_id: competitionData.id,
-        name: competitionData.name,
-        code: competitionData.code,
-        country: areaName,
-        emblem_url: competitionData.emblem,
-      },
-    });
-
-    for (const m of matches) {
-      // 🛡️ SÉCURITÉ : Si une équipe n'est pas encore définie (cas fréquent en CL)
-      if (!m.homeTeam?.id || !m.awayTeam?.id) {
-        console.log(
-          `⏭️ Match sauté (équipes non définies) : ${
-            m.homeTeam?.name || "TBD"
-          } vs ${m.awayTeam?.name || "TBD"}`
-        );
-        continue; // On passe au match suivant
-      }
-
-      // Récupérer le pays de chaque équipe (en attendant les promesses)
-      const [homeTeamCountry, awayTeamCountry] = await Promise.all([getTeamCountry(m.homeTeam.id),
-        getTeamCountry(m.awayTeam.id)
-      ]);
-      
-
-      // 2. Mise à jour ou Création Équipe Domicile
-      const homeTeam = await prisma.team.upsert({
-        where: { api_id: m.homeTeam.id },
-        update: { crest_url: m.homeTeam.crest },
-        create: {
-          api_id: m.homeTeam.id,
-          name: m.homeTeam.name,
-          tla: m.homeTeam.tla || "N/A",
-          crest_url: m.homeTeam.crest || "",
-          country: homeTeamCountry,
-        },
-      });
-
-      // 3. Mise à jour ou Création Équipe Extérieur
-      const awayTeam = await prisma.team.upsert({
-        where: { api_id: m.awayTeam.id },
-        update: { crest_url: m.awayTeam.crest },
-        create: {
-          api_id: m.awayTeam.id,
-          name: m.awayTeam.name,
-          tla: m.awayTeam.tla || "N/A",
-          crest_url: m.awayTeam.crest || "",
-          country: awayTeamCountry,
-        },
-      });
-
-      // 4. Mise à jour ou Création du Match
-      await prisma.match.upsert({
-        where: { api_id: m.id },
-        update: {
-          status: m.status as MatchStatus,
-          home_score: m.score?.fullTime?.home ?? null,
-          away_score: m.score?.fullTime?.away ?? null,
-          date: new Date(m.utcDate),
-        },
-        create: {
-          api_id: m.id,
-          date: new Date(m.utcDate),
-          status: m.status as MatchStatus,
-          home_team_id: homeTeam.id,
-          away_team_id: awayTeam.id,
-          competition_id: dbCompetition.id,
-          home_score: m.score?.fullTime?.home ?? null,
-          away_score: m.score?.fullTime?.away ?? null,
-        },
-      });
-    }
-    console.log(
-      `✅ ${matches.length} matchs synchronisés pour ${competitionCode}.`
-    );
-  } catch (error: any) {
-    console.error(
-      `❌ Erreur de synchronisation (${competitionCode}):`,
-      error.response?.data?.message || error.message
-    );
-    throw error;
-  }
-}
-
-
-
-// 🌎 FONCTION 4 : Synchronise les PAYS des ÉQUIPES
-export async function syncAllTeamsCountries() {
-  console.log(`\n🌎 Début de la synchronisation des PAYS DES ÉQUIPES à ${new Date().toLocaleString('fr-FR')}`);
-
-  try {
-    // Récupère toutes les équipes sans pays ou avec "Unknown"
-    const teams = await prisma.team.findMany({
-      where: { 
-        OR: [ 
-          { country: { equals: "Unknown" } }
-        ] 
-      },
-      select: { api_id: true, name: true }
-    });
-
-    if (teams.length === 0) {
-      console.log("✅ Tous les pays des équipes sont déjà à jour.");
-      return;
-    }
-
-    console.log(`📋 ${teams.length} équipes à mettre à jour...`);
-
-      // Traite les équipes par lots de 10 pour respecter la limite de l'API
-
-    const BATCH_SIZE = 10;
-    for (let i = 0; i < teams.length; i += BATCH_SIZE) {
-      const batch = teams.slice(i, i + BATCH_SIZE)
-      const promises = batch.map(async (team) => {
-      try {
-        const country = await getTeamCountry(team.api_id);
-        await prisma.team.update({
-          where: { api_id: team.api_id },
-          data: { country }
-        });
-        console.log(`✅ [${team.name}] Pays mis à jour: ${country}`);
-      } catch (error) {
-        console.error(`❌ [${team.name}] Erreur:`, error);
-      }
-    });
-
-      // Exécute les requêtes du lot en parallèle
-      await Promise.all(promises);
-
-
-      // Attends 60 secondes entre chaque lot pour respecter la limite de 10 requêtes/minute
-      if (i + BATCH_SIZE < teams.length) {
-        console.log(`⏳ Pause de 60 secondes après le lot ${Math.ceil(i / BATCH_SIZE) + 1}...`);
-        await new Promise(resolve => setTimeout(resolve, 60000));
-      }
-    }
-
-
-      console.log(`\n🏁 Synchronisation des pays des équipes terminée`);
-    } catch (error) {
-      console.error(`❌ Erreur globale:`, error);
-      throw error;
-    }
-  }
