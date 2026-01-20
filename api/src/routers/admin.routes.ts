@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { getAdminStats } from "../controllers/admin.controller.ts";
+import { requireAdmin } from "../middleware/auth.middleware.ts";
 
 export const router: Router = Router();
 
-router.get("/admin/stats", getAdminStats);
+// Toutes les routes admin nécessitent le rôle ADMIN
+router.get("/admin/stats", requireAdmin, getAdminStats);
