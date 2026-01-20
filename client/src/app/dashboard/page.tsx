@@ -29,7 +29,12 @@ export default async function DashboardPage() {
       </section>
       <div className={styles.wrapper}>
         <section className={styles.pronos}>
-          <h2>Mes derniers pronos</h2>
+          <div className={styles.pronosHeader}>
+            <h2>Mes derniers pronos</h2>
+            <Link href="/dashboard/pronostics" className={styles.viewAllLink}>
+              Voir tous mes pronostics →
+            </Link>
+          </div>
           <div>
             <article className={styles.prono}>
               <p>Havre AC - O. de Marseille</p>

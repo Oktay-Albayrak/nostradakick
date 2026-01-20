@@ -48,13 +48,13 @@ model User {
   updated_at    DateTime @updatedAt @db.Timestamptz()
 
   stats       UserStat?    @relation("UserToUserStat")
-  predictions Prediction[]
+  predictions Prediction[] @relation("UserToPrediction")
 
   @@map("user")
 }
 
 model UserStat {
-  user         User   @relation("UserToUserStat", fields: [user_id], references: [id])
+  user         User   @relation("UserToUserStat", fields: [user_id], references: [id],  onDelete: Cascade)
   user_id      String @id @db.Uuid
   wins_count   Int    @default(0)
   losses_count Int    @default(0)
@@ -132,7 +132,7 @@ model Prediction {
   id               String           @id @default(uuid()) @db.Uuid
   prediction_value PredictionValue
   status           PredictionStatus @default(PENDING)
-  user             User             @relation(fields: [user_id], references: [id])
+  user             User             @relation("UserToPrediction", fields: [user_id], references: [id], onDelete: Cascade)
   user_id          String           @db.Uuid
   match            Match            @relation(fields: [match_id], references: [id])
   match_id         String           @db.Uuid
