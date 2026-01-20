@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // 1. Extraction du cookie
   // Le middleware a accès aux cookies de la requête HTTP
   const token = request.cookies.get('accessToken')?.value;
