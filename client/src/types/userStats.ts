@@ -1,4 +1,4 @@
-import { IMatch, MatchStatus } from "@/types/match";
+import { IMatch } from "@/types/match";
 
 export interface IUserStats {
   id: string;
@@ -16,6 +16,6 @@ export interface IUserP {
 export interface IPrediction {
   id: string;
   prediction_value: "HOME" | "DRAW" | "AWAY";
-  status: MatchStatus;
+  status: "PENDING" | "WON" | "LOST" | "CANCELLED";
   match: IMatch
 }

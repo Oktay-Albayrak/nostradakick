@@ -1,47 +1,37 @@
-"use client"
-
 import Image from "next/image";
 import styles from "./page.module.css";
-import { use, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { notFound } from "next/navigation";
 import { IUserStats } from "@/types/userStats";
+import Link from "next/link";
 
+// On définit le type des props
+interface PageProps {
+  params: Promise<{ username: string }>;
+}
 
+export default async function Profil({ params }: PageProps) {
+  // 1. On récupère le username
+  const { username } = await params;
 
-export default function Page({
-  params,
-}: {
-  params: Promise<{ username: string }>
-}) {
-  const { username } = use(params);
+  // 2. On récupère les données directement sur le serveur
+  // Note : "cache: 'no-store'" ou "next: { revalidate: 60 }" permet de gérer la mise en cache
+  const response = await fetch(`http://localhost:4000/api/users/${username}`, {
+    cache: "no-store",
+  });
 
-  const [user, setUser] = useState<IUserStats | null>(null);
+  // 3. Si l'utilisateur n'est pas trouvé, on renvoie vers la page 404 de Next.js
+  if (!response.ok) {
+    notFound();
+  }
 
-  const router = useRouter();
+  const user: IUserStats = await response.json();
 
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const response = await fetch(`http://localhost:4000/api/users/${username}`, {
-          method: "GET",
-        });
-
-        if (!response.ok) { router.push("/404") }
-
-        const data = await response.json()
-        setUser(data)
-      
-      } catch (error) {
-        console.error("Erreur", error);
-        router.push("/404");
-      }
-    };
-
-    getUser();
-
-  }, [username, router])
-
-  const totalGames = (user?.stats?.wins_count ?? 0) + (user?.stats?.losses_count ?? 0);
+  // Calculs préparés côté serveur
+  const wins = user.stats?.wins_count ?? 0;
+  const losses = user.stats?.losses_count ?? 0;
+  const totalGames = wins + losses;
+  const points = wins * 5 - losses;
+  const winRate = totalGames > 0 ? ((wins * 100) / totalGames).toFixed(2) : "0";
 
   return (
     <main className={styles.main}>
@@ -51,22 +41,25 @@ export default function Page({
           src="/default-avatar.jpg"
           width={200}
           height={200}
-          alt="Avatar du membre"
+          alt={`Avatar de ${user.username}`}
         />
         <div className={styles.bio}>
-          <h2>{user?.username}</h2>
+          <h2>{user.username}</h2>
           <p>Membre depuis 02/2021</p>
-          <p>{(user?.stats?.wins_count ?? 0) + (user?.stats?.losses_count ?? 0)} pronostics</p>
-          <p>{(user?.stats?.wins_count ?? 0) * 5 - (user?.stats?.losses_count ?? 0)} points</p>
+          <p>{totalGames} pronostics</p>
+          <p>{points} points</p>
         </div>
       </section>
+
       <div className={styles.wrapper}>
         <section className={styles.pronos}>
           <h2>Derniers pronos</h2>
           <div>
-            {user?.predictions.slice(0, 4).map((p, index) => (
-              <article key={index} className={styles.prono}>
-                <p>{user?.predictions[index].match.home_team.name} - {user?.predictions[index].match.away_team.name}</p>
+            {user.predictions?.slice(0, 4).map((p, index) => (
+              <article key={p.id || index} className={styles.prono}>
+                <p>
+                  {p.match.home_team.name} - {p.match.away_team.name}
+                </p>
                 <div className={styles.choice}>
                   <p className={p.prediction_value === "HOME" ? styles.active : ""}>1</p>
                   <p className={p.prediction_value === "DRAW" ? styles.active : ""}>N</p>
@@ -74,44 +67,30 @@ export default function Page({
                 </div>
               </article>
             ))}
+            <Link href={`/profil/${username}/pronostics`} className={styles.goPronos}>
+              tous les pronos ➜
+            </Link>
           </div>
         </section>
+
         <section className={styles.stats}>
           <h2>Statistiques</h2>
           <div>
             <article className={styles.stat}>
-              <Image
-                className={styles.logo}
-                src="/croissance.png"
-                width={50}
-                height={50}
-                alt="Logo - Retourner vers l'accueil"
-              />
-              <p>Meilleure série: {user?.stats?.best_streak}</p>
+              <Image className={styles.logo} src="/croissance.png" width={50} height={50} alt="Série" />
+              <p>Meilleure série: {user.stats?.best_streak ?? 0}</p>
             </article>
             <article className={styles.stat}>
-              <Image
-                className={styles.logo}
-                src="/prix.png"
-                width={50}
-                height={50}
-                alt="Logo - Retourner vers l'accueil"
-              />
-              <p>Pronos gagnants: {(user?.stats?.wins_count ?? 0)}</p>
+              <Image className={styles.logo} src="/prix.png" width={50} height={50} alt="Gagnants" />
+              <p>Pronos gagnants: {wins}</p>
             </article>
             <article className={styles.stat}>
-              <Image
-                className={styles.logo}
-                src="/taux.png"
-                width={50}
-                height={50}
-                alt="Logo - Retourner vers l'accueil"
-              />
-              <p>Taux de réussite: {((user?.stats?.wins_count ?? 0) * 100 / totalGames).toFixed(2)}%</p>
+              <Image className={styles.logo} src="/taux.png" width={50} height={50} alt="Taux" />
+              <p>Taux de réussite: {winRate}%</p>
             </article>
           </div>
         </section>
       </div>
     </main>
-  )
+  );
 }
