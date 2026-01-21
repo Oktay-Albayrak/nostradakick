@@ -20,6 +20,21 @@
   text-transform: uppercase;
 }
 
+.derbyName {
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: var(--action-color);
+  color: var(--primary);
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border-radius: 0 8px 0 8px;
+  text-transform: uppercase;
+  margin-top: 0;
+  letter-spacing: 0.5px;
+}
+
 .mainInfo {
   display: flex;
   justify-content: space-between;
@@ -138,6 +153,17 @@
   .compactCard {
     padding: 0.8rem;
     border: 1px solid var(--action-color);
+  }
+
+  .compactCard .derbyName {
+    top: auto;
+    right: auto;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 8px 8px 0 0;
+    margin: 0;
+    white-space: nowrap;
   }
 
   .compactCard .hotBadge {

@@ -8,10 +8,14 @@ import styles from "./InfiniteMatches.module.css";
 
 interface InfiniteMatchesProps {
   initialMatches: IMatch[]; // Les 10 premiers matchs envoyés par le serveur
+  league?: string;
+  isHot?: boolean;
 }
 
 export default function InfiniteMatches({
   initialMatches,
+  league,
+  isHot,
 }: InfiniteMatchesProps) {
   // --- ÉTAT (STATE) ---
 
@@ -48,9 +52,21 @@ export default function InfiniteMatches({
     setIsLoading(true); // On bloque les autres appels potentiels
 
     try {
-      // On appelle l'API avec les Query Parameters : ?page=X&limit=10
+      /// 1. On prépare les paramètres de recherche
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: "10",
+      });
+
+      // 2. On ajoute la ligue si elle existe
+      if (league) params.set("league", league);
+
+      // 3. On ajoute le filtre hot si activé
+      if (isHot) params.set("filter", "hot");
+
+      // 4. On appelle l'API avec l'URL complète
       const response = await fetch(
-        `http://localhost:4000/api/matches?page=${page}&limit=10`
+        `http://localhost:4000/api/matches?${params.toString()}`,
       );
       const newMatches: IMatch[] = await response.json();
 
@@ -64,7 +80,7 @@ export default function InfiniteMatches({
           // On ne garde que les matchs dont l'ID n'est pas déjà dans la liste actuelle
           const existingIds = new Set(previous.map((m) => m.id));
           const uniqueNewMatches = newMatches.filter(
-            (m) => !existingIds.has(m.id)
+            (m) => !existingIds.has(m.id),
           );
 
           return [...previous, ...uniqueNewMatches];
@@ -76,7 +92,7 @@ export default function InfiniteMatches({
     } catch (err) {
       console.error(
         "Erreur lors du chargement des matchs supplémentaires",
-        err
+        err,
       );
     } finally {
       setIsLoading(false); // On libère le verrou, peu importe si ça a réussi ou échoué
