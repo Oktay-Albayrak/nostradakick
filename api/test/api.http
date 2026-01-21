@@ -53,7 +53,7 @@ GET http://localhost:4000/api/competitions
 GET http://localhost:4000/api/matches
 
 ### Get Match by ID
-GET http://localhost:4000/api/matches/2007
+GET http://localhost:4000/api/matches/551996
 
 ### Get All Predictions
 GET http://localhost:4000/api/predictions
@@ -76,12 +76,6 @@ DELETE http://localhost:4000/api/predictions/023e8d45-cb76-4fe1-ad01-0f4cd04ff0e
 
 ### Test sync TOUTES les compétitions
 GET http://localhost:4000/api/admin/test-sync-competitions
-
-### Test sync UNE ligue (Champions League)
-GET http://localhost:4000/api/admin/test-sync-one?league=CL
-
-### Teste sync UNE ligue (Ligue 1)
-GET http://localhost:4000/api/admin/test-sync-one?league=FL1
 
 ### Test sync TOUS les matchs (6 ligues en parallèle)
 GET http://localhost:4000/api/admin/test-sync-matches
