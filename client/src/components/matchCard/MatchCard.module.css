@@ -20,6 +20,19 @@
   text-transform: uppercase;
 }
 
+.competitionBadgeStatus {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--primary);
+  color: var(--white);
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border-radius: 8px 0 8px 0;
+  text-transform: uppercase;
+}
+
 .mainInfo {
   display: flex;
   justify-content: space-between;

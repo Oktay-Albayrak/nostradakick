@@ -16,6 +16,20 @@ export default function MatchCard({
   // Si pour une raison X le match est absent, on affiche rien
   if (!match) return null;
 
+  // Fonction pour obtenir le label du statut
+  const getStatusLabel = (status: string) => {
+    const statusMap: Record<string, string> = {
+      "SCHEDULED": "📅 Programmé",
+      "TIMED": "⏰ À venir",
+      "IN_PLAY": "🔴 En cours",
+      "PAUSED": "⏸️ Mi-temps",
+      "FINISHED": "✅ Terminé",
+      "POSTPONED": "⏳ Reporté",
+      "CANCELLED": "❌ Annulé",
+    };
+    return statusMap[status] || status;
+  };
+
   // On utilise les vraies données issues de Prisma
   const { day, time } = getFormattedDate(match.date);
   const homeTeam = match.home_team;
@@ -69,6 +83,9 @@ export default function MatchCard({
             {match.competition.name}
           </div>
           {isHot && <span className={styles.hotBadge}>🔥</span>}
+          <div className={styles.competitionBadgeStatus}>
+            {getStatusLabel(match.status)}
+            </div>
         </section>
         <section className={styles.mainInfo}>
           {/* HOME TEAM */}

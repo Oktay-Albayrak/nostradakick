@@ -1,4 +1,4 @@
-import { IMatch, MatchStatus } from "@/types/match";
+import { IPrediction } from "@/types/match";
 
 export interface IUserStats {
   id: string;
@@ -11,11 +11,4 @@ export interface IUserP {
   wins_count: number;
   losses_count: number;
   best_streak: number;
-}
-
-export interface IPrediction {
-  id: string;
-  prediction_value: "HOME" | "DRAW" | "AWAY";
-  status: MatchStatus;
-  match: IMatch
 }
