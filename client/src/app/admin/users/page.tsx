@@ -1,6 +1,10 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import styles from "./page.module.css";
 import { IUser } from "@/types/user";
+import DeleteUserButton from "./DeleteUserButton";
+import ResetPasswordButton from "./ResetPasswordButton";
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -10,12 +14,58 @@ function formatDate(dateString: string): string {
 }
 
 export default async function AdminUsers() {
+  // Récupération du cookie accessToken
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value;
+
+  // Vérification de l'authentification et du rôle ADMIN
+  let currentUser: IUser | null = null;
+  try {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+    
+    if (accessToken) {
+      headers["Cookie"] = `accessToken=${accessToken}`;
+    }
+
+    const userResponse = await fetch("http://localhost:4000/api/auth/me", {
+      cache: "no-store",
+      headers,
+    });
+
+    if (userResponse.ok) {
+      currentUser = await userResponse.json();
+    }
+  } catch (e) {
+    console.error("Erreur lors de la vérification de l'utilisateur:", e);
+  }
+
+  // Redirection si non authentifié ou non admin
+  if (!currentUser) {
+    redirect("/login");
+  }
+
+  if (currentUser.role !== "ADMIN") {
+    redirect("/dashboard");
+  }
+
+  // Récupération des utilisateurs
   let users: IUser[] = [];
   let error: string | null = null;
 
   try {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+    
+    if (accessToken) {
+      headers["Cookie"] = `accessToken=${accessToken}`;
+    }
+
     const response = await fetch("http://localhost:4000/api/users", {
       cache: "no-store",
+      headers,
     });
 
     if (!response.ok) {
@@ -97,18 +147,11 @@ export default async function AdminUsers() {
                         >
                           Modifier
                         </button>
-                        <button
-                          className={`${styles.actionButton} ${styles.resetButton}`}
-                          title="Réinitialiser mot de passe (à implémenter)"
-                        >
-                          Reset MDP
-                        </button>
-                        <button
-                          className={`${styles.actionButton} ${styles.deleteButton}`}
-                          title="Supprimer (à implémenter)"
-                        >
-                          Supprimer
-                        </button>
+                        <ResetPasswordButton
+                          userId={user.id}
+                          username={user.username}
+                        />
+                        <DeleteUserButton userId={user.id} username={user.username} />
                       </div>
                     </td>
                   </tr>
