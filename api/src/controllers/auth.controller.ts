@@ -117,7 +117,8 @@ export async function getAuthenticatedUser(req: Request, res: Response) {
   const accessToken = extractAccessTokenFromRequest(req);
 
   if (accessToken === null) {
-    throw new Error("Utilisateur non identifié");
+    res.json({error: "nos access token"});
+    return 0;
   }
 
   const payload = decodeJWT(accessToken);
