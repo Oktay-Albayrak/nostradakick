@@ -11,6 +11,8 @@ export async function getAllMatches(req: Request, res: Response) {
     const skip = (page - 1) * limit;
 
     const leagueCode = req.query.league;
+    const filter = req.query.filter;
+
     const whereConditions: any = {
       status: {
         in: ["SCHEDULED", "TIMED", "IN_PLAY", "PAUSED"],
@@ -23,6 +25,10 @@ export async function getAllMatches(req: Request, res: Response) {
       whereConditions.competition = {
         code: leagueCode,
       };
+    }
+
+    if (filter === "hot") {
+      whereConditions.is_featured = true;
     }
 
     const matches = await prisma.match.findMany({
