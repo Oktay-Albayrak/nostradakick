@@ -1,12 +1,14 @@
 import { app } from "./src/app.ts";
 import { config } from "./config.ts";
-import "./src/jobs/syncMatches.cronJob.ts"
-import "./src/jobs/syncCompetitions.cronJob.ts"
+
+import "./src/jobs/syncMatches.cronJob.ts"  // Toutes les 20 min
+import "./src/jobs/syncCompetitions.cronJob.ts" // 1er du mois à 3h02
+import "./src/jobs/syncMetadaCompetitions.cronJob.ts" // 15 août à 4h02
 
 import {
   syncAllCompetitions,
   syncAllMatches,
-  syncMatchesForCompetition,
+  //syncMatchesForCompetition,
 } from "./src/services/sync.service.ts";
 
 
@@ -46,29 +48,6 @@ app.get("/api/admin/test-sync-matches", async (req, res) => {
   }
 })
 
-
-// Route de test pour synchroniser UNE SEULE ligue manuellement
-// exemple: /api/admin/test-sync-one?league=CL
-app.get("/api/admin/test-sync-one", async (req, res) => {
-  
-  try {
-    const league = (req.query.league as string) || "CL";
-
-    // On teste avec une compétition
-    await syncMatchesForCompetition(league);
-
-    res.json({
-      message:
-        `Synchro de ${league} réussie !`,
-      info: "Vérifie ton interface client ou Prisma Studio."
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      error: "La synchro a échoué",
-      details: error.message,
-    });
-  }
-});
 
 // lancement de l'app express
 app.listen(config.port, () => {

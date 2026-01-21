@@ -92,6 +92,10 @@
   background: var(--primary);
 }
 
+.condition {
+  font-size: .8rem;
+}
+
 .error {
   color: red;
 }

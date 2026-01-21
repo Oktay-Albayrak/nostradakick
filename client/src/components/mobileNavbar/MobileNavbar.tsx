@@ -41,7 +41,7 @@ export default function MobileNavbar() {
           alt="Rechercher un match ou une compétition précise"
         />
       </Link>
-      <Link href="/user">
+      <Link href="/dashboard">
         <Image
           className={styles.icon}
           src="/user-icon.png"

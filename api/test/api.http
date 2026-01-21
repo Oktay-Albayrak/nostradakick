@@ -53,13 +53,13 @@ GET http://localhost:4000/api/competitions
 GET http://localhost:4000/api/matches
 
 ### Get Match by ID
-GET http://localhost:4000/api/matches/2007
+GET http://localhost:4000/api/matches/551996
 
 ### Get All Predictions
 GET http://localhost:4000/api/predictions
 
 ### Get One Predictions
-GET http://localhost:4000/api/predictions/00000000-5000-4000-9000-000000000044
+GET http://localhost:4000/api/predictions/023e8d45-cb76-4fe1-ad01-0f4cd04ff0ee
 
 ### Create one Prediction
 POST http://localhost:4000/api/predictions
@@ -67,18 +67,76 @@ Content-Type: application/json
 
 {
   "user_id": "00000000-1000-4000-9000-000000000001",
-  "match_id": "00000000-4000-4000-9000-00000000000d",
+  "match_id": "28549d58-221f-4430-b5a8-a7c4327d25aa",
   "prediction_value": "HOME"
 }
+
+### Delete one Prediction
+DELETE http://localhost:4000/api/predictions/023e8d45-cb76-4fe1-ad01-0f4cd04ff0ee
 
 ### Test sync TOUTES les compétitions
 GET http://localhost:4000/api/admin/test-sync-competitions
 
-### Test sync UNE ligue (Champions League)
-GET http://localhost:4000/api/admin/test-sync-one?league=CL
-
-### Teste sync UNE ligue (Ligue 1)
-GET http://localhost:4000/api/admin/test-sync-one?league=FL1
-
 ### Test sync TOUS les matchs (6 ligues en parallèle)
 GET http://localhost:4000/api/admin/test-sync-matches
+
+
+### TESTS PROTECTION ROUTE /admin/stats
+
+### Test 1: Accès /admin/stats SANS authentification (doit retourner 401)
+GET http://localhost:4000/api/admin/stats
+
+### Test 2: Créer un utilisateur MEMBER pour les tests
+POST http://localhost:4000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "test_member",
+  "email": "test_member@example.com",
+  "password": "TestPassword123"
+}
+
+### Test 3: Login avec l'utilisateur MEMBER créé
+POST http://localhost:4000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test_member@example.com",
+  "password": "TestPassword123"
+}
+
+### Test 4: Accès /admin/stats avec un utilisateur MEMBER (doit retourner 403)
+# Remplacez le cookie accessToken ci-dessous par celui reçu après le login (Test 3)
+GET http://localhost:4000/api/admin/stats
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI5YmE5MzRhNS04YWEzLTQ1ZTUtYTVhNi1iODVjZTUyMzUzOTMiLCJ1c2VyUm9sZSI6Ik1FTUJFUiIsImlhdCI6MTc2ODkyNTIxNCwiZXhwIjoxNzY4OTI4ODE0fQ.rBvdUN9n7kus-nBrwGKyP498gKS_oevBbDXwAb40GxI
+
+### Test 5: Créer un utilisateur ADMIN pour les tests
+# Note: Vous devrez modifier manuellement le rôle en BDD car /register crée des MEMBER par défaut
+# Ou utiliser un utilisateur admin existant si vous connaissez son mot de passe
+POST http://localhost:4000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "test_admin",
+  "email": "test_admin@example.com",
+  "password": "TestPassword123"
+}
+
+### Test 6: Login avec l'utilisateur ADMIN
+# Utilisez un compte admin existant ou celui créé (après modification du rôle en BDD)
+POST http://localhost:4000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test_admin@example.com",
+  "password": "TestPassword123"
+}
+
+### Test 7: Accès /admin/stats avec un utilisateur ADMIN (doit retourner 200)
+# Remplacez le cookie accessToken ci-dessous par celui reçu après le login admin (Test 6)
+GET http://localhost:4000/api/admin/stats
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlNTA1YzVkMS0xNDc2LTQ3NDctYTRhMS03NWMwMDg3NDZmN2YiLCJ1c2VyUm9sZSI6Ik1FTUJFUiIsImlhdCI6MTc2ODkyNTc5NCwiZXhwIjoxNzY4OTI5Mzk0fQ.iTOleTZ2XkBT7sto_J4-CLRWK_px_3Rb8flyp-ueiPI
+
+### Test 8: Vérification utilisateur connecté (auth/me) pour voir le rôle
+GET http://localhost:4000/api/auth/me
+Cookie: accessToken=YOUR_TOKEN_HERE
