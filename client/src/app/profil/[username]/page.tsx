@@ -1,12 +1,48 @@
+"use client"
+
 import Image from "next/image";
 import styles from "./page.module.css";
+import { use, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { IUserStats } from "@/types/userStats";
 
-export default async function Page({
+
+
+export default function Page({
   params,
 }: {
   params: Promise<{ username: string }>
 }) {
-  const { username } = await params;
+  const { username } = use(params);
+
+  const [user, setUser] = useState<IUserStats | null>(null);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const response = await fetch(`http://localhost:4000/api/users/${username}`, {
+          method: "GET",
+        });
+
+        if (!response.ok) { router.push("/404") }
+
+        const data = await response.json()
+        setUser(data)
+      
+      } catch (error) {
+        console.error("Erreur", error);
+        router.push("/404");
+      }
+    };
+
+    getUser();
+
+  }, [username, router])
+
+  const totalGames = (user?.stats?.wins_count ?? 0) + (user?.stats?.losses_count ?? 0);
+
   return (
     <main className={styles.main}>
       <section className={styles.profil}>
@@ -18,48 +54,26 @@ export default async function Page({
           alt="Avatar du membre"
         />
         <div className={styles.bio}>
-          <h2>{username}</h2>
+          <h2>{user?.username}</h2>
           <p>Membre depuis 02/2021</p>
-          <p>587 pronostics</p>
-          <p>1231 points</p>
+          <p>{(user?.stats?.wins_count ?? 0) + (user?.stats?.losses_count ?? 0)} pronostics</p>
+          <p>{(user?.stats?.wins_count ?? 0) * 5 - (user?.stats?.losses_count ?? 0)} points</p>
         </div>
       </section>
       <div className={styles.wrapper}>
         <section className={styles.pronos}>
           <h2>Derniers pronos</h2>
           <div>
-            <article className={styles.prono}>
-              <p>PSG - Lens</p>
-              <div className={styles.choice}>
-                <p>1</p>
-                <p>N</p>
-                <p className={styles.active}>2</p>
-              </div>
-            </article>
-            <article className={styles.prono}>
-              <p>Lille - OM</p>
-              <div className={styles.choice}>
-                <p className={styles.active}>1</p>
-                <p>N</p>
-                <p>2</p>
-              </div>
-            </article>
-            <article className={styles.prono}>
-              <p>OL - Monaco</p>
-              <div className={styles.choice}>
-                <p className={styles.active}>1</p>
-                <p>N</p>
-                <p>2</p>
-              </div>
-            </article>
-            <article className={styles.prono}>
-              <p>Brest - Reims</p>
-              <div className={styles.choice}>
-                <p>1</p>
-                <p className={styles.active}>N</p>
-                <p>2</p>
-              </div>
-            </article>
+            {user?.predictions.slice(0, 4).map((p, index) => (
+              <article key={index} className={styles.prono}>
+                <p>{user?.predictions[index].match.home_team.name} - {user?.predictions[index].match.away_team.name}</p>
+                <div className={styles.choice}>
+                  <p className={p.prediction_value === "HOME" ? styles.active : ""}>1</p>
+                  <p className={p.prediction_value === "DRAW" ? styles.active : ""}>N</p>
+                  <p className={p.prediction_value === "AWAY" ? styles.active : ""}>2</p>
+                </div>
+              </article>
+            ))}
           </div>
         </section>
         <section className={styles.stats}>
@@ -73,7 +87,7 @@ export default async function Page({
                 height={50}
                 alt="Logo - Retourner vers l'accueil"
               />
-              <p>Meilleure série: 12</p>
+              <p>Meilleure série: {user?.stats?.best_streak}</p>
             </article>
             <article className={styles.stat}>
               <Image
@@ -83,7 +97,7 @@ export default async function Page({
                 height={50}
                 alt="Logo - Retourner vers l'accueil"
               />
-              <p>Pronos gagnants: 250</p>
+              <p>Pronos gagnants: {(user?.stats?.wins_count ?? 0)}</p>
             </article>
             <article className={styles.stat}>
               <Image
@@ -93,7 +107,7 @@ export default async function Page({
                 height={50}
                 alt="Logo - Retourner vers l'accueil"
               />
-              <p>Taux de réussite: 53%</p>
+              <p>Taux de réussite: {((user?.stats?.wins_count ?? 0) * 100 / totalGames).toFixed(2)}%</p>
             </article>
           </div>
         </section>
