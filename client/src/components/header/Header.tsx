@@ -30,14 +30,14 @@ export default function Header() {
           <Link className={`${styles.button} ${styles.registerButton}`} href="/register">S&apos;inscrire</Link>
         )}
         {isLoggedIn && (
-          <div className={styles.userIcon}>
+          <Link className={styles.userIcon} href="/dashboard">
             <Image
               src="/user-icon.png"
               width={32}
               height={32}
               alt="Icône utilisateur"
             />
-          </div>
+          </Link>
         )}
         <Link className={`${styles.button} ${styles.loginButton}`} href={isLoggedIn ? "/logout" : "/login"}>
           {isLoggedIn ? "Déconnexion" : "Se connecter"}
