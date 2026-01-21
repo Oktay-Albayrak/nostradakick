@@ -7,10 +7,22 @@ import styles from "./MobileCompetitionMenu.module.css";
 
 export default function MobileCompetitionMenu({
   leagues,
+  currentFilter,
 }: {
   leagues: ICompetition[];
+  currentFilter: string | null;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+
+  // Helper pour construire l'URL avec le filtre HOT s'il existe
+  const buildUrl = (code?: string) => {
+    const params = new URLSearchParams();
+    if (code) params.set("league", code);
+    if (currentFilter === "hot") params.set("filter", "hot");
+
+    const queryString = params.toString();
+    return queryString ? `/matchs?${queryString}` : "/matchs";
+  };
 
   return (
     <>
@@ -30,13 +42,11 @@ export default function MobileCompetitionMenu({
           </div>
           <ul className={styles.overlayList}>
             <li onClick={() => setIsOpen(false)}>
-              <Link href="/matchs">Toutes</Link>
+              <Link href={buildUrl()}>Toutes</Link>
             </li>
             {leagues.map((league) => (
               <li key={league.id} onClick={() => setIsOpen(false)}>
-                <Link href={`/matchs?league=${league.code}`}>
-                  {league.name}
-                </Link>
+                <Link href={buildUrl(league.code)}>{league.name}</Link>
               </li>
             ))}
           </ul>
