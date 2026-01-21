@@ -7,6 +7,10 @@
   margin-bottom: 1rem;
 }
 
+.cardWithStatus {
+  padding-bottom: 2rem;
+}
+
 .competitionBadge {
   position: absolute;
   top: 0;
@@ -22,14 +26,15 @@
 
 .competitionBadgeStatus {
   position: absolute;
-  top: 0;
-  right: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
   background: var(--primary);
   color: var(--white);
   padding: 4px 10px;
   font-size: 0.7rem;
   font-weight: bold;
-  border-radius: 8px 0 8px 0;
+  border-radius: 8px 8px 0 0;
   text-transform: uppercase;
 }
 

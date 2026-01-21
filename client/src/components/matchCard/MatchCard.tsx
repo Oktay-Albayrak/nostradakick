@@ -6,12 +6,16 @@ interface MatchProps {
   match: IMatch;
   isHot?: boolean /* Afficher ou non le hotBadge */;
   showPredictions?: boolean /* Afficher ou non les boutons */;
+  showStatus?: boolean /* Afficher ou non le badge de statut */;
+  showFullTeamNames?: boolean /* Afficher le nom complet des équipes */;
 }
 
 export default function MatchCard({
   match,
   isHot,
   showPredictions = true,
+  showStatus = false,
+  showFullTeamNames = false,
 }: MatchProps) {
   // Si pour une raison X le match est absent, on affiche rien
   if (!match) return null;
@@ -73,7 +77,7 @@ export default function MatchCard({
 
   const cardClassName = `${styles.card} ${
     !showPredictions ? styles.compactCard : ""
-  }`;
+  } ${showStatus ? styles.cardWithStatus : ""}`;
 
   return (
     <div>
@@ -83,9 +87,6 @@ export default function MatchCard({
             {match.competition.name}
           </div>
           {isHot && <span className={styles.hotBadge}>🔥</span>}
-          <div className={styles.competitionBadgeStatus}>
-            {getStatusLabel(match.status)}
-            </div>
         </section>
         <section className={styles.mainInfo}>
           {/* HOME TEAM */}
@@ -99,7 +100,9 @@ export default function MatchCard({
               />
             </div>
             {!showPredictions && (
-              <span className={styles.teamNameUnder}>{homeTeam.tla}</span>
+              <span className={styles.teamNameUnder}>
+                {showFullTeamNames ? homeTeam.name : homeTeam.shortName}
+              </span>
             )}
           </div>
           {/* TIMESTAMP */}
@@ -107,6 +110,11 @@ export default function MatchCard({
             <span className={styles.dateLabel}>{day}</span>
             <span className={styles.timeLabel}>{time}</span>
           </div>
+          {showStatus && (
+            <div className={styles.competitionBadgeStatus}>
+              {getStatusLabel(match.status)}
+            </div>
+          )}
           {/* AWAY TEAM */}
           <div className={styles.teamBox}>
             <div className={styles.crestContainer}>
@@ -118,7 +126,9 @@ export default function MatchCard({
               />
             </div>
             {!showPredictions && (
-              <span className={styles.teamNameUnder}>{awayTeam.tla}</span>
+              <span className={styles.teamNameUnder}>
+                {showFullTeamNames ? awayTeam.name : awayTeam.shortName}
+              </span>
             )}
           </div>
         </section>
@@ -128,6 +138,7 @@ export default function MatchCard({
             {/* Bouton Victoire Domicile */}
             <button className={styles.predButton}>
               <span className={styles.btnFullName}>{homeTeam.name}</span>
+              <span className={styles.btnShortName}>{homeTeam.shortName}</span>
               <span className={styles.btnTlaName}>{homeTeam.tla}</span>
             </button>
 
@@ -140,6 +151,7 @@ export default function MatchCard({
             {/* Bouton Victoire Extérieur */}
             <button className={styles.predButton}>
               <span className={styles.btnFullName}>{awayTeam.name}</span>
+              <span className={styles.btnShortName}>{awayTeam.shortName}</span>
               <span className={styles.btnTlaName}>{awayTeam.tla}</span>
             </button>
           </section>
