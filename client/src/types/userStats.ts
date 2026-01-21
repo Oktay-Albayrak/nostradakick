@@ -1,13 +1,13 @@
 import { IMatch, MatchStatus } from "@/types/match";
 
-export interface IUser {
+export interface IUserStats {
   id: string;
   username: string;
-  stats?: IUserStat | null;
+  stats?: IUserP | null;
   predictions: IPrediction[];
 }
 
-export interface IUserStat {
+export interface IUserP {
   wins_count: number;
   losses_count: number;
   best_streak: number;
