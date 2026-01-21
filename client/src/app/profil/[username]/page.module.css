@@ -99,6 +99,11 @@
   background: var(--white);
 }
 
+.goPronos {
+  display: block;
+  text-align: center;
+}
+
 @media (min-width: 500px) {
   .profil {
     gap: 1.5rem;
