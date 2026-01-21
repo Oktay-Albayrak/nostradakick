@@ -2,6 +2,7 @@ import axios from "axios";
 import { prisma } from "../lib/prisma.ts";
 import { MatchStatus } from "../../generated/prisma/client.ts";
 import { COMPETITION_NAMES_MAP } from "../config/metadata.ts";
+import { getMatchHotStatus } from "./feature-logic.service.ts";
 
 const FOOTBALL_API_URL = "https://api.football-data.org/v4";
 const TOKEN = process.env.FOOTBALL_DATA_API_TOKEN;
@@ -70,6 +71,10 @@ export async function syncStandings() {
           create: { team_id: team.id, competition_id: dbComp.id },
         });
       }
+      console.log(`✅ Standings mis à jour pour ${leagueCode}`);
+
+      // petite pause de 1 sec entre chaque ligue pour être safe
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     } catch (e) {
       console.error(`❌ Erreur standings ${leagueCode}`);
     }
@@ -121,6 +126,9 @@ export async function syncAllMatches() {
       // On traite les matchs de la ligue
       for (const m of matches) {
         if (!m.homeTeam?.id || !m.awayTeam?.id) continue;
+
+        // LOGIQUE : Calcul du statut "Hot"
+        const { isHot, name: hotName } = getMatchHotStatus(m, globalTop5);
 
         // Note: On crée l'équipe si elle n'existe pas, sans faire d'appel API supplémentaire
         const [homeTeam, awayTeam] = await Promise.all([
