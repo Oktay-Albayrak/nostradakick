@@ -10,6 +10,7 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/register');
   const isProtectedRoute = pathname.startsWith('/dashboard');
+  const isAdminRoute = pathname.startsWith('/admin');
 
   // 3. Logique de redirection
   // CAS A : L'utilisateur est connecté mais tente d'aller sur /login
@@ -22,11 +23,19 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
+  // CAS C : L'utilisateur n'est PAS connecté et tente d'aller sur une page admin
+  if (isAdminRoute && !token) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  // Note: La vérification du rôle ADMIN se fait dans la page elle-même
+  // car le middleware n'a pas accès au JWT_SECRET pour décoder et vérifier le rôle
+
   // Si tout est OK, on laisse passer la requête
   return NextResponse.next();
 }
 
 // 4. Le Matcher (Le filtre), défini les routes sur lesquelles le middleware s'active
 export const config = {
-  matcher: ['/login', '/register', '/dashboard/:path*'],
+  matcher: ['/login', '/register', '/dashboard/:path*', '/admin/:path*'],
 }
