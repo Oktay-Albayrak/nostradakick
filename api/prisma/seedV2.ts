@@ -57,7 +57,7 @@ async function main() {
   await prisma.prediction.deleteMany();
   await prisma.userStat.deleteMany();
   await prisma.user.deleteMany();
-  await prisma.competitionTeam.deleteMany();
+  // await prisma.competitionTeam.deleteMany();
 
   // 2. Récupération des matchs existants (dans les 2 semaines autour d'aujourd'hui)
   console.log("📥 Récupération des matchs en base...");
@@ -100,54 +100,54 @@ async function main() {
   const teams = await prisma.team.findMany();
   console.log(`✅ ${teams.length} équipes trouvées`);
 
-  // Vérification et création des relations CompetitionTeam manquantes
-  console.log("🔗 Vérification des relations équipes-compétitions...");
+  // // Vérification et création des relations CompetitionTeam manquantes
+  // console.log("🔗 Vérification des relations équipes-compétitions...");
 
-  // Récupérer toutes les relations existantes
-  const existingRelations = await prisma.competitionTeam.findMany();
-  const existingRelationsSet = new Set(
-    existingRelations.map(rel => `${rel.team_id}-${rel.competition_id}`)
-  );
+  // // Récupérer toutes les relations existantes
+  // const existingRelations = await prisma.competitionTeam.findMany();
+  // const existingRelationsSet = new Set(
+  //   existingRelations.map(rel => `${rel.team_id}-${rel.competition_id}`)
+  // );
 
-  // Parcourir tous les matchs pour identifier les relations nécessaires
-  const relationsToCreate: { team_id: string; competition_id: string }[] = [];
+  // // Parcourir tous les matchs pour identifier les relations nécessaires
+  // const relationsToCreate: { team_id: string; competition_id: string }[] = [];
 
-  for (const match of matches) {
-    // Relation home_team <-> competition
-    const homeRelationKey = `${match.home_team_id}-${match.competition_id}`;
-    if (!existingRelationsSet.has(homeRelationKey)) {
-      relationsToCreate.push({
-        team_id: match.home_team_id,
-        competition_id: match.competition_id,
-      });
-      existingRelationsSet.add(homeRelationKey); // Éviter les doublons
-    }
+  // for (const match of matches) {
+  //   // Relation home_team <-> competition
+  //   const homeRelationKey = `${match.home_team_id}-${match.competition_id}`;
+  //   if (!existingRelationsSet.has(homeRelationKey)) {
+  //     relationsToCreate.push({
+  //       team_id: match.home_team_id,
+  //       competition_id: match.competition_id,
+  //     });
+  //     existingRelationsSet.add(homeRelationKey); // Éviter les doublons
+  //   }
 
-    // Relation away_team <-> competition
-    const awayRelationKey = `${match.away_team_id}-${match.competition_id}`;
-    if (!existingRelationsSet.has(awayRelationKey)) {
-      relationsToCreate.push({
-        team_id: match.away_team_id,
-        competition_id: match.competition_id,
-      });
-      existingRelationsSet.add(awayRelationKey);
-    }
-  }
+  //   // Relation away_team <-> competition
+  //   const awayRelationKey = `${match.away_team_id}-${match.competition_id}`;
+  //   if (!existingRelationsSet.has(awayRelationKey)) {
+  //     relationsToCreate.push({
+  //       team_id: match.away_team_id,
+  //       competition_id: match.competition_id,
+  //     });
+  //     existingRelationsSet.add(awayRelationKey);
+  //   }
+  // }
 
-  // Créer les relations manquantes
-  if (relationsToCreate.length > 0) {
-    console.log(`  ⚙️ Création de ${relationsToCreate.length} relations manquantes...`);
+  // // Créer les relations manquantes
+  // if (relationsToCreate.length > 0) {
+  //   console.log(`  ⚙️ Création de ${relationsToCreate.length} relations manquantes...`);
 
-    for (const relation of relationsToCreate) {
-      await prisma.competitionTeam.create({
-        data: relation,
-      });
-    }
+  //   for (const relation of relationsToCreate) {
+  //     await prisma.competitionTeam.create({
+  //       data: relation,
+  //     });
+  //   }
 
-    console.log(`  ✅ Relations créées`);
-  } else {
-    console.log(`  ✅ Toutes les relations existent déjà`);
-  }
+  //   console.log(`  ✅ Relations créées`);
+  // } else {
+  //   console.log(`  ✅ Toutes les relations existent déjà`);
+  // }
 
   // 5. Création des utilisateurs (Admin + 9 membres)
   console.log("👥 Création des utilisateurs...");
@@ -253,7 +253,6 @@ async function main() {
   console.log(`\n✅ Seeding terminé :
   - ${competitions.length} Compétitions (existantes)
   - ${teams.length} Équipes (existantes)
-  - ${matches.length} Matchs (existants)
   - ${users.length} Utilisateurs créés
   - ${predictions.length} Prédictions créées`);
 }
