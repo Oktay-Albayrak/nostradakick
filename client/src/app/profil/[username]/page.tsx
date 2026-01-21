@@ -4,7 +4,7 @@ import Image from "next/image";
 import styles from "./page.module.css";
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { IUser } from "@/types/user";
+import { IUserStats } from "@/types/userStats";
 
 
 
@@ -15,7 +15,7 @@ export default function Page({
 }) {
   const { username } = use(params);
 
-  const [user, setUser] = useState<IUser | null>(null);
+  const [user, setUser] = useState<IUserStats | null>(null);
 
   const router = useRouter();
 
