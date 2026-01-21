@@ -93,7 +93,7 @@ export default async function Page({
                 height={50}
                 alt="Logo - Retourner vers l'accueil"
               />
-              <p>Taux de réuissite: 53%</p>
+              <p>Taux de réussite: 53%</p>
             </article>
           </div>
         </section>

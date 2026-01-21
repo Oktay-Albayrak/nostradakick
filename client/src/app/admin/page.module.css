@@ -85,6 +85,17 @@
   margin: 0;
 }
 
+.errorMessage {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: #f8d7da;
+  color: #721c24;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
 .actionsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
