@@ -10,7 +10,7 @@ export default function LoginPage() {
   const [messageError, setMessageError] = useState([]);
 
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, refreshAuth } = useAuth();
 
   async function handleForm(formData: FormData) {
     const email = formData.get("email");
@@ -33,6 +33,7 @@ export default function LoginPage() {
         setMessageError(result.error);
       } else {
         login();
+        await refreshAuth(); // Rafraîchir immédiatement après connexion
         router.push("/");
       }
     } catch (e) {
