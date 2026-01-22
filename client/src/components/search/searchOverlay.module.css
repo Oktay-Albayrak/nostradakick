@@ -138,3 +138,30 @@
   font-style: italic;
   font-size: 15px;
 }
+
+@media (min-width: 768px) {
+  .overlay {
+    position: absolute; /* Ne prend plus tout l'écran */
+    top: 60px; /* Ajuste selon la hauteur de ta navbar desktop */
+    right: 20px;
+    width: 400px;
+    height: auto;
+    max-height: 500px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    border: 1px solid #ddd;
+    inset: auto; /* Annule le 'inset: 0' du mobile */
+  }
+
+  .header {
+    padding: 15px;
+  }
+
+  .backBtn {
+    display: none; /* Pas besoin de flèche retour sur desktop */
+  }
+
+  .body {
+    border-radius: 0 0 12px 12px;
+  }
+}

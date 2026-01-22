@@ -4,6 +4,7 @@ import { ICompetition, IMatch } from "@/types/match";
 import InfiniteMatches from "@/components/InfiniteMatches/InfiniteMatches";
 import Link from "next/link";
 import MobileCompetitionMenu from "@/components/MobileCompetitionMenu/MobileCompetitionMenu";
+import SearchBar from "@/components/search/searchBar";
 
 export default async function Matchs({
   searchParams,
@@ -61,14 +62,7 @@ export default async function Matchs({
   return (
     <div className={styles.container}>
       {/* 1. BARRE DE RECHERCHE (Visible uniquement sur Desktop) */}
-      <section className={styles.searchSection}>
-        <input
-          type="search"
-          placeholder="Rechercher un match ou une compétition ..."
-          className={styles.searchInput}
-          aria-label="Rechercher un match ou une compétition"
-        />
-      </section>
+      <SearchBar />
 
       {/* 2. FILTRES MOBILES (Cachés sur Desktop) */}
       <div className={styles.mobileFilters}>
