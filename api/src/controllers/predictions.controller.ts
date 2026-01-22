@@ -3,6 +3,50 @@ import { prisma } from "../lib/prisma.ts";
 import z from "zod";
 // import type { Prediction } from "../../generated/prisma/client";
 
+// Récupère le pronostic d'un utilisateur pour un match spécifique
+export async function getUserPredictionForMatch(req: Request, res: Response) {
+  const schema = z.object({
+    user_id: z.string().uuid("L'ID utilisateur fourni n'est pas valide."),
+    match_id: z.string().uuid("L'ID match fourni n'est pas valide.")
+  });
+
+  try {
+    const result = schema.safeParse(req.query);
+
+    if (!result.success) {
+      return res.status(400).json({ error: result.error.issues.map((issue) => issue.message) });
+    }
+
+    const { user_id, match_id } = result.data;
+
+    const prediction = await prisma.prediction.findUnique({
+      where: {
+        user_id_match_id: {
+          user_id,
+          match_id
+        }
+      },
+      include: {
+        match: {
+          include: { home_team: true, away_team: true, competition: true }
+        },
+        user: { select: { id: true, username: true, avatar_url: true } }
+      }
+    });
+
+    if (!prediction) {
+      return res.status(404).json({ error: "Pas de pronostic pour ce match" });
+    }
+
+    res.json(prediction);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ errors: z.prettifyError(error) });
+    }
+    throw error;
+  }
+}
+
 // Récupère toutes les prédictions avec leurs détails associés (match et utilisateur)
 export async function getAllPredictions(req: Request, res: Response) {
   const predictions = await prisma.prediction.findMany({
