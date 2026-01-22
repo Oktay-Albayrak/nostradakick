@@ -1,6 +1,26 @@
+/**
+ * COMPOSANT MATCHCARD
+ * 
+ * Affiche une carte de match avec :
+ * - Les informations du match (compétition, équipes, date/heure ou score)
+ * - Les boutons de prédiction (si connecté et match non terminé)
+ * - L'état du pronostic de l'utilisateur (couleur du bouton)
+ * 
+ * Props :
+ * - match: objet IMatch contenant tous les détails du match
+ * - isHot: affiche un badge 🔥 si c'est un match "à l'affiche"
+ * - showPredictions: affiche les boutons de prédiction (défaut: true)
+ * - showStatus: affiche le badge de statut du match (défaut: false)
+ * - showFullTeamNames: affiche les noms complets des équipes (défaut: false)
+ * 
+ * Cliquable : cliquer sur la carte redirige vers /matchs/{api_id}
+ * Les boutons de prédiction ne déclenchent pas la navigation.
+ */
+
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import styles from "./MatchCard.module.css";
@@ -21,11 +41,30 @@ export default function MatchCard({
   showStatus = false,
   showFullTeamNames = false,
 }: MatchProps) {
+  // Récupération du contexte d'authentification
   const { isLoggedIn, user_id } = useAuth();
+  
+  // État pour gérer le chargement lors de la soumission d'une prédiction
   const [isLoading, setIsLoading] = useState(false);
+  
+  // État pour stocker la prédiction sélectionnée par l'utilisateur ("HOME", "DRAW", "AWAY")
   const [selectedPrediction, setSelectedPrediction] = useState<string | null>(null);
 
-  // Charger le pronostic existant de l'utilisateur
+  /**
+   * USEEFFECT - CHARGER LE PRONOSTIC EXISTANT
+   * 
+   * S'exécute quand :
+   * - user_id change (utilisateur connecté/déconnecté)
+   * - match.id change (nouveau match affiché)
+   * 
+   * Objectif :
+   * - Récupère le pronostic existant de cet utilisateur pour ce match
+   * - Affiche le bouton choisi en couleur différente (classe .selected)
+   * - Persiste même après un refresh ou un changement de page
+   * 
+   * Appel API :
+   * - GET /api/predictions?user_id=X&match_id=Y
+   */
   useEffect(() => {
     if (!user_id || !match.id) return;
 
@@ -59,6 +98,20 @@ export default function MatchCard({
   if (!match) return null;
 
   // Fonction pour obtenir le label du statut
+  /**
+   * FONCTION GETSTATUSLABEL
+   * 
+   * Traduit les statuts en français avec émojis.
+   * Utilisée pour afficher le badge de statut du match.
+   * 
+   * Statuts possibles :
+   * - SCHEDULED : Match programmé
+   * - IN_PLAY : Match en cours
+   * - FINISHED : Match terminé
+   * - POSTPONED : Match reporté
+   * - CANCELLED : Match annulé
+   * etc.
+   */
   const getStatusLabel = (status: string) => {
     const statusMap: Record<string, string> = {
       "SCHEDULED": "📅 Programmé",
@@ -73,6 +126,25 @@ export default function MatchCard({
   };
 
   // Fonction pour créer/mettre à jour une prédiction
+  /**
+   * FONCTION HANDLEPREDICTION
+   * 
+   * Gère toute la logique de création/modification d'une prédiction :
+   * 
+   * Étapes :
+   * 1. Vérifie que l'utilisateur est connecté (sinon alerte)
+   * 2. Affiche une alerte de confirmation avec le choix
+   * 3. Si "Modifier" : indique que c'est une modification
+   * 4. Envoie POST à /api/predictions avec :
+   *    - user_id (UUID)
+   *    - match_id (UUID)
+   *    - prediction_value ("HOME", "DRAW", "AWAY")
+   * 5. Affiche un message de succès
+   * 
+   * Upsert Pattern :
+   * - Si (user_id, match_id) existe : mise à jour
+   * - Sinon : création
+   */
   const handlePrediction = async (predictionValue: "HOME" | "DRAW" | "AWAY") => {
     if (!isLoggedIn || !user_id) {
       alert("Vous devez être connecté pour faire un pronostic");
@@ -129,11 +201,25 @@ export default function MatchCard({
   };
 
   // On utilise les vraies données issues de Prisma
+  /**
+   * EXTRACTION DES DONNÉES DU MATCH
+   * 
+   * - day, time : formatage de la date ISO du match
+   * - homeTeam, awayTeam : objets complets des équipes avec leurs détails
+   */
   const { day, time } = getFormattedDate(match.date);
   const homeTeam = match.home_team;
   const awayTeam = match.away_team;
 
-  // Formatage propre de l'heure
+  /**
+   * FONCTION GETFORMATTEDDATE
+   * 
+   * Formatte la date en français :
+   * - Aujourd'hui ou Demain si dans les 2 prochains jours
+   * - Sinon : "Lun 15/01"
+   * 
+   * Retour : { day: string, time: string }
+   */
   function getFormattedDate(dateString: string) {
     const matchDate = new Date(dateString);
     const now = new Date();
@@ -174,8 +260,13 @@ export default function MatchCard({
   } ${showStatus ? styles.cardWithStatus : ""}`;
 
   return (
-    <div>
-      <article className={cardClassName}>
+    <Link href={`/matchs/${match.api_id}`} style={{ textDecoration: "none", color: "inherit" }}>
+      <article className={cardClassName} onClick={(e) => {
+        // Empêcher la navigation si on clique sur un bouton
+        if ((e.target as HTMLElement).closest("button")) {
+          e.preventDefault();
+        }
+      }}>
         <section>
           <div className={styles.competitionBadge}>
             {match.competition.name}
@@ -241,7 +332,7 @@ export default function MatchCard({
         </section>
         {/* Affichage conditionnel des boutons */}
         {showPredictions && isLoggedIn && (
-          <section className={styles.predictionGrid}>
+          <section className={styles.predictionGrid} onClick={(e) => e.stopPropagation()}>
             {/* Bouton Victoire Domicile */}
             <button
               className={`${styles.predButton} ${selectedPrediction === "HOME" ? styles.selected : ""}`}
@@ -285,6 +376,6 @@ export default function MatchCard({
           </section>
         )}
       </article>
-    </div>
+    </Link>
   );
 }

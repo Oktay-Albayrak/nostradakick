@@ -1,3 +1,18 @@
+/**
+ * PAGE DE CONNEXION
+ * 
+ * Route : /login
+ * 
+ * Fonctionnalités :
+ * - Formulaire de connexion (email + mot de passe)
+ * - Validation des données côté serveur (API)
+ * - Affichage des erreurs de connexion
+ * - Redirection vers l'accueil après succès
+ * - Lien vers la page d'inscription
+ * 
+ * Composant CLIENT pour utiliser le hook useAuth()
+ */
+
 "use client"
 
 import { useRouter } from "next/navigation";
@@ -7,11 +22,34 @@ import styles from "./page.module.css";
 import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
+  // État pour afficher les messages d'erreur de connexion
   const [messageError, setMessageError] = useState([]);
 
+  // Hook pour la navigation programmatique
   const router = useRouter();
+  
+  // Récupération des fonctions du contexte d'authentification
   const { login, refreshAuth } = useAuth();
 
+  /**
+   * FONCTION HANDLEFORM
+   * 
+   * Gère la soumission du formulaire de connexion :
+   * 
+   * Étapes :
+   * 1. Extrait email et password du formulaire
+   * 2. Envoie POST à /api/auth/login
+   * 3. Si succès :
+   *    - Appelle login() pour mettre à jour le contexte
+   *    - Appelle refreshAuth() pour charger user_id immédiatement
+   *    - Redirige vers l'accueil
+   * 4. Si erreur :
+   *    - Affiche les messages d'erreur
+   * 
+   * Important :
+   * - credentials: 'include' envoie les cookies (session)
+   * - refreshAuth() est AWAIT pour que user_id soit chargé avant redirection
+   */
   async function handleForm(formData: FormData) {
     const email = formData.get("email");
     const password = formData.get("password");
@@ -26,15 +64,17 @@ export default function LoginPage() {
           email,
           password
         }),
-        credentials: 'include',
+        credentials: 'include', // Envoie les cookies au serveur
       })
       const result = await response.json();
       if (response.status >= 300) {
+        // Affiche les erreurs (email incorrect, mot de passe invalide, etc.)
         setMessageError(result.error);
       } else {
+        // Succès : met à jour le contexte et charge user_id
         login();
-        await refreshAuth(); // Rafraîchir immédiatement après connexion
-        router.push("/");
+        await refreshAuth(); // Attendre que user_id soit chargé
+        router.push("/"); // Redirection vers l'accueil
       }
     } catch (e) {
       console.error("error : ", e as Error);
