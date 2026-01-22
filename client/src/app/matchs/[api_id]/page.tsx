@@ -1,9 +1,12 @@
+"use client";
+
 import NotFound from "../../404/page";
 import Link from "next/link";
 import MatchCard from "@/components/matchCard/MatchCard";
 import PredictionStats from "@/components/matchDetail/predictionStats";
 import styles from "./page.module.css";
 import { IMatch } from "@/types/match";
+import { useEffect, useState } from "react";
 
 interface MatchDetailPageProps {
   params: {
@@ -11,49 +14,73 @@ interface MatchDetailPageProps {
   };
 }
 
-export default async function MatchDetailPage({ params }: MatchDetailPageProps) {
+export default function MatchDetailPage({ params }: MatchDetailPageProps) {
+  const [match, setMatch] = useState<IMatch | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [api_id, setApiId] = useState<string | null>(null);
+
+  // Récupérer les params de la route (Promise en Next.js 15+)
+  useEffect(() => {
+    (async () => {
+      const resolvedParams = await params;
+      setApiId(resolvedParams.api_id);
+    })();
+  }, [params]);
+
   // Récupérer le match depuis l'API
-  try {
-    // IMPORTANT: Dans Next.js 15+, params est une Promise
-    const { api_id } = await params;
-    
-    console.log("🔍 Fetching match with api_id:", api_id);
-    
-    const response = await fetch(
-      `http://localhost:4000/api/matches/${api_id}`,
-      {
-        cache: 'no-store' // Toujours récupérer les données fraîches
+  useEffect(() => {
+    if (!api_id) return;
+
+    const fetchMatch = async () => {
+      try {
+        setIsLoading(true);
+        console.log("🔍 Fetching match with api_id:", api_id);
+
+        const response = await fetch(
+          `http://localhost:4000/api/matches/${api_id}`,
+          {
+            cache: 'no-store'
+          }
+        );
+
+        console.log("📡 API Response status:", response.status);
+
+        if (!response.ok) {
+          throw new Error(`API returned status: ${response.status}`);
+        }
+
+        const matchData: IMatch = await response.json();
+        console.log("✅ Match received:", JSON.stringify(matchData, null, 2));
+
+        // Vérification de l'existence des données essentielles
+        if (!matchData || !matchData.home_team || !matchData.away_team) {
+          throw new Error("Match data incomplete");
+        }
+
+        console.log("✨ All data OK, rendering match");
+        setMatch(matchData);
+        setError(null);
+      } catch (err) {
+        console.error("💥 Error fetching match:", err);
+        setError(err instanceof Error ? err.message : "Erreur lors du chargement");
+      } finally {
+        setIsLoading(false);
       }
-    );
+    };
 
-    console.log("📡 API Response status:", response.status);
+    fetchMatch();
+  }, [api_id]);
 
-    if (!response.ok) {
-      console.error(`❌ API returned status: ${response.status}`);
-      return <NotFound />;
-    }
+  if (isLoading) {
+    return <div className={styles.container}>Chargement...</div>;
+  }
 
-    const match: IMatch = await response.json();
-    console.log("✅ Match received:", JSON.stringify(match, null, 2));
-    console.log("🏠 Home team:", match?.home_team);
-    console.log("✈️ Away team:", match?.away_team);
+  if (error || !match) {
+    return <NotFound />;
+  }
 
-    // Vérification de l'existence des données essentielles
-    if (!match || !match.home_team || !match.away_team) {
-      console.error("❌ Match data incomplete:", { 
-        match: !!match,
-        home_team: !!match?.home_team, 
-        away_team: !!match?.away_team,
-        home_team_name: match?.home_team?.name,
-        away_team_name: match?.away_team?.name
-      });
-      return <NotFound />;
-    }
-
-    console.log("✨ All data OK, rendering match");
-    
-    const isMatchFinished = match.status === "FINISHED";
-    
+  const isMatchFinished = match.status === "FINISHED";
     return (
       <div className={styles.container}>
         {/* Lien retour */}
@@ -70,8 +97,4 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
         )}
       </div>
     );
-  } catch (error) {
-    console.error("💥 Error fetching match:", error);
-    return <NotFound />;
   }
-}
