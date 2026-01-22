@@ -105,12 +105,18 @@ export default function MatchCard({
             )}
           </div>
         </section>
+        <section>
+          {/* NOM DU DERBY (Affiché uniquement s'il existe) */}
+          {match.featured_name && (
+            <div className={styles.derbyName}>{match.featured_name}</div>
+          )}
+        </section>
         {/* Affichage conditionnel des boutons */}
         {showPredictions && (
           <section className={styles.predictionGrid}>
             {/* Bouton Victoire Domicile */}
             <button className={styles.predButton}>
-              <span className={styles.btnFullName}>{homeTeam.name}</span>
+              <span className={styles.btnFullName}>{homeTeam.short_name}</span>
               <span className={styles.btnTlaName}>{homeTeam.tla}</span>
             </button>
 
@@ -122,7 +128,7 @@ export default function MatchCard({
 
             {/* Bouton Victoire Extérieur */}
             <button className={styles.predButton}>
-              <span className={styles.btnFullName}>{awayTeam.name}</span>
+              <span className={styles.btnFullName}>{awayTeam.short_name}</span>
               <span className={styles.btnTlaName}>{awayTeam.tla}</span>
             </button>
           </section>
