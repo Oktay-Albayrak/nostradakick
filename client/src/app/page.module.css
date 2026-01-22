@@ -1,23 +1,7 @@
 .page {
-  padding: 2rem 1rem;
+  padding: 1rem;
   background: var(--light-grey);
   min-height: calc(100vh - 200px);
-}
-
-/* SEARCH */
-.searchSection {
-  max-width: 900px;
-  margin: 0 auto 2rem;
-}
-
-.searchInput {
-  width: 100%;
-  padding: 1rem 1.25rem;
-  border-radius: 999px;
-  border: 1px solid var(--dark-grey);
-  font-size: 1rem;
-  background: var(--white);
-  color: var(--dark);
 }
 
 /* GRID (mobile-first) */

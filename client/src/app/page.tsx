@@ -1,6 +1,7 @@
 import styles from "./page.module.css";
 import MatchCard from "@/components/matchCard/MatchCard";
 import { IMatch } from "../types/match";
+import SearchBar from "@/components/search/searchBar";
 
 export default async function Home() {
   const response = await fetch("http://localhost:4000/api/matches");
@@ -14,14 +15,7 @@ export default async function Home() {
   return (
     <div className={styles.page}>
       {/* SEARCH BAR */}
-      <section className={styles.searchSection}>
-        <input
-          type="search"
-          placeholder="Rechercher un match ou une compétition ..."
-          className={styles.searchInput}
-          aria-label="Rechercher un match ou une compétition"
-        />
-      </section>
+      <SearchBar />
 
       {/* CONTENU PRINCIPAL */}
       <section className={styles.mainGrid}>
