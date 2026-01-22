@@ -1,0 +1,285 @@
+.main {
+  padding: 2rem 5%;
+  background: var(--light-grey);
+  min-height: calc(100vh - 200px);
+}
+
+.header {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+}
+
+.backLink {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--secondary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+
+.backLink:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.title {
+  font-size: 2rem;
+  margin: 0;
+  color: var(--primary);
+}
+
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: var(--white);
+  border-radius: 10px;
+  box-shadow: var(--box-shadow);
+  padding: 2rem;
+}
+
+.toolbar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--dark-grey);
+  font-size: 1rem;
+  font-family: var(--primary-font);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.filterSelect {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--dark-grey);
+  font-size: 1rem;
+  background: var(--white);
+  cursor: pointer;
+  font-family: var(--primary-font);
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.errorMessage,
+.emptyMessage {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.errorMessage {
+  background: #f8d7da;
+  color: #721c24;
+  border-radius: 8px;
+}
+
+.tableContainer {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: var(--light-grey);
+}
+
+.table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--primary);
+  border-bottom: 2px solid var(--dark-grey);
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.userCell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.username {
+  font-weight: 500;
+  color: var(--primary);
+}
+
+.matchCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.teamName {
+  font-weight: 500;
+  color: #333;
+}
+
+.vs {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0.25rem 0;
+}
+
+.competition {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+}
+
+.predictionBadge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-align: center;
+  min-width: 40px;
+}
+
+.predictionBadge.home {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.predictionBadge.draw {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.predictionBadge.away {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.statusBadge.statusPENDING {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.statusBadge.statusWON {
+  background: #d4edda;
+  color: #155724;
+}
+
+.statusBadge.statusLOST {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.statusBadge.statusCANCELLED {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.actionButton {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+  text-decoration: none;
+  display: inline-block;
+  background: var(--primary);
+  color: var(--white);
+  font-family: var(--primary-font);
+}
+
+.actionButton:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.actionButton.deleteButton {
+  background: #dc3545;
+  color: var(--white);
+}
+
+.actionButton.deleteButton:hover {
+  background: #c82333;
+}
+
+.actionButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.errorText {
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding: 1rem;
+  }
+
+  .content {
+    padding: 1rem;
+  }
+
+  .table {
+    font-size: 0.9rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .matchCell {
+    min-width: 150px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .actionButton {
+    width: 100%;
+    text-align: center;
+  }
+}

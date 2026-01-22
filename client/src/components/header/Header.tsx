@@ -19,6 +19,7 @@ export default function Header() {
             width={500}
             height={500}
             alt="Logo - Retourner vers l'accueil"
+            priority
           />
         </Link>
         <Link className={styles.navlinks} href="/">Accueil</Link>
