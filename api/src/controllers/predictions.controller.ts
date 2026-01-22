@@ -6,8 +6,8 @@ import z from "zod";
 // Récupère le pronostic d'un utilisateur pour un match spécifique
 export async function getUserPredictionForMatch(req: Request, res: Response) {
   const schema = z.object({
-    user_id: z.string().uuid("L'ID utilisateur fourni n'est pas valide."),
-    match_id: z.string().uuid("L'ID match fourni n'est pas valide.")
+    user_id: z.uuid("L'ID utilisateur fourni n'est pas valide."),
+    match_id: z.uuid("L'ID match fourni n'est pas valide.")
   });
 
   try {
