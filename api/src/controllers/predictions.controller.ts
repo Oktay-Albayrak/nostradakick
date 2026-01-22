@@ -49,6 +49,15 @@ export async function getOnePrediction(req: Request, res: Response) {
       return res.status(404).json({ error: ["Prediction not found"] });
     }
 
+    // Vérification de propriété : l'utilisateur ne peut voir que ses propres pronostics
+    // sauf s'il est ADMIN
+    const userPayload = (req as any).user;
+    if (prediction.user_id !== userPayload.userId && userPayload.userRole !== "ADMIN") {
+      return res.status(403).json({ 
+        error: "Vous ne pouvez accéder qu'à vos propres pronostics" 
+      });
+    }
+
     res.json(prediction);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -81,6 +90,15 @@ export async function upsertPrediction(req: Request, res: Response) {
     }
 
     const { user_id, match_id, prediction_value } = result.data;
+
+    // Vérification de propriété : l'utilisateur ne peut créer/modifier que ses propres pronostics
+    // sauf s'il est ADMIN
+    const userPayload = (req as any).user;
+    if (user_id !== userPayload.userId && userPayload.userRole !== "ADMIN") {
+      return res.status(403).json({ 
+        error: "Vous ne pouvez créer ou modifier que vos propres pronostics" 
+      });
+    }
 
     // Utilisation de upsert : 
     // update si le combo user_id_match_id existe, sinon create
@@ -124,13 +142,31 @@ export async function deletePrediction(req: Request, res: Response) {
 
     const paramId = result.data;
 
-    // 2. Tentative de suppression via la clé composée
-    const prediction = await prisma.prediction.delete({
+    // 2. Récupérer la prédiction pour vérifier la propriété
+    const prediction = await prisma.prediction.findUnique({
       where: { id: paramId }
     });
 
-    // 3. Retourner un succès
-    return res.status(204).json(prediction);
+    if (!prediction) {
+      return res.status(404).json({ error: "Pronostic non trouvé" });
+    }
+
+    // 3. Vérification de propriété : l'utilisateur ne peut supprimer que ses propres pronostics
+    // sauf s'il est ADMIN
+    const userPayload = (req as any).user;
+    if (prediction.user_id !== userPayload.userId && userPayload.userRole !== "ADMIN") {
+      return res.status(403).json({ 
+        error: "Vous ne pouvez supprimer que vos propres pronostics" 
+      });
+    }
+
+    // 4. Suppression du pronostic
+    await prisma.prediction.delete({
+      where: { id: paramId }
+    });
+
+    // 5. Retourner un succès
+    return res.status(204).json({ message: "Pronostic supprimé" });
 
   } catch (error) {
     throw error;
