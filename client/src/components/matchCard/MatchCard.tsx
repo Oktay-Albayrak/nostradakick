@@ -1,4 +1,8 @@
+"use client";
+
 import Image from "next/image";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 import styles from "./MatchCard.module.css";
 import { IMatch } from "@/types/match";
 
@@ -17,6 +21,40 @@ export default function MatchCard({
   showStatus = false,
   showFullTeamNames = false,
 }: MatchProps) {
+  const { isLoggedIn, user_id } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedPrediction, setSelectedPrediction] = useState<string | null>(null);
+
+  // Charger le pronostic existant de l'utilisateur
+  useEffect(() => {
+    if (!user_id || !match.id) return;
+
+    const fetchUserPrediction = async () => {
+      try {
+        console.log("🔍 Chargement du pronostic existant pour user:", user_id, "match:", match.id);
+        const response = await fetch(
+          `http://localhost:4000/api/predictions?user_id=${user_id}&match_id=${match.id}`,
+          { credentials: "include" }
+        );
+
+        if (response.ok) {
+          const prediction = await response.json();
+          console.log("✅ Prédiction existante trouvée:", prediction.prediction_value);
+          setSelectedPrediction(prediction.prediction_value);
+        } else if (response.status === 404) {
+          console.log("ℹ️ Aucun pronostic existant pour ce match");
+          setSelectedPrediction(null);
+        } else {
+          console.error("❌ Erreur API:", response.status);
+        }
+      } catch (error) {
+        console.error("💥 Erreur lors du chargement du pronostic:", error);
+      }
+    };
+
+    fetchUserPrediction();
+  }, [user_id, match.id]);
+
   // Si pour une raison X le match est absent, on affiche rien
   if (!match) return null;
 
@@ -32,6 +70,62 @@ export default function MatchCard({
       "CANCELLED": "❌ Annulé",
     };
     return statusMap[status] || status;
+  };
+
+  // Fonction pour créer/mettre à jour une prédiction
+  const handlePrediction = async (predictionValue: "HOME" | "DRAW" | "AWAY") => {
+    if (!isLoggedIn || !user_id) {
+      alert("Vous devez être connecté pour faire un pronostic");
+      return;
+    }
+
+    // Déterminer le label du choix
+    const predictionLabels: Record<string, string> = {
+      "HOME": homeTeam.name,
+      "DRAW": "Match Nul",
+      "AWAY": awayTeam.name,
+    };
+
+    const isModifying = selectedPrediction !== null;
+    const message = isModifying
+      ? `Vous êtes sur le point de modifier votre pronostic en "${predictionLabels[predictionValue]}".\n\nConfirmez-vous ?`
+      : `Confirmer votre pronostic: "${predictionLabels[predictionValue]}"?`;
+
+    // Alerte de confirmation
+    const confirmed = window.confirm(message);
+    if (!confirmed) return;
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:4000/api/predictions", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id,
+          match_id: match.id,
+          prediction_value: predictionValue,
+        }),
+      });
+
+      if (response.ok) {
+        console.log("✅ Prédiction enregistrée avec succès");
+        setSelectedPrediction(predictionValue);
+        alert(`Votre pronostic "${predictionLabels[predictionValue]}" a été enregistré ! ✅`);
+      } else {
+        const error = await response.json();
+        console.error("❌ Erreur lors de l'enregistrement:", error);
+        alert("Erreur lors de l'enregistrement du pronostic");
+      }
+    } catch (error) {
+      console.error("💥 Erreur réseau:", error);
+      alert("Erreur de connexion");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // On utilise les vraies données issues de Prisma
@@ -101,14 +195,27 @@ export default function MatchCard({
             </div>
             {!showPredictions && (
               <span className={styles.teamNameUnder}>
-                {showFullTeamNames ? homeTeam.name : homeTeam.shortName}
+                {showFullTeamNames ? homeTeam.name : homeTeam.tla}
               </span>
             )}
           </div>
-          {/* TIMESTAMP */}
+          {/* TIMESTAMP ou SCORE */}
           <div className={styles.dateTime}>
-            <span className={styles.dateLabel}>{day}</span>
-            <span className={styles.timeLabel}>{time}</span>
+            {(match.status === "FINISHED" || match.status === "IN_PLAY") && 
+            match.home_score !== null && match.away_score !== null ? (
+              // Afficher le score si match terminé ou en cours
+              <div className={styles.scoreBox}>
+                <span className={styles.scoreLabel}>{match.home_score}</span>
+                <span className={styles.scoreSeparator}>-</span>
+                <span className={styles.scoreLabel}>{match.away_score}</span>
+              </div>
+            ) : (
+              // Afficher la date et l'heure sinon
+              <>
+                <span className={styles.dateLabel}>{day}</span>
+                <span className={styles.timeLabel}>{time}</span>
+              </>
+            )}
           </div>
           {showStatus && (
             <div className={styles.competitionBadgeStatus}>
@@ -127,33 +234,54 @@ export default function MatchCard({
             </div>
             {!showPredictions && (
               <span className={styles.teamNameUnder}>
-                {showFullTeamNames ? awayTeam.name : awayTeam.shortName}
+                {showFullTeamNames ? awayTeam.name : awayTeam.tla}
               </span>
             )}
           </div>
         </section>
         {/* Affichage conditionnel des boutons */}
-        {showPredictions && (
+        {showPredictions && isLoggedIn && (
           <section className={styles.predictionGrid}>
             {/* Bouton Victoire Domicile */}
-            <button className={styles.predButton}>
+            <button
+              className={`${styles.predButton} ${selectedPrediction === "HOME" ? styles.selected : ""}`}
+              onClick={() => handlePrediction("HOME")}
+              disabled={isLoading}
+            >
               <span className={styles.btnFullName}>{homeTeam.name}</span>
-              <span className={styles.btnShortName}>{homeTeam.shortName}</span>
               <span className={styles.btnTlaName}>{homeTeam.tla}</span>
             </button>
 
             {/* Bouton Nul */}
-            <button className={styles.predButton}>
+            <button
+              className={`${styles.predButton} ${selectedPrediction === "DRAW" ? styles.selected : ""}`}
+              onClick={() => handlePrediction("DRAW")}
+              disabled={isLoading}
+            >
               <span className={styles.btnFullName}>Match Nul</span>
               <span className={styles.btnTlaName}>NUL</span>
             </button>
 
             {/* Bouton Victoire Extérieur */}
-            <button className={styles.predButton}>
+            <button
+              className={`${styles.predButton} ${selectedPrediction === "AWAY" ? styles.selected : ""}`}
+              onClick={() => handlePrediction("AWAY")}
+              disabled={isLoading}
+            >
               <span className={styles.btnFullName}>{awayTeam.name}</span>
-              <span className={styles.btnShortName}>{awayTeam.shortName}</span>
               <span className={styles.btnTlaName}>{awayTeam.tla}</span>
             </button>
+          </section>
+        )}
+        {/* Message si pas connecté */}
+        {showPredictions && !isLoggedIn && (
+          <section className={styles.predictionGrid}>
+            <p style={{ textAlign: "center", color: "#999", gridColumn: "1 / -1" }}>
+              <a href="/login" style={{ color: "#007bff", textDecoration: "none", fontWeight: "600" }}>
+                Connectez-vous
+              </a>
+              {" "}pour faire un pronostic
+            </p>
           </section>
         )}
       </article>
