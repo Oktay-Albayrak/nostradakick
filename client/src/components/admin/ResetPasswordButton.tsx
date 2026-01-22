@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import styles from "./page.module.css";
+import styles from "./admin.module.css";
 
 interface ResetPasswordButtonProps {
   userId: string;

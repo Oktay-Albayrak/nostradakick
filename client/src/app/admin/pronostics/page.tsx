@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import styles from "./page.module.css";
 import { IPrediction } from "@/types/prediction";
 import { IUser } from "@/types/user";
-import DeletePredictionButton from "./DeletePredictionButton";
+import PredictionActions from "@/components/admin/PredictionActions";
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -196,19 +196,11 @@ export default async function AdminPronostics() {
                     </td>
                     <td>{formatDate(prediction.created_at)}</td>
                     <td>
-                      <div className={styles.actions}>
-                        <Link
-                          href={`/profil/${prediction.user.username}`}
-                          className={styles.actionButton}
-                        >
-                          Voir utilisateur
-                        </Link>
-                        <DeletePredictionButton
-                          predictionId={prediction.id}
-                          userName={prediction.user.username}
-                          matchName={`${prediction.match.home_team.name} vs ${prediction.match.away_team.name}`}
-                        />
-                      </div>
+                      <PredictionActions
+                        predictionId={prediction.id}
+                        userName={prediction.user.username}
+                        matchName={`${prediction.match.home_team.name} vs ${prediction.match.away_team.name}`}
+                      />
                     </td>
                   </tr>
                 ))}
