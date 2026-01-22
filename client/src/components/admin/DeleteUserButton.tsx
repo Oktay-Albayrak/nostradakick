@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import styles from "./page.module.css";
+import styles from "./admin.module.css";
 
 interface DeleteUserButtonProps {
   userId: string;

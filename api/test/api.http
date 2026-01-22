@@ -139,4 +139,4 @@ Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlNTA1YzV
 
 ### Test 8: Vérification utilisateur connecté (auth/me) pour voir le rôle
 GET http://localhost:4000/api/auth/me
-Cookie: accessToken=YOUR_TOKEN_HERE
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4MmU0YmNjMC1mZGRhLTRiYmItYjczOS01ZjQwNzk5ZDVkODciLCJ1c2VyUm9sZSI6IkFETUlOIiwiaWF0IjoxNzY5MDAxNDE5LCJleHAiOjE3NjkwMDUwMTl9.aBAD6R-2sV9OwysGa9plexM9Dz9sIRUf8l-ZAcdiar4

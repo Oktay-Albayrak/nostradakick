@@ -3,8 +3,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import styles from "./page.module.css";
 import { IUser } from "@/types/user";
-import DeleteUserButton from "./DeleteUserButton";
-import ResetPasswordButton from "./ResetPasswordButton";
+import UserActions from "@/components/admin/UserActions";
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -134,25 +133,7 @@ export default async function AdminUsers() {
                     </td>
                     <td>{formatDate(user.created_at)}</td>
                     <td>
-                      <div className={styles.actions}>
-                        <Link
-                          href={`/profil/${user.username}`}
-                          className={styles.actionButton}
-                        >
-                          Voir
-                        </Link>
-                        <button
-                          className={styles.actionButton}
-                          title="Modifier (à implémenter)"
-                        >
-                          Modifier
-                        </button>
-                        <ResetPasswordButton
-                          userId={user.id}
-                          username={user.username}
-                        />
-                        <DeleteUserButton userId={user.id} username={user.username} />
-                      </div>
+                      <UserActions userId={user.id} username={user.username} />
                     </td>
                   </tr>
                 ))}
