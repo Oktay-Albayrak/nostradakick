@@ -18,4 +18,6 @@ export interface IPrediction {
   prediction_value: "HOME" | "DRAW" | "AWAY";
   status: "PENDING" | "WON" | "LOST" | "CANCELLED";
   match: IMatch
+  user: IUserStats
+  updated_at: string
 }
