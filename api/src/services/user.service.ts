@@ -69,6 +69,7 @@ export async function findUserByUsername(username: string) {
           include: {
             match: {
               include: {
+                competition: true,
                 home_team: { 
                   omit: { 
                     created_at: true, 
@@ -90,7 +91,10 @@ export async function findUserByUsername(username: string) {
                 api_id: true,
               }
             },
-          }
+          },
+          orderBy: {
+            created_at: "asc", // Les plus proches en premier
+          },
         },
       },
     });
