@@ -99,6 +99,7 @@ export async function getUserPredictionForMatch(req: Request, res: Response) {
  */
 export async function getAllPredictions(req: Request, res: Response) {
   const predictions = await prisma.prediction.findMany({
+    orderBy: { updated_at: 'desc' },
     include: {
       match: {
         include: { home_team: true, away_team: true, competition: true } // Include pour faire appel a la relation et avoir les détails des matchs grace aux ids

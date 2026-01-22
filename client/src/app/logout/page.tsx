@@ -1,7 +1,7 @@
 "use client"
 
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 
 export default function LogoutPage() {
   const router = useRouter();
@@ -16,7 +16,7 @@ export default function LogoutPage() {
       })
 
       if (!response.ok) {
-        router.push("/404");
+        notFound();
       }
       logout();
       router.push("/");

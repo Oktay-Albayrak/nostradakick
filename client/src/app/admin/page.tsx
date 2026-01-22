@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import styles from "./page.module.css";
 import { IAdminStats } from "@/types/admin";
 import { IUser } from "@/types/user";
@@ -9,12 +10,24 @@ function formatNumber(num: number): string {
 }
 
 export default async function AdminDashboard() {
+  // Récupération du cookie accessToken
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value;
+
   // Vérification de l'authentification et du rôle ADMIN
   let currentUser: IUser | null = null;
   try {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+    
+    if (accessToken) {
+      headers["Cookie"] = `accessToken=${accessToken}`;
+    }
+
     const userResponse = await fetch("http://localhost:4000/api/auth/me", {
       cache: "no-store",
-      credentials: "include",
+      headers,
     });
 
     if (userResponse.ok) {
@@ -38,9 +51,17 @@ export default async function AdminDashboard() {
   let error: string | null = null;
 
   try {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+    
+    if (accessToken) {
+      headers["Cookie"] = `accessToken=${accessToken}`;
+    }
+
     const response = await fetch("http://localhost:4000/api/admin/stats", {
       cache: "no-store",
-      credentials: "include",
+      headers,
     });
 
     if (!response.ok) {
@@ -107,6 +128,24 @@ export default async function AdminDashboard() {
           </article>
         </section>
       )}
+
+      <section className={styles.actionsGrid}>
+        <Link href="/admin/users" className={styles.actionCard}>
+          <div className={styles.actionIcon}>👥</div>
+          <h2 className={styles.actionTitle}>Gestionnaire users</h2>
+          <p className={styles.actionDescription}>
+            Gérer les utilisateurs, modifier leurs informations, réinitialiser les mots de passe
+          </p>
+        </Link>
+
+        <Link href="/admin/pronostics" className={styles.actionCard}>
+          <div className={styles.actionIcon}>📊</div>
+          <h2 className={styles.actionTitle}>Gestionnaire pronostics</h2>
+          <p className={styles.actionDescription}>
+            Consulter et gérer tous les pronostics des membres du site
+          </p>
+        </Link>
+      </section>
     </main>
   );
 }

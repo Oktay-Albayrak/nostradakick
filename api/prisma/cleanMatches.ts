@@ -11,7 +11,7 @@ async function main() {
 
     // Ordre important : supprimer selon les dépendances (FK)
     // Les Predictions dépendent des Matchs, donc on les supprime d'abord
-    
+
     console.log("🗑️  Suppression des prédictions...");
     const deletedPredictions = await prisma.prediction.deleteMany({});
     console.log(`✅ ${deletedPredictions.count} prédictions supprimées`);
@@ -23,6 +23,10 @@ async function main() {
     console.log("🗑️  Suppression des relations compétition-équipe...");
     const deletedCompTeams = await prisma.competitionTeam.deleteMany({});
     console.log(`✅ ${deletedCompTeams.count} relations supprimées`);
+
+    console.log("🗑️  Suppression des classements...");
+    const deletedStandings = await prisma.standing.deleteMany({});
+    console.log(`✅ ${deletedStandings.count} classements supprimés`);
 
     console.log("🗑️  Suppression des équipes...");
     const deletedTeams = await prisma.team.deleteMany({});
@@ -42,7 +46,6 @@ async function main() {
     console.log("  ❌ Équipes");
     console.log("  ❌ Compétitions");
     console.log("  ❌ Prédictions (liées aux matchs)");
-
   } catch (error) {
     console.error("❌ Erreur lors du nettoyage :", error);
     process.exit(1);
