@@ -1,0 +1,271 @@
+/* --- MOBILE FIRST --- */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Caché sur mobile */
+.searchSection,
+.filterList,
+.statsSection {
+  display: none;
+}
+
+/* Boutons filtres mobiles */
+.mobileFilters {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  margin-bottom: 2rem;
+  scrollbar-width: none;
+}
+
+.mobileFilters::-webkit-scrollbar {
+  display: none;
+}
+
+.filterButton {
+  flex: 0 0 auto;
+  padding: 8px 16px;
+  background-color: var(--primary);
+  color: var(--white);
+  border-radius: 20px;
+  border: none;
+  font-family: var(--primary-font);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.sectionTitle {
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+  color: var(--primary);
+}
+
+/* Pronostics Cards Mobile */
+.pronoCard {
+  background-color: var(--white);
+  color: var(--primary);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--primary);
+}
+
+.matchHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--dark-grey);
+}
+
+.competition {
+  font-weight: 600;
+  color: var(--primary);
+  font-size: 0.9rem;
+  padding-right: .2rem;
+}
+
+.matchDate {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.matchInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.teams {
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.choice {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.pick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+  border-radius: 5px;
+  background: var(--dark-grey);
+  color: var(--dark);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.pickActive {
+  background-color: var(--primary);
+  color: var(--white);
+}
+
+.status {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.statusPending {
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  background: #fff3cd;
+  color: #856404;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.statusWon {
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  background: #d4edda;
+  color: #155724;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.statusLost {
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  background: #f8d7da;
+  color: #721c24;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* --- TABLETTE ET DESKTOP (>= 650px) --- */
+@media (min-width: 650px) {
+  .searchSection {
+    display: block;
+    max-width: 900px;
+    margin: 0 auto 2rem;
+  }
+
+  .searchInput {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border-radius: 999px;
+    border: 1px solid var(--dark-grey);
+    font-size: 1rem;
+    background: var(--white);
+    color: var(--dark);
+  }
+}
+
+/* --- TABLETTE ET DESKTOP (>= 870px) --- */
+@media (min-width: 870px) {
+  .mobileFilters {
+    display: none;
+  }
+
+  .mainGrid {
+    display: grid;
+    grid-template-columns: 200px 1fr 240px;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .filterList,
+  .statsSection {
+    display: block;
+    background: var(--primary);
+    color: var(--white);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+    height: fit-content;
+  }
+
+  .backLink {
+    display: block;
+    color: var(--action-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    transition: opacity 0.2s ease;
+  }
+
+  .backLink:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+  }
+
+  .sidebarTitle {
+    font-size: 1.1rem;
+    margin-bottom: 1.2rem;
+    color: var(--action-color);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+  }
+
+  /* Liste verticale gauche */
+  .filterList ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .filterList li {
+    padding: 12px 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .filterList li:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--white);
+  }
+
+  /* Petites cartes à droite */
+  .smallCard {
+    position: relative;
+    background: var(--white);
+    color: var(--primary);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.8rem;
+    border: none;
+    box-shadow: var(--box-shadow);
+  }
+
+  .statsGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .statCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.2rem;
+  }
+
+  .statValue {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .statLabel {
+    font-size: 0.85rem;
+    color: #666;
+  }
+}

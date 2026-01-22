@@ -6,6 +6,7 @@ import z from "zod";
 // Récupère toutes les prédictions avec leurs détails associés (match et utilisateur)
 export async function getAllPredictions(req: Request, res: Response) {
   const predictions = await prisma.prediction.findMany({
+    orderBy: { updated_at: 'desc' },
     include: {
       match: {
         include: { home_team: true, away_team: true, competition: true } // Include pour faire appel a la relation et avoir les détails des matchs grace aux ids

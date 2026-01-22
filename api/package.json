@@ -2,11 +2,10 @@
   "name": "api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "========= Pour la BDD prisma =========": "===========================",
     "db:seed": "ts-node prisma/seed.ts",
-    "db:seed:v2": "ts-node prisma/seedV2.ts",
     "db:generate": "prisma generate",
     "db:migrate:dev": "prisma migrate dev",
     "db:studio": "prisma studio",
@@ -16,6 +15,7 @@
     "db:clean:matches": "ts-node prisma/cleanMatches.ts",
     "========= Pour le dev =========": "===========================",
     "dev": "node --watch --env-file=.env index.ts",
+    "sync": "tsx scripts/sync-now.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
