@@ -47,6 +47,12 @@
   border: none;
   font-weight: bold;
 }
+
+.activeHot {
+  color: var(--action-color);
+  background-color: #ff4500;
+}
+
 .filterButton {
   flex: 0 0 auto; /* Empêche le bouton de rétrécir */
   padding: 8px 16px;

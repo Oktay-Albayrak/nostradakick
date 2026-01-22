@@ -330,6 +330,12 @@ export default function MatchCard({
             )}
           </div>
         </section>
+        <section>
+          {/* NOM DU DERBY (Affiché uniquement s'il existe) */}
+          {match.featured_name && (
+            <div className={styles.derbyName}>{match.featured_name}</div>
+          )}
+        </section>
         {/* Affichage conditionnel des boutons */}
         {showPredictions && isLoggedIn && (
           <section className={styles.predictionGrid} onClick={(e) => e.stopPropagation()}>

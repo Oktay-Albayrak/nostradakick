@@ -14,7 +14,7 @@
 
 "use client";
 
-import NotFound from "../../404/page";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import MatchCard from "@/components/matchCard/MatchCard";
 import PredictionStats from "@/components/matchDetail/predictionStats";
@@ -137,7 +137,7 @@ export default function MatchDetailPage({ params }: MatchDetailPageProps) {
   }
 
   if (error || !match) {
-    return <NotFound />;
+    notFound();
   }
 
   // Calcul du booléen pour désactiver les boutons de prédiction

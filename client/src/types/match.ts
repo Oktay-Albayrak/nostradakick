@@ -35,6 +35,7 @@ export interface ITeam {
   id: string;
   api_id: number;
   name: string;
+  short_name: string | null;
   tla: string;
   crest_url: string;
   country: string;
@@ -43,7 +44,7 @@ export interface ITeam {
 export interface IMatch {
   id: string;
   api_id: number;
-  date: string; // String ISO car passe par du JSON
+  date: string;
   status: MatchStatus;
   home_score: number | null;
   away_score: number | null;
@@ -58,9 +59,13 @@ export interface IMatch {
   created_at?: string;
   updated_at?: string;
 
-  // Propriétés UI (optionnelles)
-  isHot?: boolean;
-  showPredictions?: boolean;
+  // Propriétés Logique Métier
+  is_featured: boolean;
+  featured_name: string | null;
+  popularity: number;
+
+  // Propriétés UI
+  isHot?: boolean; // Basé sur popularity > X
 }
 
 export interface IPrediction {
@@ -68,6 +73,7 @@ export interface IPrediction {
   prediction_value: PredictionValue;
   status: PredictionStatus;
   match_id: string;
+  match: IMatch;
   user_id: string;
   created_at: string;
   updated_at: string;

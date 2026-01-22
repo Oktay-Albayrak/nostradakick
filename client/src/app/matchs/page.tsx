@@ -8,12 +8,13 @@ import MobileCompetitionMenu from "@/components/MobileCompetitionMenu/MobileComp
 export default async function Matchs({
   searchParams,
 }: {
-  searchParams: Promise<{ league?: string }>;
+  searchParams: Promise<{ league?: string; filter?: string }>;
 }) {
   // 1. On récupère la ligue depuis l'URL (si elle existe)
   const params = await searchParams;
   const selectedLeague = params.league || "";
-  console.log("Ligue sélectionnée :", selectedLeague);
+  const isHotFilter = params.filter === "hot";
+
   const leaguesResponse = await fetch("http://localhost:4000/api/competitions");
   const leagues = await leaguesResponse.json();
 
@@ -31,7 +32,31 @@ export default async function Matchs({
   );
 
   const initialMatches: IMatch[] = await matchesResponse.json();
-  const featuredMatchs = initialMatches.slice(0, 6);
+
+  // --- LOGIQUE DE FILTRAGE HOT ---
+  // Pour la colonne centrale : on filtre si le bouton HOT est activé
+  const displayMatches = isHotFilter
+    ? initialMatches.filter((m) => m.is_featured)
+    : initialMatches;
+
+  // Pour l'Aside : on veut TOUJOURS les "is_featured", peu importe le bouton HOT
+  // On filtre les matchs qui sont soit marqués "featured" en DB, soit très populaires
+  const featuredMatches = initialMatches
+    .filter(
+      (m) => m.is_featured === true || (m.popularity && m.popularity > 50),
+    )
+    // S'il n'y a pas assez de matchs "Hot", on complète avec les 3 premiers de la liste
+    .concat(initialMatches.filter((m) => !m.is_featured))
+    .slice(0, 6); // On en garde 5 maximum pour ne pas étouffer l'aside
+
+  // 3. HELPER POUR LES LIENS (pour ne pas se répéter)
+  const getUrl = (lCode: string = "", hot: boolean = isHotFilter) => {
+    const p = new URLSearchParams();
+    if (lCode) p.set("league", lCode);
+    if (hot) p.set("filter", "hot");
+    const qs = p.toString();
+    return qs ? `/matchs?${qs}` : "/matchs";
+  };
 
   return (
     <div className={styles.container}>
@@ -47,8 +72,16 @@ export default async function Matchs({
 
       {/* 2. FILTRES MOBILES (Cachés sur Desktop) */}
       <div className={styles.mobileFilters}>
-        <button className={styles.hotButton}>🔥 HOT</button>
-        <MobileCompetitionMenu leagues={leagues} />
+        <Link
+          href={getUrl(selectedLeague, !isHotFilter)}
+          className={`${styles.hotButton} ${isHotFilter ? styles.activeHot : ""}`}
+        >
+          🔥 HOT
+        </Link>
+        <MobileCompetitionMenu
+          leagues={leagues}
+          currentFilter={isHotFilter ? "hot" : null}
+        />
       </div>
       <section className={styles.mainGrid}>
         {/* 3. COLONNE GAUCHE : LISTE DES COMPETITIONS */}
@@ -57,7 +90,7 @@ export default async function Matchs({
           <ul>
             <li className={styles.sidebarItem}>
               <Link
-                href="/matchs"
+                href={getUrl("", isHotFilter)}
                 className={!selectedLeague ? styles.activeLeague : ""}
               >
                 Toutes les compétitions
@@ -67,7 +100,7 @@ export default async function Matchs({
               <li key={league.id} className={styles.sidebarItem}>
                 {/* On utilise Link pour changer l'URL et déclencher le refresh serveur */}
                 <Link
-                  href={`/matchs?league=${league.code}`}
+                  href={getUrl(league.code, isHotFilter)}
                   className={
                     selectedLeague === league.code ? styles.activeLeague : ""
                   }
@@ -82,15 +115,19 @@ export default async function Matchs({
         {/* 4. COLONNE CENTRALE : MATCHS À VENIR */}
         <main className={styles.matchsContent}>
           <h1 className={styles.sectionTitle}>
-            {selectedLeague
-              ? `Prochains matchs de ${currentLeague.name}`
-              : "Matchs à venir"}
+            {isHotFilter
+              ? "Matchs à l'affiche 🔥"
+              : selectedLeague
+                ? `Prochains matchs de ${currentLeague?.name}`
+                : "Matchs à venir"}
           </h1>
           <div className={styles.matchGrid}>
             {/* Quand initialMatches change (suite au clic Link), InfiniteMatches se reset tout seul */}
             <InfiniteMatches
-              key={selectedLeague}
-              initialMatches={initialMatches}
+              key={`${selectedLeague}-${isHotFilter}`}
+              initialMatches={displayMatches}
+              league={selectedLeague}
+              isHot={isHotFilter}
             />
           </div>
         </main>
@@ -99,7 +136,7 @@ export default async function Matchs({
         <aside className={styles.featuredSection}>
           <h2 className={styles.sidebarTitle}>A l&apos;Affiche</h2>
           <div className={styles.featuredGrid}>
-            {featuredMatchs.map((m) => (
+            {featuredMatches.map((m) => (
               <MatchCard
                 key={`featured-${m.id}`}
                 match={m}
