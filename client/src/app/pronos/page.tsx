@@ -23,7 +23,7 @@ const formatDate = (dateString: string) => {
 export default async function Pronos() {
   // On récupère les données directement sur le serveur
   // Note : "cache: 'no-store'" ou "next: { revalidate: 60 }" permet de gérer la mise en cache
-  const response = await fetch("http://localhost:4000/api/predictions", {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/predictions`, {
     cache: "no-store",
   });
 

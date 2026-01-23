@@ -26,7 +26,7 @@ export default async function ProfilPronos({ params }: PageProps) {
 
   // 2. On récupère les données directement sur le serveur
   // Note : "cache: 'no-store'" ou "next: { revalidate: 60 }" permet de gérer la mise en cache
-  const response = await fetch(`http://localhost:4000/api/users/${username}`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`, {
     cache: "no-store",
   });
 

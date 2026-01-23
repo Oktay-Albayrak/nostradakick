@@ -66,7 +66,7 @@ export default function InfiniteMatches({
 
       // 4. On appelle l'API avec l'URL complète
       const response = await fetch(
-        `http://localhost:4000/api/matches?${params.toString()}`,
+        `${process.env.NEXT_PUBLIC_API_URL_CLIENT}/api/matches?${params.toString()}`,
       );
       const newMatches: IMatch[] = await response.json();
 

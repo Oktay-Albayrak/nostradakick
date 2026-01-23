@@ -10,7 +10,7 @@ export default function LogoutPage() {
 
   async function disconnection() {
     try {
-      const response = await fetch("http://localhost:4000/api/auth/logout", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL_CLIENT}/api/auth/logout`, {
         method: "POST",
         credentials: 'include'
       })

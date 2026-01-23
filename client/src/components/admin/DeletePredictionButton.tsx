@@ -33,7 +33,7 @@ export default function DeletePredictionButton({
 
     try {
       const response = await fetch(
-        `http://localhost:4000/api/predictions/${predictionId}`,
+        `${process.env.NEXT_PUBLIC_API_URL_CLIENT}/api/predictions/${predictionId}`,
         {
           method: "DELETE",
           credentials: "include",

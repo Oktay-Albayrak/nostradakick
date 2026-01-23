@@ -15,11 +15,11 @@ export default async function Matchs({
   const selectedLeague = params.league || "";
   const isHotFilter = params.filter === "hot";
 
-  const leaguesResponse = await fetch("http://localhost:4000/api/competitions");
+  const leaguesResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/competitions`);
   const leagues = await leaguesResponse.json();
 
   const matchesResponse = await fetch(
-    `http://localhost:4000/api/matches?page=1&limit=10${selectedLeague ? `&league=${selectedLeague}` : ""}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/api/matches?page=1&limit=10${selectedLeague ? `&league=${selectedLeague}` : ""}`,
     { cache: "no-store" },
   );
   if (!matchesResponse.ok) {

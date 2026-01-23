@@ -15,7 +15,7 @@ export default function RegisterPage() {
     const password = formData.get("password");
 
     try {
-      const response = await fetch("http://localhost:4000/api/auth/register", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL_CLIENT}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

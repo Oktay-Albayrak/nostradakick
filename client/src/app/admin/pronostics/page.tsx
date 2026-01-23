@@ -60,7 +60,7 @@ export default async function AdminPronostics() {
       headers["Cookie"] = `accessToken=${accessToken}`;
     }
 
-    const userResponse = await fetch("http://localhost:4000/api/auth/me", {
+    const userResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
       cache: "no-store",
       headers,
     });
@@ -94,7 +94,7 @@ export default async function AdminPronostics() {
       headers["Cookie"] = `accessToken=${accessToken}`;
     }
 
-    const response = await fetch("http://localhost:4000/api/predictions", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/predictions`, {
       cache: "no-store",
       headers,
     });

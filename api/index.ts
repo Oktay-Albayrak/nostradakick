@@ -1,10 +1,10 @@
 import { app } from "./src/app.ts";
 import { config } from "./config.ts";
 
-/* import "./src/jobs/syncMatches.cronJob.ts"; // Toutes les 20 min
-import "./src/jobs/syncStandings.cronJob.ts"; // Toutes les 3 heures à la minute 10'
-import "./src/jobs/syncCompetitions.cronJob.ts"; // 1er du mois à 3h02
-import "./src/jobs/syncMetadaCompetitions.cronJob.ts"; // 15 août à 4h02 */
+// import "./src/jobs/syncMatches.cronJob.ts"; // Toutes les 20 min
+// import "./src/jobs/syncStandings.cronJob.ts"; // Toutes les 3 heures à la minute 10'
+// import "./src/jobs/syncCompetitions.cronJob.ts"; // 1er du mois à 3h02
+// import "./src/jobs/syncMetadaCompetitions.cronJob.ts"; // 15 août à 4h02
 
 import {
   syncAllCompetitions,
@@ -35,7 +35,7 @@ app.get("/api/admin/test-sync-matches", async (req, res) => {
     await syncAllMatches();
     res.json({
       message: "Synchro des matchs réussie !",
-      info: "6 ligues synchronisé en parallèle",
+      info: "6 ligues synchronisé en parallèle"
     });
   } catch (error: any) {
     res.status(500).json({

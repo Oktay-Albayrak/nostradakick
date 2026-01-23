@@ -1,0 +1,10 @@
+# Préciser les fichiers qui ne seront pas copier dans l'image 
+
+# Pas besoin car on peut les reconstruire à l'aide de `npm install`
+node_modules
+
+# Pas besoin car on va gérer les variables d'environnement au moment de la construction du conteneur (et non pas de l'image)
+.env
+
+# Pas besoin car on va le re-générer à l'aide de `npm run db:generate`
+prisma/generated

@@ -3,7 +3,7 @@ import MatchCard from "@/components/matchCard/MatchCard";
 import { IMatch } from "../types/match";
 
 export default async function Home() {
-  const response = await fetch("http://localhost:4000/api/matches");
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/matches`);
   if (!response.ok) {
     return <div>Erreur lors du chargement des matchs</div>;
   }

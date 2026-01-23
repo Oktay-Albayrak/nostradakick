@@ -257,6 +257,7 @@ async function main() {
   - ${predictions.length} Prédictions créées`);
 }
 
+console.log("\n🌍 Lancement de la seed...\n");
 main()
   .catch((e) => {
     console.error(e);

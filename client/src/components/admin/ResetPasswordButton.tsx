@@ -81,7 +81,7 @@ export default function ResetPasswordButton({
 
     try {
       const response = await fetch(
-        `http://localhost:4000/api/users/${userId}`,
+        `${process.env.NEXT_PUBLIC_API_URL_CLIENT}/api/users/${userId}`,
         {
           method: "PATCH",
           headers: {

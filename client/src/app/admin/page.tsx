@@ -25,7 +25,7 @@ export default async function AdminDashboard() {
       headers["Cookie"] = `accessToken=${accessToken}`;
     }
 
-    const userResponse = await fetch("http://localhost:4000/api/auth/me", {
+    const userResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
       cache: "no-store",
       headers,
     });
@@ -59,7 +59,7 @@ export default async function AdminDashboard() {
       headers["Cookie"] = `accessToken=${accessToken}`;
     }
 
-    const response = await fetch("http://localhost:4000/api/admin/stats", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/stats`, {
       cache: "no-store",
       headers,
     });
