@@ -1,17 +1,4 @@
-/**
- * PAGE DE DÉTAIL D'UN MATCH
- * 
- * Route : /matchs/[api_id]
- * 
- * Affiche :
- * - La carte du match avec tous les détails
- * - Les statistiques de prédictions
- * - Bouton retour vers la liste des matchs
- * 
- * Composant CLIENT pour accéder au contexte d'authentification
- * et effectuer les appels API côté client.
- */
-
+// Page de détail d'un match (/matchs/[api_id]) avec stats de prédictions
 "use client";
 
 import { notFound } from "next/navigation";
@@ -29,55 +16,21 @@ interface MatchDetailPageProps {
 }
 
 export default function MatchDetailPage({ params }: MatchDetailPageProps) {
-  // État pour stocker les données du match
   const [match, setMatch] = useState<IMatch | null>(null);
-  
-  // État de chargement pendant la récupération des données
   const [isLoading, setIsLoading] = useState(true);
-  
-  // État pour stocker les messages d'erreur
   const [error, setError] = useState<string | null>(null);
-  
-  // État pour stocker l'api_id résolu (params est une Promise en Next.js 15+)
   const [api_id, setApiId] = useState<string | null>(null);
 
-  /**
-   * USEEFFECT 1 - RÉSOUDRE LES PARAMS
-   * 
-   * Nécessaire car en Next.js 15+, les params sont maintenant des Promises.
-   * 
-   * Objectif :
-   * - Attendre que params se résolve
-   * - Extraire api_id et le stocker dans le state
-   * 
-   * Dependencies : [params]
-   * - Se réexécute si les params changent (changement de route)
-   */
+  // Résout les params (Promise en Next.js 15+) et récupère l'api_id
   useEffect(() => {
-    (async () => {
+    const resolveParams = async () => {
       const resolvedParams = await params;
       setApiId(resolvedParams.api_id);
-    })();
+    };
+    resolveParams();
   }, [params]);
 
-  /**
-   * USEEFFECT 2 - RÉCUPÉRER LE MATCH
-   * 
-   * S'exécute une fois que api_id est disponible.
-   * 
-   * Objectif :
-   * - Appel GET /api/matches/{api_id}
-   * - Récupère tous les détails du match
-   * - Valide que les données essentielles existent
-   * - Gère les erreurs (404, données manquantes, etc.)
-   * 
-   * Validation :
-   * - match doit avoir home_team et away_team
-   * - Sinon : affiche la page 404
-   * 
-   * Dependencies : [api_id]
-   * - Se réexécute si api_id change
-   */
+  // Récupère les détails du match une fois que l'api_id est disponible
   useEffect(() => {
     if (!api_id) return;
 
@@ -102,9 +55,7 @@ export default function MatchDetailPage({ params }: MatchDetailPageProps) {
         const matchData: IMatch = await response.json();
         console.log("✅ Match received:", JSON.stringify(matchData, null, 2));
 
-        // Validation des données essentielles
-        // Vérification que home_team et away_team existent
-        // Sinon affiche 404 (données corrompues ou API défaillante)
+        // Valide que home_team et away_team existent
         if (!matchData || !matchData.home_team || !matchData.away_team) {
           throw new Error("Match data incomplete");
         }

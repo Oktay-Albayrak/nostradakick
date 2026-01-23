@@ -1,44 +1,10 @@
-/**
- * CONTRÔLEUR DES PRÉDICTIONS
- * 
- * Gère toute la logique métier des prédictions de matchs.
- * 
- * Fonctionnalités :
- * - Récupérer toutes les prédictions
- * - Récupérer une prédiction spécifique
- * - Récupérer la prédiction d'un utilisateur pour un match
- * - Créer ou mettre à jour une prédiction (UPSERT)
- * - Supprimer une prédiction
- * 
- * Pattern UPSERT :
- * - Clé composite unique : (user_id, match_id)
- * - Nouvelle prédiction : INSERT
- * - Prédiction existante : UPDATE
- */
+// Contrôleur des prédictions : GET, POST, UPSERT (pattern composite key user_id+match_id)
 
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.ts";
 import z from "zod";
 
-
-/**
- * FONCTION GETUSERPREDICTIOINFORMATCH
- * 
- * Récupère la prédiction existante d'un utilisateur pour un match spécifique.
- * 
- * Query params requis :
- * - user_id: UUID de l'utilisateur
- * - match_id: UUID du match
- * 
- * Retour :
- * - 200 : objet prédiction avec tous les détails
- * - 404 : aucune prédiction trouvée
- * - 400 : paramètres invalides
- * 
- * Utilisé par le frontend pour :
- * - Charger la prédiction existante
- * - Afficher le bouton du pronostic en couleur différente
- */
+// Récupère la prédiction d'un utilisateur pour un match via GET /predictions?user_id=X&match_id=Y
 export async function getUserPredictionForMatch(req: Request, res: Response) {
   const schema = z.object({
     user_id: z.uuid("L'ID utilisateur fourni n'est pas valide."),
@@ -110,20 +76,7 @@ export async function getAllPredictions(req: Request, res: Response) {
   res.json(predictions);
 }
 
-// Récupère une seule prédiction par son ID
-/**
- * FONCTION GETONEPREDICTION
- * 
- * Récupère une prédiction spécifique par son ID (UUID).
- * 
- * Params :
- * - id (route) : UUID unique de la prédiction
- * 
- * Retour :
- * - 200 : objet prédiction avec détails
- * - 404 : prédiction non trouvée
- * - 400 : ID invalide
- */
+// Récupère une prédiction spécifique par son ID
 export async function getOnePrediction(req: Request, res: Response) {
   const uuidSchema = z.uuid({
     message: "L'identifiant fourni n'est pas valide."
@@ -164,33 +117,7 @@ export async function getOnePrediction(req: Request, res: Response) {
   }
 }
 
-// Crée ou met à jour une prédiction (Upsert)
-/**
- * FONCTION UPSERTPREDICTION
- * 
- * Crée une nouvelle prédiction OU met à jour une existante.
- * 
- * Utilise le pattern UPSERT avec clé composite (user_id, match_id).
- * 
- * Body requis :
- * - user_id: UUID de l'utilisateur
- * - match_id: UUID du match
- * - prediction_value: "HOME" | "DRAW" | "AWAY"
- * 
- * Logique :
- * 1. Valide les données avec Zod
- * 2. Cherche (user_id, match_id) dans la DB
- * 3. Si existe : UPDATE la prédiction
- * 4. Si n'existe pas : CREATE nouvelle prédiction
- * 
- * Retour :
- * - 200 OK : prédiction créée ou mise à jour
- * - 400 : données invalides
- * 
- * Utilisé par le frontend quand l'utilisateur :
- * - Fait son premier pronostic
- * - Change son pronostic existant
- */
+// Crée ou met à jour une prédiction (UPSERT sur clé composite user_id+match_id)
 export async function upsertPrediction(req: Request, res: Response) {
   const createPredictionSchema = z.object({
     user_id: z.uuid({

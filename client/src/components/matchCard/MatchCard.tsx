@@ -71,21 +71,7 @@ export default function MatchCard({
   // Valeur temporaire du pronostic en attente de confirmation
   const [pendingPrediction, setPendingPrediction] = useState<"HOME" | "DRAW" | "AWAY" | null>(null);
 
-  /**
-   * USEEFFECT - CHARGER LE PRONOSTIC EXISTANT
-   * 
-   * S'exécute quand :
-   * - user_id change (utilisateur connecté/déconnecté)
-   * - match.id change (nouveau match affiché)
-   * 
-   * Objectif :
-   * - Récupère le pronostic existant de cet utilisateur pour ce match
-   * - Affiche le bouton choisi en couleur différente (classe .selected)
-   * - Persiste même après un refresh ou un changement de page
-   * 
-   * Appel API :
-   * - GET /api/predictions?user_id=X&match_id=Y
-   */
+  // Récupère le pronostic existant de l'utilisateur pour ce match via GET /api/predictions
   useEffect(() => {
     if (!user_id || !match.id) return;
 
@@ -118,21 +104,7 @@ export default function MatchCard({
   // Si pour une raison X le match est absent, on affiche rien
   if (!match) return null;
 
-  // Fonction pour obtenir le label du statut
-  /**
-   * FONCTION GETSTATUSLABEL
-   * 
-   * Traduit les statuts en français avec émojis.
-   * Utilisée pour afficher le badge de statut du match.
-   * 
-   * Statuts possibles :
-   * - SCHEDULED : Match programmé
-   * - IN_PLAY : Match en cours
-   * - FINISHED : Match terminé
-   * - POSTPONED : Match reporté
-   * - CANCELLED : Match annulé
-   * etc.
-   */
+  // Traduit les statuts en français avec emojis
   const getStatusLabel = (status: string) => {
     const statusMap: Record<string, string> = {
       "SCHEDULED": "📅 Programmé",
@@ -146,26 +118,7 @@ export default function MatchCard({
     return statusMap[status] || status;
   };
 
-  // Fonction pour créer/mettre à jour une prédiction
-  /**
-   * FONCTION HANDLEPREDICTION
-   * 
-   * Gère toute la logique de création/modification d'une prédiction :
-   * 
-   * Étapes :
-   * 1. Vérifie que l'utilisateur est connecté (sinon alerte)
-   * 2. Affiche un modal de confirmation avec le choix
-   * 3. Si "Modifier" : indique que c'est une modification
-   * 4. Envoie POST à /api/predictions avec :
-   *    - user_id (UUID)
-   *    - match_id (UUID)
-   *    - prediction_value ("HOME", "DRAW", "AWAY")
-   * 5. Affiche un message de succès dans un modal
-   * 
-   * Upsert Pattern :
-   * - Si (user_id, match_id) existe : mise à jour
-   * - Sinon : création
-   */
+  // Crée/met à jour un pronostic avec confirmation modale (pattern UPSERT)
   const handlePrediction = (predictionValue: "HOME" | "DRAW" | "AWAY") => {
     if (!isLoggedIn || !user_id) {
       // Afficher un modal d'erreur si pas connecté
