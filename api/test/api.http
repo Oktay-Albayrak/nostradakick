@@ -44,7 +44,7 @@ Content-Type: application/json
 }
 
 ### Delete ONE User
-DELETE http://localhost:4000/api/users/3a9f3244-c29c-4b25-b2ed-3ecf5dae5c21
+DELETE http://localhost:4000/api/users/445bfd95-1c81-48db-8844-71dee02989b1
 
 ### Get All Competitions
 GET http://localhost:4000/api/competitions
@@ -119,7 +119,8 @@ Content-Type: application/json
 {
   "username": "test_admin",
   "email": "test_admin@example.com",
-  "password": "TestPassword123"
+  "password": "TestPassword123",
+  "role":"ADMIN"
 }
 
 ### Test 6: Login avec l'utilisateur ADMIN

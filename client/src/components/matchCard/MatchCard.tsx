@@ -23,6 +23,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import Modal from "@/components/Modal/Modal";
 import styles from "./MatchCard.module.css";
 import { IMatch } from "@/types/match";
 
@@ -49,6 +50,26 @@ export default function MatchCard({
   
   // État pour stocker la prédiction sélectionnée par l'utilisateur ("HOME", "DRAW", "AWAY")
   const [selectedPrediction, setSelectedPrediction] = useState<string | null>(null);
+
+  // États pour gérer les modals
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText: string;
+    isConfirmation: boolean;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    confirmText: "OK",
+    isConfirmation: false,
+    onConfirm: () => {},
+  });
+
+  // Valeur temporaire du pronostic en attente de confirmation
+  const [pendingPrediction, setPendingPrediction] = useState<"HOME" | "DRAW" | "AWAY" | null>(null);
 
   /**
    * USEEFFECT - CHARGER LE PRONOSTIC EXISTANT
@@ -133,21 +154,29 @@ export default function MatchCard({
    * 
    * Étapes :
    * 1. Vérifie que l'utilisateur est connecté (sinon alerte)
-   * 2. Affiche une alerte de confirmation avec le choix
+   * 2. Affiche un modal de confirmation avec le choix
    * 3. Si "Modifier" : indique que c'est une modification
    * 4. Envoie POST à /api/predictions avec :
    *    - user_id (UUID)
    *    - match_id (UUID)
    *    - prediction_value ("HOME", "DRAW", "AWAY")
-   * 5. Affiche un message de succès
+   * 5. Affiche un message de succès dans un modal
    * 
    * Upsert Pattern :
    * - Si (user_id, match_id) existe : mise à jour
    * - Sinon : création
    */
-  const handlePrediction = async (predictionValue: "HOME" | "DRAW" | "AWAY") => {
+  const handlePrediction = (predictionValue: "HOME" | "DRAW" | "AWAY") => {
     if (!isLoggedIn || !user_id) {
-      alert("Vous devez être connecté pour faire un pronostic");
+      // Afficher un modal d'erreur si pas connecté
+      setModalConfig({
+        isOpen: true,
+        title: "⚠️ Non connecté",
+        message: "Vous devez être connecté pour faire un pronostic",
+        confirmText: "OK",
+        isConfirmation: false,
+        onConfirm: () => {},
+      });
       return;
     }
 
@@ -163,9 +192,23 @@ export default function MatchCard({
       ? `Vous êtes sur le point de modifier votre pronostic en "${predictionLabels[predictionValue]}".\n\nConfirmez-vous ?`
       : `Confirmer votre pronostic: "${predictionLabels[predictionValue]}"?`;
 
-    // Alerte de confirmation
-    const confirmed = window.confirm(message);
-    if (!confirmed) return;
+    // Stocker le pronostic temporaire en attente
+    setPendingPrediction(predictionValue);
+
+    // Afficher le modal de confirmation
+    setModalConfig({
+      isOpen: true,
+      title: isModifying ? "📝 Modifier le pronostic" : "⚽ Confirmer le pronostic",
+      message,
+      confirmText: isModifying ? "Modifier" : "Confirmer",
+      isConfirmation: true,
+      onConfirm: () => {}, // Sera appelée par le Modal component
+    });
+  };
+
+  // Fonction pour soumettre la prédiction après confirmation
+  const submitPrediction = async () => {
+    if (!pendingPrediction || !user_id) return;
 
     setIsLoading(true);
 
@@ -179,22 +222,56 @@ export default function MatchCard({
         body: JSON.stringify({
           user_id,
           match_id: match.id,
-          prediction_value: predictionValue,
+          prediction_value: pendingPrediction,
         }),
       });
 
       if (response.ok) {
         console.log("✅ Prédiction enregistrée avec succès");
-        setSelectedPrediction(predictionValue);
-        alert(`Votre pronostic "${predictionLabels[predictionValue]}" a été enregistré ! ✅`);
+        
+        const predictionLabels: Record<string, string> = {
+          "HOME": homeTeam.name,
+          "DRAW": "Match Nul",
+          "AWAY": awayTeam.name,
+        };
+
+        // Mettre à jour le pronostic sélectionné
+        setSelectedPrediction(pendingPrediction);
+        setPendingPrediction(null);
+        
+        // Afficher une notification de succès
+        setModalConfig({
+          isOpen: true,
+          title: "✅ Succès",
+          message: `Votre pronostic "${predictionLabels[pendingPrediction]}" a été enregistré !`,
+          confirmText: "OK",
+          isConfirmation: false,
+          onConfirm: () => {},
+        });
       } else {
         const error = await response.json();
         console.error("❌ Erreur lors de l'enregistrement:", error);
-        alert("Erreur lors de l'enregistrement du pronostic");
+        
+        setModalConfig({
+          isOpen: true,
+          title: "❌ Erreur",
+          message: "Erreur lors de l'enregistrement du pronostic",
+          confirmText: "OK",
+          isConfirmation: false,
+          onConfirm: () => {},
+        });
       }
     } catch (error) {
       console.error("💥 Erreur réseau:", error);
-      alert("Erreur de connexion");
+      
+      setModalConfig({
+        isOpen: true,
+        title: "❌ Erreur de connexion",
+        message: "Impossible de se connecter au serveur",
+        confirmText: "OK",
+        isConfirmation: false,
+        onConfirm: () => {},
+      });
     } finally {
       setIsLoading(false);
     }
@@ -260,19 +337,20 @@ export default function MatchCard({
   } ${showStatus ? styles.cardWithStatus : ""}`;
 
   return (
-    <Link href={`/matchs/${match.api_id}`} style={{ textDecoration: "none", color: "inherit" }}>
-      <article className={cardClassName} onClick={(e) => {
-        // Empêcher la navigation si on clique sur un bouton
-        if ((e.target as HTMLElement).closest("button")) {
-          e.preventDefault();
-        }
-      }}>
-        <section>
-          <div className={styles.competitionBadge}>
-            {match.competition.name}
-          </div>
-          {isHot && <span className={styles.hotBadge}>🔥</span>}
-        </section>
+    <>
+    <article className={cardClassName}>
+      <section>
+        <div className={styles.competitionBadge}>
+          {match.competition.name}
+        </div>
+        {isHot && <span className={styles.hotBadge}>🔥</span>}
+      </section>
+      
+      {/* LIEN CLIQUABLE SEULEMENT SUR LES ÉQUIPES, HORAIRE ET AVATARS */}
+      <Link 
+        href={`/matchs/${match.api_id}`} 
+        style={{ textDecoration: "none", color: "inherit" }}
+      >
         <section className={styles.mainInfo}>
           {/* HOME TEAM */}
           <div className={styles.teamBox}>
@@ -330,14 +408,16 @@ export default function MatchCard({
             )}
           </div>
         </section>
-        <section>
-          {/* NOM DU DERBY (Affiché uniquement s'il existe) */}
-          {match.featured_name && (
-            <div className={styles.derbyName}>{match.featured_name}</div>
-          )}
-        </section>
-        {/* Affichage conditionnel des boutons */}
-        {showPredictions && isLoggedIn && (
+      </Link>
+      
+      <section>
+        {/* NOM DU DERBY (Affiché uniquement s'il existe) */}
+        {match.featured_name && (
+          <div className={styles.derbyName}>{match.featured_name}</div>
+        )}
+      </section>
+      {/* Affichage conditionnel des boutons */}
+      {showPredictions && isLoggedIn && (
           <section className={styles.predictionGrid} onClick={(e) => e.stopPropagation()}>
             {/* Bouton Victoire Domicile */}
             <button
@@ -381,7 +461,43 @@ export default function MatchCard({
             </p>
           </section>
         )}
-      </article>
-    </Link>
+    </article>
+
+    {/* Modal pour les confirmations et messages */}
+    <Modal
+      isOpen={modalConfig.isOpen}
+      title={modalConfig.title}
+      message={modalConfig.message}
+      onConfirm={() => {
+        // Si modal de confirmation = soumettre la prédiction
+        if (modalConfig.isConfirmation) {
+          submitPrediction();
+        } else {
+          // Si modal de succès/erreur = fermer le modal
+          setModalConfig({
+            isOpen: false,
+            title: "",
+            message: "",
+            confirmText: "OK",
+            isConfirmation: false,
+            onConfirm: () => {},
+          });
+        }
+      }}
+      onCancel={() => {
+        setModalConfig({
+          isOpen: false,
+          title: "",
+          message: "",
+          confirmText: "OK",
+          isConfirmation: false,
+          onConfirm: () => {},
+        });
+        setPendingPrediction(null);
+      }}
+      confirmText={modalConfig.confirmText}
+      isConfirmation={modalConfig.isConfirmation}
+    />
+    </>
   );
 }

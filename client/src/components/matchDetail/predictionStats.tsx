@@ -94,17 +94,39 @@ export default function PredictionStats({ match }: predictionStatsProps) {
 
       {/* Tendance majoritaire */}
       <div className={styles.trendCard}>
+        {/* Victoire domicile très populaire */}
         {homeCount > drawCount && homeCount > awayCount && (
           <p>🔥 La communauté pense que <strong>{match.home_team.name}</strong> va gagner !</p>
         )}
+        
+        {/* Victoire extérieur très populaire */}
         {awayCount > homeCount && awayCount > drawCount && (
           <p>🔥 La communauté pense que <strong>{match.away_team.name}</strong> va gagner !</p>
         )}
+        
+        {/* Match nul très populaire */}
         {drawCount > homeCount && drawCount > awayCount && (
           <p>🤝 La communauté pense qu&apos;il y aura <strong>match nul</strong> !</p>
         )}
+        
+        {/* Égalité domicile vs extérieur (draw moins) */}
         {homeCount === awayCount && homeCount > drawCount && (
           <p>⚖️ Les prédictions sont <strong>partagées</strong> entre les deux équipes !</p>
+        )}
+        
+        {/* Égalité domicile vs nul (extérieur moins) */}
+        {homeCount === drawCount && homeCount > awayCount && (
+          <p>⚖️ Les prédictions sont <strong>partagées</strong> entre victoire domicile et match nul !</p>
+        )}
+        
+        {/* Égalité nul vs extérieur (domicile moins) */}
+        {drawCount === awayCount && drawCount > homeCount && (
+          <p>⚖️ Les prédictions sont <strong>partagées</strong> entre match nul et victoire extérieur !</p>
+        )}
+        
+        {/* Égalité totale entre les trois */}
+        {homeCount === drawCount && drawCount === awayCount && (
+          <p>🎲 Parfaite égalité ! Les trois scénarios sont aussi probables les uns que les autres !</p>
         )}
       </div>
     </section>
