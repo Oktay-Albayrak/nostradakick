@@ -8,7 +8,6 @@ import {
 } from "../controllers/matches.controller.ts";
 import { 
   requireAdmin, 
-  requireAuth 
 } from "../middleware/auth.middleware.ts";
 
 export const router: Router = Router();
