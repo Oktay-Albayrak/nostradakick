@@ -1,3 +1,12 @@
+### ============================================
+### FICHIER DE TESTS API
+### ============================================
+### Pour obtenir un token :
+### 1. Utilisez les routes Register/Login ci-dessous
+### 2. Copiez le cookie "accessToken" de la réponse
+### 3. Remplacez "VOTRE_TOKEN_ICI" dans les tests
+### ============================================
+
 ### Health Check
 GET http://localhost:4000/api/health
 
@@ -22,15 +31,29 @@ Content-Type: application/json
 
 ### auth/me
 GET http://localhost:4000/api/auth/me
-Cookies: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1YTBlMDMyNi1iMmRiLTQ0YWEtYjY1NC03OTA5NmFhYTQ2MjAiLCJ1c2VyUm9sZSI6Ik1FTUJFUiIsImlhdCI6MTc2ODQ4NTU3MiwiZXhwIjoxNzY4NDg5MTcyfQ.Wg10Gn5LqAR3ePcdd8vUqZgGXLFU8hNn_X85wIkpuiE
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1YTBlMDMyNi1iMmRiLTQ0YWEtYjY1NC03OTA5NmFhYTQ2MjAiLCJ1c2VyUm9sZSI6Ik1FTUJFUiIsImlhdCI6MTc2ODQ4NTU3MiwiZXhwIjoxNzY4NDg5MTcyfQ.Wg10Gn5LqAR3ePcdd8vUqZgGXLFU8hNn_X85wIkpuiE
 
 
-### Get All Users
-GET http://localhost:4000/api/users
+### Get All Users (nécessite ADMIN - voir section tests protection)
+# GET http://localhost:4000/api/users
 
-### Get One User
+### Get One User (PUBLIC - pas de token nécessaire)
 GET http://localhost:4000/api/users/user_9
 
+### Mise à jour utilisateur (nécessite AUTH - voir section tests protection)
+# PATCH http://localhost:4000/api/users/f5f503b4-5861-4149-b868-5c9597415757
+# Content-Type: application/json
+# Cookie: accessToken=VOTRE_TOKEN_ICI
+#
+# {
+#   "username": "JesuisAdminMec",
+#   "email": "admin@admin.com",
+#   "avatar_url": "https://admin.com/grand-admin.png",
+#   "password": "Jesuis.membre1"
+# }
+
+### Delete ONE User (nécessite ADMIN - voir section tests protection)
+# DELETE http://localhost:4000/api/users/3a9f3244-c29c-4b25-b2ed-3ecf5dae5c21
 ### Mise à jour multiple de plusieurs champs d'un utilisateur
 PATCH http://localhost:4000/api/users/f5f503b4-5861-4149-b868-5c9597415757
 Content-Type: application/json
@@ -55,24 +78,25 @@ GET http://localhost:4000/api/matches
 ### Get Match by ID
 GET http://localhost:4000/api/matches/551996
 
-### Get All Predictions
-GET http://localhost:4000/api/predictions
+### Get All Predictions (nécessite ADMIN - voir section tests protection)
+# GET http://localhost:4000/api/predictions
 
-### Get One Predictions
-GET http://localhost:4000/api/predictions/023e8d45-cb76-4fe1-ad01-0f4cd04ff0ee
+### Get One Prediction (nécessite AUTH - voir section tests protection)
+# GET http://localhost:4000/api/predictions/023e8d45-cb76-4fe1-ad01-0f4cd04ff0ee
 
-### Create one Prediction
-POST http://localhost:4000/api/predictions
-Content-Type: application/json
+### Create one Prediction (nécessite AUTH - voir section tests protection)
+# POST http://localhost:4000/api/predictions
+# Content-Type: application/json
+# Cookie: accessToken=VOTRE_TOKEN_ICI
+#
+# {
+#   "user_id": "VOTRE_USER_ID_ICI",
+#   "match_id": "28549d58-221f-4430-b5a8-a7c4327d25aa",
+#   "prediction_value": "HOME"
+# }
 
-{
-  "user_id": "00000000-1000-4000-9000-000000000001",
-  "match_id": "28549d58-221f-4430-b5a8-a7c4327d25aa",
-  "prediction_value": "HOME"
-}
-
-### Delete one Prediction
-DELETE http://localhost:4000/api/predictions/023e8d45-cb76-4fe1-ad01-0f4cd04ff0ee
+### Delete one Prediction (nécessite AUTH - voir section tests protection)
+# DELETE http://localhost:4000/api/predictions/023e8d45-cb76-4fe1-ad01-0f4cd04ff0ee
 
 ### Test sync TOUTES les compétitions
 GET http://localhost:4000/api/admin/test-sync-competitions
@@ -136,8 +160,54 @@ Content-Type: application/json
 ### Test 7: Accès /admin/stats avec un utilisateur ADMIN (doit retourner 200)
 # Remplacez le cookie accessToken ci-dessous par celui reçu après le login admin (Test 6)
 GET http://localhost:4000/api/admin/stats
-Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlNTA1YzVkMS0xNDc2LTQ3NDctYTRhMS03NWMwMDg3NDZmN2YiLCJ1c2VyUm9sZSI6Ik1FTUJFUiIsImlhdCI6MTc2ODkyNTc5NCwiZXhwIjoxNzY4OTI5Mzk0fQ.iTOleTZ2XkBT7sto_J4-CLRWK_px_3Rb8flyp-ueiPI
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4MmU0YmNjMC1mZGRhLTRiYmItYjczOS01ZjQwNzk5ZDVkODciLCJ1c2VyUm9sZSI6IkFETUlOIiwiaWF0IjoxNzY5MDAxNDE5LCJleHAiOjE3NjkwMDUwMTl9.aBAD6R-2sV9OwysGa9plexM9Dz9sIRUf8l-ZAcdiar4
 
 ### Test 8: Vérification utilisateur connecté (auth/me) pour voir le rôle
 GET http://localhost:4000/api/auth/me
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4MmU0YmNjMC1mZGRhLTRiYmItYjczOS01ZjQwNzk5ZDVkODciLCJ1c2VyUm9sZSI6IkFETUlOIiwiaWF0IjoxNzY5MDAxNDE5LCJleHAiOjE3NjkwMDUwMTl9.aBAD6R-2sV9OwysGa9plexM9Dz9sIRUf8l-ZAcdiar4
+
+
+### TESTS PROTECTION ROUTES (Middleware Role)
+
+### GET /api/users/:username - PUBLIC (pas de token nécessaire)
+GET http://localhost:4000/api/users/user_9
+
+### GET /api/users - Sans auth (401) | MEMBER (403) | ADMIN (200)
+GET http://localhost:4000/api/users
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4MmU0YmNjMC1mZGRhLTRiYmItYjczOS01ZjQwNzk5ZDVkODciLCJ1c2VyUm9sZSI6IkFETUlOIiwiaWF0IjoxNzY5MDAxNDE5LCJleHAiOjE3NjkwMDUwMTl9.aBAD6R-2sV9OwysGa9plexM9Dz9sIRUf8l-ZAcdiar4
+
+### PATCH /api/users/:id - Sans auth (401) | Modifier autre (403) | Modifier soi/ADMIN (200)
+PATCH http://localhost:4000/api/users/00000000-1000-4000-9000-000000000001
+Content-Type: application/json
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4MmU0YmNjMC1mZGRhLTRiYmItYjczOS01ZjQwNzk5ZDVkODciLCJ1c2VyUm9sZSI6IkFETUlOIiwiaWF0IjoxNzY5MDAxNDE5LCJleHAiOjE3NjkwMDUwMTl9.aBAD6R-2sV9OwysGa9plexM9Dz9sIRUf8l-ZAcdiar4
+
+{
+  "username": "TestModification"
+}
+
+### DELETE /api/users/:id - Sans auth (401) | MEMBER (403) | ADMIN (200)
+DELETE http://localhost:4000/api/users/00000000-1000-4000-9000-000000000001
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4MmU0YmNjMC1mZGRhLTRiYmItYjczOS01ZjQwNzk5ZDVkODciLCJ1c2VyUm9sZSI6IkFETUlOIiwiaWF0IjoxNzY5MDAxNDE5LCJleHAiOjE3NjkwMDUwMTl9.aBAD6R-2sV9OwysGa9plexM9Dz9sIRUf8l-ZAcdiar4
+
+### GET /api/predictions - Sans auth (401) | MEMBER (403) | ADMIN (200)
+GET http://localhost:4000/api/predictions
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4MmU0YmNjMC1mZGRhLTRiYmItYjczOS01ZjQwNzk5ZDVkODciLCJ1c2VyUm9sZSI6IkFETUlOIiwiaWF0IjoxNzY5MDAxNDE5LCJleHAiOjE3NjkwMDUwMTl9.aBAD6R-2sV9OwysGa9plexM9Dz9sIRUf8l-ZAcdiar4
+
+### GET /api/predictions/:id - Sans auth (401) | Accéder autre (403) | Accéder soi/ADMIN (200)
+GET http://localhost:4000/api/predictions/023e8d45-cb76-4fe1-ad01-0f4cd04ff0ee
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4MmU0YmNjMC1mZGRhLTRiYmItYjczOS01ZjQwNzk5ZDVkODciLCJ1c2VyUm9sZSI6IkFETUlOIiwiaWF0IjoxNzY5MDAxNDE5LCJleHAiOjE3NjkwMDUwMTl9.aBAD6R-2sV9OwysGa9plexM9Dz9sIRUf8l-ZAcdiar4
+
+### POST /api/predictions - Sans auth (401) | Créer pour autre (403) | Créer pour soi (200)
+POST http://localhost:4000/api/predictions
+Content-Type: application/json
+Cookie: accessToken=VOTRE_TOKEN_MEMBER_ICI
+
+{
+  "user_id": "VOTRE_USER_ID_ICI",
+  "match_id": "28549d58-221f-4430-b5a8-a7c4327d25aa",
+  "prediction_value": "HOME"
+}
+
+### DELETE /api/predictions/:id - Sans auth (401) | Supprimer autre (403) | Supprimer soi/ADMIN (204)
+DELETE http://localhost:4000/api/predictions/023e8d45-cb76-4fe1-ad01-0f4cd04ff0ee
 Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4MmU0YmNjMC1mZGRhLTRiYmItYjczOS01ZjQwNzk5ZDVkODciLCJ1c2VyUm9sZSI6IkFETUlOIiwiaWF0IjoxNzY5MDAxNDE5LCJleHAiOjE3NjkwMDUwMTl9.aBAD6R-2sV9OwysGa9plexM9Dz9sIRUf8l-ZAcdiar4
