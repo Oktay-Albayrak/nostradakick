@@ -2,6 +2,7 @@ import Image from "next/image";
 import styles from "./page.module.css";
 import { notFound } from "next/navigation";
 import { IPrediction } from "@/types/match";
+import SearchBar from "@/components/search/searchBar";
 
 interface UserPredictionGroup {
   user: IPrediction["user"];
