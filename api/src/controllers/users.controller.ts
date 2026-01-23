@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import * as userService from "../services/user.service.ts"
-import { usernameSchema, uuidSchema } from "../validations/utils.user.validation.ts";
+import { usernameSchema, uuidSchema } from "../validations/utils.validation.ts";
 import { updateUserSchema } from "../validations/user.validation.ts";
 import { ZodError } from "zod";
 

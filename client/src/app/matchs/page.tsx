@@ -4,34 +4,37 @@ import { ICompetition, IMatch } from "@/types/match";
 import InfiniteMatches from "@/components/InfiniteMatches/InfiniteMatches";
 import Link from "next/link";
 import MobileCompetitionMenu from "@/components/MobileCompetitionMenu/MobileCompetitionMenu";
+import SearchBar from "@/components/search/searchBar";
 
 export default async function Matchs({
   searchParams,
 }: {
-  searchParams: Promise<{ league?: string; filter?: string }>;
+  searchParams: Promise<{ league?: string; filter?: string; team?: string }>;
 }) {
   // 1. On récupère la ligue depuis l'URL (si elle existe)
   const params = await searchParams;
   const selectedLeague = params.league || "";
+  const selectedTeam = params.team || "";
   const isHotFilter = params.filter === "hot";
 
   const leaguesResponse = await fetch("http://localhost:4000/api/competitions");
   const leagues = await leaguesResponse.json();
 
-  const matchesResponse = await fetch(
-    `http://localhost:4000/api/matches?page=1&limit=10${selectedLeague ? `&league=${selectedLeague}` : ""}`,
-    { cache: "no-store" },
-  );
+  let apiURL = `http://localhost:4000/api/matches?page=1&limit=10`;
+  if (selectedLeague) apiURL += `&league=${selectedLeague}`;
+  if (selectedTeam) apiURL += `&team=${selectedTeam}`;
+
+  const matchesResponse = await fetch(apiURL, { cache: "no-store" });
   if (!matchesResponse.ok) {
     return <div>Erreur lors du chargement des matchs</div>;
   }
+
+  const initialMatches: IMatch[] = await matchesResponse.json();
 
   // On cherche l'objet compétition qui a le même code que celui de l'URL
   const currentLeague = leagues.find(
     (league: ICompetition) => league.code === selectedLeague,
   );
-
-  const initialMatches: IMatch[] = await matchesResponse.json();
 
   // --- LOGIQUE DE FILTRAGE HOT ---
   // Pour la colonne centrale : on filtre si le bouton HOT est activé
@@ -58,17 +61,18 @@ export default async function Matchs({
     return qs ? `/matchs?${qs}` : "/matchs";
   };
 
+  const getSectionTitle = () => {
+    if (isHotFilter) return "Matchs à l'affiche 🔥";
+    if (selectedTeam)
+      return `Prochains matchs : ${selectedTeam.replace(/-/g, " ").toUpperCase()}`;
+    if (selectedLeague) return `Prochains matchs de ${currentLeague?.name}`;
+    return "Matchs à venir";
+  };
+
   return (
     <div className={styles.container}>
       {/* 1. BARRE DE RECHERCHE (Visible uniquement sur Desktop) */}
-      <section className={styles.searchSection}>
-        <input
-          type="search"
-          placeholder="Rechercher un match ou une compétition ..."
-          className={styles.searchInput}
-          aria-label="Rechercher un match ou une compétition"
-        />
-      </section>
+      <SearchBar />
 
       {/* 2. FILTRES MOBILES (Cachés sur Desktop) */}
       <div className={styles.mobileFilters}>
@@ -114,20 +118,15 @@ export default async function Matchs({
 
         {/* 4. COLONNE CENTRALE : MATCHS À VENIR */}
         <main className={styles.matchsContent}>
-          <h1 className={styles.sectionTitle}>
-            {isHotFilter
-              ? "Matchs à l'affiche 🔥"
-              : selectedLeague
-                ? `Prochains matchs de ${currentLeague?.name}`
-                : "Matchs à venir"}
-          </h1>
+          <h1 className={styles.sectionTitle}>{getSectionTitle()}</h1>
           <div className={styles.matchGrid}>
             {/* Quand initialMatches change (suite au clic Link), InfiniteMatches se reset tout seul */}
             <InfiniteMatches
-              key={`${selectedLeague}-${isHotFilter}`}
+              key={`${selectedLeague}-${isHotFilter}-${selectedTeam}`}
               initialMatches={displayMatches}
               league={selectedLeague}
               isHot={isHotFilter}
+              team={selectedTeam}
             />
           </div>
         </main>

@@ -2,12 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import styles from "./page.module.css";
-import { IAdminStats } from "@/types/admin";
 import { IUser } from "@/types/user";
-
-function formatNumber(num: number): string {
-  return num.toLocaleString("fr-FR");
-}
+import AdminStats from "@/components/admin/AdminStats";
 
 export default async function AdminDashboard() {
   // Récupération du cookie accessToken
@@ -46,34 +42,6 @@ export default async function AdminDashboard() {
     redirect("/dashboard");
   }
 
-  // Récupération des statistiques
-  let stats: IAdminStats | null = null;
-  let error: string | null = null;
-
-  try {
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-    };
-    
-    if (accessToken) {
-      headers["Cookie"] = `accessToken=${accessToken}`;
-    }
-
-    const response = await fetch("http://localhost:4000/api/admin/stats", {
-      cache: "no-store",
-      headers,
-    });
-
-    if (!response.ok) {
-      error = "Erreur lors du chargement des statistiques";
-    } else {
-      stats = await response.json();
-    }
-  } catch (e) {
-    error = "Impossible de charger les statistiques";
-    console.error("Erreur:", e);
-  }
-
   return (
     <main className={styles.main}>
       <div className={styles.header}>
@@ -83,51 +51,7 @@ export default async function AdminDashboard() {
         </Link>
       </div>
 
-      {error ? (
-        <div className={styles.errorMessage}>{error}</div>
-      ) : (
-        <section className={styles.statsGrid}>
-          <article className={styles.statCard}>
-            <div className={styles.statIcon}>👥</div>
-            <div className={styles.statContent}>
-              <h3 className={styles.statValue}>
-                {stats ? formatNumber(stats.usersCount) : "0"}
-              </h3>
-              <p className={styles.statLabel}>Utilisateurs</p>
-            </div>
-          </article>
-
-          <article className={styles.statCard}>
-            <div className={styles.statIcon}>📊</div>
-            <div className={styles.statContent}>
-              <h3 className={styles.statValue}>
-                {stats ? formatNumber(stats.predictionsCount) : "0"}
-              </h3>
-              <p className={styles.statLabel}>Pronostics</p>
-            </div>
-          </article>
-
-          <article className={styles.statCard}>
-            <div className={styles.statIcon}>⚽</div>
-            <div className={styles.statContent}>
-              <h3 className={styles.statValue}>
-                {stats ? formatNumber(stats.matchesCount) : "0"}
-              </h3>
-              <p className={styles.statLabel}>Matchs</p>
-            </div>
-          </article>
-
-          <article className={styles.statCard}>
-            <div className={styles.statIcon}>🏆</div>
-            <div className={styles.statContent}>
-              <h3 className={styles.statValue}>
-                {stats ? formatNumber(stats.competitionsCount) : "0"}
-              </h3>
-              <p className={styles.statLabel}>Compétitions</p>
-            </div>
-          </article>
-        </section>
-      )}
+      <AdminStats />
 
       <section className={styles.actionsGrid}>
         <Link href="/admin/users" className={styles.actionCard}>
@@ -135,6 +59,14 @@ export default async function AdminDashboard() {
           <h2 className={styles.actionTitle}>Gestionnaire users</h2>
           <p className={styles.actionDescription}>
             Gérer les utilisateurs, modifier leurs informations, réinitialiser les mots de passe
+          </p>
+        </Link>
+
+        <Link href="/admin/matchs" className={styles.actionCard}>
+          <div className={styles.actionIcon}>⚽</div>
+          <h2 className={styles.actionTitle}>Gestionnaire matchs</h2>
+          <p className={styles.actionDescription}>
+            Ajouter, modifier et supprimer les matchs du site
           </p>
         </Link>
 
