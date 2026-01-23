@@ -4,7 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import Footer from "@/components/footer/Footer";
 import Header from "@/components/header/Header";
-import MobileNavbar from "@/components/mobileNavbar/MobileNavbar";
+import SearchContainer from "@/components/search/searchContainer";
 
 export const metadata: Metadata = {
   title: "NostradaKick",
@@ -28,9 +28,9 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <Header />
-            {children}
+          {children}
           <Footer />
-          <MobileNavbar />
+          <SearchContainer />
         </AuthProvider>
       </body>
     </html>

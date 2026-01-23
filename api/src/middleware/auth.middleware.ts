@@ -5,7 +5,7 @@ import { extractAccessTokenFromRequest, decodeJWT } from "../lib/auth.ts";
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
   try {
     const accessToken = extractAccessTokenFromRequest(req);
-
+    
     if (!accessToken) {
       return res.status(401).json({ error: "Non authentifié" });
     }
@@ -28,7 +28,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
 export function requireAdmin(req: Request, res: Response, next: NextFunction) {
   try {
     const accessToken = extractAccessTokenFromRequest(req);
-
+    
     if (!accessToken) {
       return res.status(401).json({ error: "Non authentifié" });
     }
