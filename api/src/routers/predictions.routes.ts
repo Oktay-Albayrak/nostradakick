@@ -4,9 +4,9 @@ import { requireAuth, requireAdmin } from "../middleware/auth.middleware.ts";
 
 export const router: Router = Router();
 
-router.get("/predictions", requireAdmin, getAllPredictions);
+router.get("/predictions", getAllPredictions);
 
-router.get("/predictions/:id", requireAuth, getOnePrediction);
+router.get("/predictions/:id", getOnePrediction);
 
 router.post("/predictions", requireAuth, upsertPrediction);
 
