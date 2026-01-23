@@ -1,9 +1,68 @@
+// Contrôleur des prédictions : GET, POST, UPSERT (pattern composite key user_id+match_id)
+
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.ts";
 import z from "zod";
-// import type { Prediction } from "../../generated/prisma/client";
+
+// Récupère la prédiction d'un utilisateur pour un match via GET /predictions?user_id=X&match_id=Y
+export async function getUserPredictionForMatch(req: Request, res: Response) {
+  const schema = z.object({
+    user_id: z.uuid("L'ID utilisateur fourni n'est pas valide."),
+    match_id: z.uuid("L'ID match fourni n'est pas valide.")
+  });
+
+  try {
+    const result = schema.safeParse(req.query);
+
+    if (!result.success) {
+      return res.status(400).json({ error: result.error.issues.map((issue) => issue.message) });
+    }
+
+    const { user_id, match_id } = result.data;
+
+    // Recherche la prédiction avec la clé composite (user_id_match_id)
+    const prediction = await prisma.prediction.findUnique({
+      where: {
+        user_id_match_id: {
+          user_id,
+          match_id
+        }
+      },
+      include: {
+        match: {
+          include: { home_team: true, away_team: true, competition: true }
+        },
+        user: { select: { id: true, username: true, avatar_url: true } }
+      }
+    });
+
+    if (!prediction) {
+      return res.status(404).json({ error: "Pas de pronostic pour ce match" });
+    }
+
+    res.json(prediction);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ errors: z.prettifyError(error) });
+    }
+    throw error;
+  }
+}
 
 // Récupère toutes les prédictions avec leurs détails associés (match et utilisateur)
+/**
+ * FONCTION GETALLPREDICTIONS
+ * 
+ * Récupère TOUTES les prédictions du système.
+ * 
+ * Retour :
+ * - Tableau de toutes les prédictions avec détails du match et utilisateur
+ * 
+ * Attention :
+ * - Peut être lourd si beaucoup de prédictions
+ * - À protéger par authentification admin
+ * - À utiliser pour les statistiques globales
+ */
 export async function getAllPredictions(req: Request, res: Response) {
   const predictions = await prisma.prediction.findMany({
     orderBy: { updated_at: 'desc' },
@@ -17,7 +76,7 @@ export async function getAllPredictions(req: Request, res: Response) {
   res.json(predictions);
 }
 
-// Récupère une seule prédiction par son ID
+// Récupère une prédiction spécifique par son ID
 export async function getOnePrediction(req: Request, res: Response) {
   const uuidSchema = z.uuid({
     message: "L'identifiant fourni n'est pas valide."
@@ -59,7 +118,7 @@ export async function getOnePrediction(req: Request, res: Response) {
   }
 }
 
-// Crée ou met à jour une prédiction (Upsert)
+// Crée ou met à jour une prédiction (UPSERT sur clé composite user_id+match_id)
 export async function upsertPrediction(req: Request, res: Response) {
   const createPredictionSchema = z.object({
     user_id: z.uuid({
@@ -94,6 +153,19 @@ export async function upsertPrediction(req: Request, res: Response) {
 
     // Utilisation de upsert : 
     // update si le combo user_id_match_id existe, sinon create
+    // UPSERT : mise à jour OU création selon si la clé composite existe
+    /**
+     * Logique Prisma UPSERT :
+     * 
+     * WHERE : clé composite pour identifier si prédiction existe
+     *   - user_id_match_id: { user_id, match_id }
+     * 
+     * UPDATE : si prédiction existe, mets à jour juste la valeur
+     *   - prediction_value
+     * 
+     * CREATE : si prédiction n'existe pas, crée avec les 3 champs
+     *   - user_id, match_id, prediction_value
+     */
     const prediction = await prisma.prediction.upsert({
       where: {
         user_id_match_id: {
@@ -111,7 +183,7 @@ export async function upsertPrediction(req: Request, res: Response) {
       }
     });
 
-    // On retourne 200 (OK) car cela peut être une création ou une modification
+    // Retourne 200 (OK) car cela peut être une création ou une modification
     res.status(200).json(prediction);
   } catch (error) {
     throw error;
@@ -119,6 +191,23 @@ export async function upsertPrediction(req: Request, res: Response) {
 }
 
 // Suppression d'un pronostic
+/**
+ * FONCTION DELETEPREDICTION
+ * 
+ * Supprime une prédiction par son ID.
+ * 
+ * Params :
+ * - id (route) : UUID unique de la prédiction à supprimer
+ * 
+ * Retour :
+ * - 204 No Content : suppression réussie
+ * - 404 : prédiction non trouvée
+ * - 400 : ID invalide
+ * 
+ * Attention :
+ * - À protéger par authentification (l'utilisateur ne peut supprimer que ses propres prédictions)
+ * - Cascade delete si besoin (vérifier le schéma Prisma)
+ */
 export async function deletePrediction(req: Request, res: Response) {
   const uuidSchema = z.uuid({
     message: "L'identifiant fourni n'est pas valide."
