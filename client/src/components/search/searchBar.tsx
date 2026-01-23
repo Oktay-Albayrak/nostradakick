@@ -5,21 +5,13 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import styles from "./searchBar.module.css";
 import { ICompetition, IMatch, ITeam } from "@/types/match";
+import { slugify } from "@/utils/format";
 
 interface SearchResults {
   leagues: ICompetition[];
   teams: ITeam[];
   matches: IMatch[];
 }
-
-const slugify = (text: string) => {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/[^\w-]+/g, "");
-};
 
 export default function SearchBar() {
   const [query, setQuery] = useState("");

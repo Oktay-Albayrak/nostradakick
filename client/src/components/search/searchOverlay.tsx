@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./searchOverlay.module.css";
 import { ICompetition, IMatch, ITeam } from "@/types/match";
+import { slugify } from "@/utils/format";
 
 interface SearchResults {
   leagues: ICompetition[];
@@ -95,7 +96,7 @@ export default function SearchOverlay({
               <div
                 key={team.id}
                 className={styles.resultItem}
-                onClick={() => navigateTo(`/matchs?teamId=${team.id}`)}
+                onClick={() => navigateTo(`/matchs?team=${slugify(team.name)}`)}
               >
                 <div className={`${styles.badge} ${styles.teamBadge}`}>
                   Équipe
