@@ -1,8 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import styles from "./MobileNavbar.module.css"
+import styles from "./MobileNavbar.module.css";
 
-export default function MobileNavbar() {
+interface Props {
+  onSearchClick: () => void;
+}
+
+export default function MobileNavbar({ onSearchClick }: Props) {
   return (
     <nav className={styles.nav}>
       <Link href="/">
@@ -32,15 +36,15 @@ export default function MobileNavbar() {
           alt="Voir les pronostics des membres"
         />
       </Link>
-      <Link href="/search">
+      <div onClick={onSearchClick} className={styles.navItem}>
         <Image
           className={styles.icon}
           src="/search-icon.png"
           width={500}
           height={500}
-          alt="Rechercher un match ou une compétition précise"
+          alt="Rechercher"
         />
-      </Link>
+      </div>
       <Link href="/dashboard">
         <Image
           className={styles.icon}
@@ -51,6 +55,5 @@ export default function MobileNavbar() {
         />
       </Link>
     </nav>
-  )
+  );
 }
-

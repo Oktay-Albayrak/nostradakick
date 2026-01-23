@@ -1,0 +1,174 @@
+/* 1. CONTENEUR PRINCIPAL */
+.searchWrapper {
+  display: none; /* Mobile first : caché par défaut */
+  position: relative;
+  width: 100%;
+  max-width: 700px;
+  margin: 1rem auto 4rem;
+}
+
+/* 2. LE CHAMP DE SAISIE (BARRE) */
+.searchField {
+  display: flex;
+  align-items: center;
+  padding: 10px 18px;
+  background: var(--white);
+  border: 1px solid var(--dark-grey);
+  border-radius: 24px;
+  transition: all 0.2s ease;
+}
+
+.searchField:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+}
+
+.activeField {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-color: var(--primary);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 5px 10px;
+  font-size: 15px;
+  background: transparent;
+}
+
+.clearBtn {
+  background: #eee;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #666;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-left: 8px;
+}
+
+.clearBtn:hover {
+  background: #ddd;
+  color: #333;
+}
+
+/* 3. LE DROPDOWN (RÉSULTATS) */
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid var(--primary);
+  border-top: none;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  z-index: 2000;
+  overflow: hidden;
+  transform-origin: top;
+  animation: slideIn 0.2s ease-out forwards;
+}
+
+.scrollArea {
+  padding: 8px 0;
+  max-height: 450px;
+  overflow-y: auto;
+}
+
+/* 4. ITEMS DE RÉSULTATS */
+.resultItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 14px;
+}
+
+.resultItem:hover {
+  background-color: var(--light-grey);
+}
+
+.logoContainer {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.miniLogo {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-weight: 500;
+  font-size: 14px;
+  color: #333;
+}
+
+/* 5. BADGES ET MESSAGES */
+.badge {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 700;
+  width: fit-content;
+  margin-top: 2px;
+}
+
+.teamBadge {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+.matchBadge {
+  background: #fff3e0;
+  color: #f57c00;
+}
+.leagueBadge {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.message {
+  padding: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #888;
+}
+
+/* 6. ANIMATIONS ET RESPONSIVE */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scaleY(0.95) translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+  }
+}
+
+@media (min-width: 650px) {
+  .searchWrapper {
+    display: block;
+  }
+}
