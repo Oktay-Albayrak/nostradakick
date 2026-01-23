@@ -15,6 +15,7 @@
     "db:clean:matches": "ts-node prisma/cleanMatches.ts",
     "========= Pour le dev =========": "===========================",
     "dev": "node --watch --env-file=.env index.ts",
+    "docker:dev": "node --watch index.ts",
     "sync": "ts-node src/jobs/sync.now.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"

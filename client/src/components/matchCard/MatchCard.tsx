@@ -166,7 +166,7 @@ export default function MatchCard({
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL_CLIENT} /api/predictions`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL_CLIENT}/api/predictions`, {
         method: "POST",
         credentials: "include",
         headers: {

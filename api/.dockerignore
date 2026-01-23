@@ -8,3 +8,5 @@ node_modules
 
 # Pas besoin car on va le re-générer à l'aide de `npm run db:generate`
 prisma/generated
+
+.next
