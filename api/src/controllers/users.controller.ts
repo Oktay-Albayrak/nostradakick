@@ -69,6 +69,15 @@ export async function updateOneUser(req: Request, res: Response) {
     // validation des paramètres de id
     const { id } = uuidSchema.parse(req.params);
 
+    // Vérification de propriété : l'utilisateur ne peut modifier que son propre profil
+    // sauf s'il est ADMIN
+    const userPayload = (req as any).user;
+    if (userPayload.userId !== id && userPayload.userRole !== "ADMIN") {
+      return res.status(403).json({ 
+        error: "Vous ne pouvez modifier que votre propre profil" 
+      });
+    }
+
     // validation du body
     const updateData = updateUserSchema.parse(req.body);
 

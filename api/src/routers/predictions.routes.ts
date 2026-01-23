@@ -1,8 +1,17 @@
 // Routeur des prédictions : GET (avec smart routing), POST (UPSERT), DELETE
 import { Router } from "express";
 import { getAllPredictions, getOnePrediction, upsertPrediction, deletePrediction, getUserPredictionForMatch } from "../controllers/predictions.controller.ts";
+import { requireAuth, requireAdmin } from "../middleware/auth.middleware.ts";
 
 export const router: Router = Router();
+
+router.get("/predictions", getAllPredictions);
+
+router.get("/predictions/:id", getOnePrediction);
+
+router.post("/predictions", requireAuth, upsertPrediction);
+
+router.delete("/predictions/:id", requireAuth, deletePrediction);
 
 // GET /predictions : si user_id+match_id → prédiction spécifique, sinon toutes les prédictions
 router.get("/predictions", (req, res, next) => {
@@ -11,12 +20,3 @@ router.get("/predictions", (req, res, next) => {
   }
   return getAllPredictions(req, res);
 });
-
-// GET /predictions/:id : récupère une prédiction par UUID
-router.get("/predictions/:id", getOnePrediction);
-
-// POST /predictions : crée ou met à jour une prédiction (UPSERT)
-router.post("/predictions", upsertPrediction);
-
-// DELETE /predictions/:id : supprime une prédiction
-router.delete("/predictions/:id", deletePrediction);
