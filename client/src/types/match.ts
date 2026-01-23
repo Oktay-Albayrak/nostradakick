@@ -1,3 +1,5 @@
+import { IUser } from "./user";
+
 export type MatchStatus =
   | "SCHEDULED"
   | "TIMED"
@@ -74,6 +76,7 @@ export interface IPrediction {
   status: PredictionStatus;
   match_id: string;
   match: IMatch;
+  user: IUser;
   user_id: string;
   created_at: string;
   updated_at: string;
