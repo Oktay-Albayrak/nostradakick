@@ -35,10 +35,10 @@ Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1YTBlMDM
 
 
 ### Get All Users (nécessite ADMIN - voir section tests protection)
-# GET http://localhost:4000/api/users
+#GET http://localhost:4000/api/users
 
 ### Get One User (PUBLIC - pas de token nécessaire)
-GET http://localhost:4000/api/users/user_9
+GET http://localhost:4000/api/users/eteko
 
 ### Mise à jour utilisateur (nécessite AUTH - voir section tests protection)
 # PATCH http://localhost:4000/api/users/f5f503b4-5861-4149-b868-5c9597415757
@@ -77,6 +77,35 @@ GET http://localhost:4000/api/matches
 
 ### Get Match by ID
 GET http://localhost:4000/api/matches/551996
+
+### Create Match (NÉCESSITE NULL API_ID DANS LA DB)(nécessite ADMIN)
+# POST http://localhost:4000/api/matches
+Content-Type: application/json
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiOTUzYTM0Yi0xZTZhLTQ5ZmQtYmFjYi01YzBjMjU2NGM4N2EiLCJ1c2VyUm9sZSI6IkFETUlOIiwiaWF0IjoxNzY5MjAyNjc0LCJleHAiOjE3NjkyMDYyNzR9.lespq0SwuQkNOdwPVHz6L7T89K2w-RGUkIKiUM8mfIE
+
+{
+  "api_id": "999999",
+  "home_team": "Test FC",
+  "away_team": "Test United",
+  "competition_id": "2021",
+  "match_date": "2025-06-01T20:00:00Z",
+  "status": "SCHEDULED"
+}
+
+### Update Match (NÉCESSITE NULL API_ID DANS LA DB)(nécessite ADMIN)
+PATCH http://localhost:4000/api/matches/MATCH_ID
+Content-Type: application/json
+Cookie: accessToken=VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "status": "FINISHED",
+  "home_score": 2,
+  "away_score": 1
+}
+
+### Delete Match (nécessite ADMIN)
+DELETE http://localhost:4000/api/matches/MATCH_ID
+Cookie: accessToken=VOTRE_TOKEN_ADMIN_ICI
 
 ### Get All Predictions (nécessite ADMIN - voir section tests protection)
 # GET http://localhost:4000/api/predictions
