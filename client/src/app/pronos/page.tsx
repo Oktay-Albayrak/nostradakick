@@ -22,18 +22,25 @@ const formatDate = (dateString: string) => {
 };
 
 export default async function Pronos() {
-  // On récupère les données directement sur le serveur
-  // Note : "cache: 'no-store'" ou "next: { revalidate: 60 }" permet de gérer la mise en cache
-  const response = await fetch("http://localhost:4000/api/predictions", {
-    cache: "no-store",
-  });
+  // Récupération des pronostics (route publique)
+  let predictions: IPrediction[] = [];
+  let error: string | null = null;
 
-  //  On renvoie vers la page 404 de Next.js si erreur
-  if (!response.ok) {
-    notFound();
+  try {
+    const response = await fetch("http://localhost:4000/api/predictions", {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      error = `Erreur ${response.status} lors du chargement des pronostics`;
+      console.error("Erreur API:", response.status, response.statusText);
+    } else {
+      predictions = await response.json();
+    }
+  } catch (e) {
+    error = "Impossible de charger les pronostics";
+    console.error("Erreur:", e);
   }
-
-  const predictions: IPrediction[] = await response.json();
 
   const groupPredictionsByUser = (predictions: IPrediction[]) => {
     const grouped = predictions
@@ -124,10 +131,10 @@ export default async function Pronos() {
                       publié le {formatDate(prono.updated_at)}
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ))}
+                ))}
+              </div>
+            ))
+          )}
         </div>
       </section>
     </main>

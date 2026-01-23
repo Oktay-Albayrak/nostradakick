@@ -15,6 +15,6 @@ router.get("/predictions", (req, res, next) => {
 
 router.get("/predictions/:id", getOnePrediction);
 
+// Routes authentifiées : seuls MEMBER et ADMIN peuvent créer/modifier/supprimer
 router.post("/predictions", requireAuth, upsertPrediction);
-
 router.delete("/predictions/:id", requireAuth, deletePrediction);

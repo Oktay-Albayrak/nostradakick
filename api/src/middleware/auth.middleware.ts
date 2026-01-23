@@ -9,7 +9,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
     if (!accessToken) {
       return res.status(401).json({ error: "Non authentifié" });
     }
-    
+
     const payload = decodeJWT(accessToken);
 
     if (!payload?.userId) {
@@ -32,7 +32,7 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction) {
     if (!accessToken) {
       return res.status(401).json({ error: "Non authentifié" });
     }
-    
+
     const payload = decodeJWT(accessToken);
 
     if (!payload?.userId) {
