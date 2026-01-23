@@ -12,6 +12,15 @@ interface SearchResults {
   matches: IMatch[];
 }
 
+const slugify = (text: string) => {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]+/g, "");
+};
+
 export default function SearchBar() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResults | null>(null);
@@ -121,7 +130,9 @@ export default function SearchBar() {
                 <div
                   key={team.id}
                   className={styles.resultItem}
-                  onClick={() => navigateTo(`/matchs?teamId=${team.id}`)}
+                  onClick={() =>
+                    navigateTo(`/matchs?team=${slugify(team.name)}`)
+                  }
                 >
                   <div className={styles.logoContainer}>
                     <Image
@@ -159,6 +170,16 @@ export default function SearchBar() {
                   </div>
                 </div>
               ))}
+              {/* SECTION AUCUN RÉSULTAT */}
+              {!loading &&
+                results &&
+                results.leagues.length === 0 &&
+                results.teams.length === 0 &&
+                results.matches.length === 0 && (
+                  <div className={styles.message}>
+                    Aucun résultat pour &quot;{query}&quot;
+                  </div>
+                )}
             </div>
           )}
         </div>
