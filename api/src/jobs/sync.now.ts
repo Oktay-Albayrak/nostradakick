@@ -13,17 +13,17 @@ async function runFullSync() {
     // 1. Compétitions (Noms, logos, pays)
     console.log("⏳ 1/4 - Synchronisation des Compétitions...");
     await syncAllCompetitions();
-    await new Promise((r) => setTimeout(r, 2000));
+    await new Promise((r) => setTimeout(r, 30000));
 
     // 2. Standings (Nécessaire pour le calcul du Top 5)
     console.log("⏳ 2/4 - Synchronisation des Classements (Standings)...");
     await syncStandings();
-    await new Promise((r) => setTimeout(r, 2000));
+    await new Promise((r) => setTimeout(r, 30000));
 
     // 3. Matchs (Avec ta logique Hot / Prestige)
     console.log("⏳ 3/4 - Synchronisation des Matchs...");
     await syncAllMatches();
-    await new Promise((r) => setTimeout(r, 2000));
+    await new Promise((r) => setTimeout(r, 30000));
 
     // 4. Metadata (Finalisation des pays des équipes)
     console.log("⏳ 4/4 - Synchronisation des Métadonnées...");
