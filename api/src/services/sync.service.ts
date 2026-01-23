@@ -34,7 +34,11 @@ export async function syncStandings() {
       for (const row of table) {
         const team = await prisma.team.upsert({
           where: { api_id: row.team.id },
-          update: { short_name: row.team.shortName, crest_url: row.team.crest },
+          update: {
+            name: row.team.name,
+            short_name: row.team.shortName,
+            crest_url: row.team.crest,
+          },
           create: {
             api_id: row.team.id,
             name: row.team.name,
@@ -138,6 +142,7 @@ export async function syncAllMatches() {
             },
             update: {
               crest_url: m.homeTeam.crest,
+              name: m.homeTeam.name,
               short_name: m.homeTeam.shortName,
             },
             create: {
@@ -155,6 +160,7 @@ export async function syncAllMatches() {
             },
             update: {
               crest_url: m.awayTeam.crest,
+              name: m.awayTeam.name,
               short_name: m.awayTeam.shortName,
             },
             create: {
