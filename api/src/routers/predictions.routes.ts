@@ -5,14 +5,6 @@ import { requireAuth, requireAdmin } from "../middleware/auth.middleware.ts";
 
 export const router: Router = Router();
 
-router.get("/predictions", getAllPredictions);
-
-router.get("/predictions/:id", getOnePrediction);
-
-router.post("/predictions", requireAuth, upsertPrediction);
-
-router.delete("/predictions/:id", requireAuth, deletePrediction);
-
 // GET /predictions : si user_id+match_id → prédiction spécifique, sinon toutes les prédictions
 router.get("/predictions", (req, res, next) => {
   if (req.query.user_id && req.query.match_id) {
@@ -20,3 +12,9 @@ router.get("/predictions", (req, res, next) => {
   }
   return getAllPredictions(req, res);
 });
+
+router.get("/predictions/:id", getOnePrediction);
+
+router.post("/predictions", requireAuth, upsertPrediction);
+
+router.delete("/predictions/:id", requireAuth, deletePrediction);
