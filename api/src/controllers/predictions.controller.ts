@@ -108,15 +108,7 @@ export async function getOnePrediction(req: Request, res: Response) {
       return res.status(404).json({ error: ["Prediction not found"] });
     }
 
-    // Vérification de propriété : l'utilisateur ne peut voir que ses propres pronostics
-    // sauf s'il est ADMIN
-    const userPayload = (req as any).user;
-    if (prediction.user_id !== userPayload.userId && userPayload.userRole !== "ADMIN") {
-      return res.status(403).json({ 
-        error: "Vous ne pouvez accéder qu'à vos propres pronostics" 
-      });
-    }
-
+    // Route publique : tout le monde peut voir n'importe quel pronostic
     res.json(prediction);
   } catch (error) {
     if (error instanceof z.ZodError) {
