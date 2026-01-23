@@ -57,6 +57,7 @@ export async function findAllMatches(
   page: number = 1,
   limit: number = 10,
   leagueCode?: string,
+  teamSlug?: string,
   isHot: boolean = false
 ) {
   // Calcul du nombre d'éléments à sauter pour la pagination
@@ -80,6 +81,35 @@ export async function findAllMatches(
       code: leagueCode,
     };
   }
+
+
+  // Filtre par équipe (slug transformé en termes de recherche)
+  if (teamSlug) {
+    // On re-transforme le slug en nom (ex: "paris-saint-germain" -> "Paris Saint Germain")
+    // On filtre les termes trop courts et "fc"
+    // On utilise 'mode: insensitive' pour ignorer les majuscules/minuscules
+    const searchTerms = teamSlug
+      .split("-")
+      .filter((term) => term.length > 2 && term.toLowerCase() !== "fc");
+
+    whereConditions.OR = [
+      {
+        home_team: {
+          AND: searchTerms.map((term) => ({
+            name: { contains: term, mode: "insensitive" },
+          })),
+        },
+      },
+      {
+        away_team: {
+          AND: searchTerms.map((term) => ({
+            name: { contains: term, mode: "insensitive" },
+          })),
+        },
+      },
+    ];
+  }
+
 
   // Filtre pour les matchs "à l'affiche" (hot)
   if (isHot) {
