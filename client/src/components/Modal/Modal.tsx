@@ -1,22 +1,4 @@
-/**
- * COMPOSANT MODAL
- * 
- * Popup réutilisable pour :
- * - Confirmations avant une action
- * - Messages de succès
- * - Messages d'erreur
- * 
- * Props:
- * - isOpen: booléen pour afficher/cacher
- * - title: titre du modal
- * - message: message principal
- * - onConfirm: callback si utilisateur clique "Confirmer"
- * - onCancel: callback si utilisateur clique "Annuler"
- * - confirmText: texte du bouton de confirmation (défaut: "Confirmer")
- * - cancelText: texte du bouton d'annulation (défaut: "Annuler")
- * - isConfirmation: si true = boutons Confirmer/Annuler, si false = bouton OK seulement
- */
-
+// Popup réutilisable pour confirmations, succès, erreurs (deux boutons ou un seul selon isConfirmation)
 "use client";
 
 import styles from "./Modal.module.css";
@@ -29,7 +11,7 @@ interface ModalProps {
   onCancel?: () => void;
   confirmText?: string;
   cancelText?: string;
-  isConfirmation?: boolean; // true = deux boutons, false = un seul bouton OK
+  isConfirmation?: boolean; // true = Confirmer/Annuler, false = OK seulement
 }
 
 export default function Modal({

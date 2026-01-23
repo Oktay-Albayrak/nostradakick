@@ -1,18 +1,4 @@
-/**
- * PAGE DE CONNEXION
- * 
- * Route : /login
- * 
- * Fonctionnalités :
- * - Formulaire de connexion (email + mot de passe)
- * - Validation des données côté serveur (API)
- * - Affichage des erreurs de connexion
- * - Redirection vers l'accueil après succès
- * - Lien vers la page d'inscription
- * 
- * Composant CLIENT pour utiliser le hook useAuth()
- */
-
+// Page de connexion : formulaire email/password avec validation serveur et refreshAuth après login
 "use client"
 
 import { useRouter } from "next/navigation";
@@ -22,34 +8,11 @@ import styles from "./page.module.css";
 import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
-  // État pour afficher les messages d'erreur de connexion
   const [messageError, setMessageError] = useState([]);
-
-  // Hook pour la navigation programmatique
   const router = useRouter();
-  
-  // Récupération des fonctions du contexte d'authentification
   const { login, refreshAuth } = useAuth();
 
-  /**
-   * FONCTION HANDLEFORM
-   * 
-   * Gère la soumission du formulaire de connexion :
-   * 
-   * Étapes :
-   * 1. Extrait email et password du formulaire
-   * 2. Envoie POST à /api/auth/login
-   * 3. Si succès :
-   *    - Appelle login() pour mettre à jour le contexte
-   *    - Appelle refreshAuth() pour charger user_id immédiatement
-   *    - Redirige vers l'accueil
-   * 4. Si erreur :
-   *    - Affiche les messages d'erreur
-   * 
-   * Important :
-   * - credentials: 'include' envoie les cookies (session)
-   * - refreshAuth() est AWAIT pour que user_id soit chargé avant redirection
-   */
+  // Traite la soumission du formulaire : POST /api/auth/login, appelle login(), refreshAuth(), puis redirect
   async function handleForm(formData: FormData) {
     const email = formData.get("email");
     const password = formData.get("password");
@@ -147,4 +110,3 @@ export default function LoginPage() {
     </main>
   );
 }
-
