@@ -25,12 +25,12 @@ console.log('🌍 Cron pour les Compétitions démarré - Synchronisation le 1er
 
 
 
-// Lance une synchronisation 2 minutes après le démarrage du serveur
+// Lance une synchronisation 1 minutes après le démarrage du serveur
 // Permet de récupérer les infos (pays des équipes, etc.) sans surcharger l'API au démarrage
 
-console.log('⏳ Synchronisation des Competitions prévue dans 2 minutes...');
+console.log('⏳ Synchronisation des Competitions prévue dans 1 minutes...');
 
 setTimeout(() => {
-  console.log("\n🌍 Lancement de la synchronisation des matchs...\n");
+  console.log("\n🌍 Lancement de la synchronisation des Competitions...\n");
   syncAllCompetitions().catch(err => console.error('Erreur sync matchs:', err));
-}, 2 * 60 * 1000); // 2 minutes en millisecondes
+}, 1 * 60 * 1000); // 2 minutes en millisecondes

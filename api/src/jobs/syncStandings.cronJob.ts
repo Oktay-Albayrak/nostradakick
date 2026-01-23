@@ -23,14 +23,16 @@ const standingsCronJob = new CronJob(
 
 standingsCronJob.start();
 
-// Au démarrage du serveur, on l'exécute après 6 minutes
-// (Les matchs sont à 0 min, les compétitions à 2 min, les métadonnées à 4 min)
+
+console.log('⏳ Synchronisation des standing prévue 2 minutes...');
+// Au démarrage du serveur, on l'exécute après 2 minutes
+// (Les matchs sont à 0 min, les compétitions à 1 min, les métadonnées à 3 min)
 setTimeout(
   () => {
     console.log("📊 Lancement de la synchronisation initiale des Standings...");
     syncStandings().catch((err) => console.error(err));
   },
-  6 * 60 * 1000,
+  3 * 60 * 1000,
 );
 
 console.log("📊 Cron Job Standings démarré - Toutes les 3h à la minute 10");
