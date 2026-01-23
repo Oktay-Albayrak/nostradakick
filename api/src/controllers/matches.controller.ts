@@ -5,10 +5,10 @@ import { createMatchSchema, updateMatchSchema } from "../validations/match.valid
 import * as matchService from "../services/match.service.ts";
 
 
-  // VOIR TOUT LES MATCH
+  // RÉCUPÉRER TOUS LES MATCHS (avec pagination et filtres)
 export async function getAllMatches(req: Request, res: Response) {
   try {
-    // Récupération des paramètres (ex: ?page=1&limit=10)
+    // Récupération des paramètres de la requête
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const leagueCode = req.query.league as string | undefined;
@@ -33,12 +33,12 @@ export async function getAllMatches(req: Request, res: Response) {
   }
 }
 
-  // VOIR UN MATCH
+  // RÉCUPÉRER UN MATCH PAR SON API_ID
 export async function getOneMatch(req: Request, res: Response) {
   try {
     const { api_id } = req.params;
 
-    // On vérifie que l'api_id est bien present
+    // Validation de l'api_id
     if (!api_id || typeof api_id !== "string") {
       return res.status(400).json({ message: "Paramètre apiId invalide." });
     }
@@ -69,18 +69,18 @@ export async function getOneMatch(req: Request, res: Response) {
   }
 }
 
-  // CRÉER UN MATCH 
+  // CRÉER UN MATCH (réservé aux admins)
 export async function createOneMatch(req: Request, res: Response) {
   try {
     // Vérification du rôle admin
     const userPayload = (req as any).user;
     if (!userPayload || userPayload.userRole !== "ADMIN") {
       return res.status(403).json({
-        message: "Accès refusé. Seul les admins peuvent créer un match.",
+        message: "Accès refusé. Seuls les admins peuvent créer un match.",
       });
     }
 
-    // Validation des données via le body
+    // Validation des données avec Zod
     const createData = createMatchSchema.parse(req.body);
 
     // Création ou mise à jour du match (upsert)
@@ -90,7 +90,7 @@ export async function createOneMatch(req: Request, res: Response) {
   } catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({
-        error: "Données invalide",
+        error: "Données invalides",
         details: error.issues.map((issue) => issue.message),
       });
     }
@@ -103,26 +103,27 @@ export async function createOneMatch(req: Request, res: Response) {
   }
 }
 
-  // METTRE À JOUR UN MATCH
+  // METTRE À JOUR UN MATCH (réservé aux admins)
 export async function updateOneMatch(req: Request, res: Response) {
   try {
     // Validation de l'ID du match
     const { id } = uuidSchema.parse(req.params);
 
-    // Récupération du role de l'utilisateur depuis la requête
+    // Vérification du rôle admin
     const userPayload = (req as any).user;
     if (!userPayload || userPayload.userRole !== "ADMIN") {
       return res.status(403).json({
-        message: "Accès refusé. Seul les admins peuvent modifier un match",
+        message: "Accès refusé. Seuls les admins peuvent modifier un match.",
       });
     }
 
+    // Vérification de l'existence du match
     const matchExists = await matchService.findMatchById(id);
     if (!matchExists) {
       return res.status(404).json({ message: "Match non trouvé." });
     }
 
-    // Validation des données via le body
+    // Validation des données avec Zod
     const updateData = updateMatchSchema.parse(req.body);
 
     // Mise à jour du match
@@ -132,7 +133,7 @@ export async function updateOneMatch(req: Request, res: Response) {
   } catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({
-        error: "Données invalide",
+        error: "Données invalides",
         details: error.issues.map((issue) => issue.message),
       });
     }
@@ -145,18 +146,21 @@ export async function updateOneMatch(req: Request, res: Response) {
   }
 }
 
-  // SUPPRIMER UN MATCH
+  // SUPPRIMER UN MATCH (réservé aux admins)
 export async function deleteOneMatch(req: Request, res: Response) {
   try {
+    // Validation de l'UUID du match
     const { id } = uuidSchema.parse(req.params);
 
+    // Vérification du rôle admin
     const userPayload = (req as any).user;
     if (!userPayload || userPayload.userRole !== "ADMIN") {
       return res.status(403).json({
-        message: "Accès refusé. Seul les admins peuvent supprimer un match.",
+        message: "Accès refusé. Seuls les admins peuvent supprimer un match.",
       });
     }
 
+    // Vérification de l'existence du match
     const matchExists = await matchService.findMatchById(id);
     if (!matchExists) {
       return res.status(404).json({ message: "Match non trouvé." });
@@ -167,7 +171,7 @@ export async function deleteOneMatch(req: Request, res: Response) {
   } catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({
-        error: "Données invalide",
+        error: "Données invalides",
         details: error.issues.map((issue) => issue.message),
       });
     }
