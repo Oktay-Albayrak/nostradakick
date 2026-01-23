@@ -1,8 +1,7 @@
 import Image from "next/image";
 import styles from "./page.module.css";
 import { notFound } from "next/navigation";
-import { IPrediction } from "@/types/userStats";
-import SearchBar from "@/components/search/searchBar";
+import { IPrediction } from "@/types/match";
 
 interface UserPredictionGroup {
   user: IPrediction["user"];
