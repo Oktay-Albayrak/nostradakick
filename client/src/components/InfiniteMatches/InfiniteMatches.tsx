@@ -9,6 +9,7 @@ import styles from "./InfiniteMatches.module.css";
 interface InfiniteMatchesProps {
   initialMatches: IMatch[]; // Les 10 premiers matchs envoyés par le serveur
   league?: string;
+  team?: string;
   isHot?: boolean;
 }
 
@@ -16,6 +17,7 @@ export default function InfiniteMatches({
   initialMatches,
   league,
   isHot,
+  team,
 }: InfiniteMatchesProps) {
   // --- ÉTAT (STATE) ---
 
@@ -64,7 +66,10 @@ export default function InfiniteMatches({
       // 3. On ajoute le filtre hot si activé
       if (isHot) params.set("filter", "hot");
 
-      // 4. On appelle l'API avec l'URL complète
+      // 4. On ajoute l'équipe si elle existe
+      if (team) params.set("team", team);
+
+      // 5. On appelle l'API avec l'URL complète
       const response = await fetch(
         `http://localhost:4000/api/matches?${params.toString()}`,
       );

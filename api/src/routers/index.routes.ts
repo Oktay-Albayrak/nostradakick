@@ -5,6 +5,7 @@ import { router as matchesRouter } from "./matches.routes.ts";
 import { router as usersRouter } from "./users.routes.ts";
 import { router as predictionsRouter } from "./predictions.routes.ts";
 import { router as adminRouter } from "./admin.routes.ts";
+import { router as searchRouter } from "./search.routes.ts";
 import { healthCheck } from "../controllers/main.controller.ts";
 
 export const router: Router = Router();
@@ -18,3 +19,4 @@ router.use(matchesRouter);
 router.use(predictionsRouter);
 router.use(adminRouter);
 router.use(competitionsRouter);
+router.use(searchRouter);

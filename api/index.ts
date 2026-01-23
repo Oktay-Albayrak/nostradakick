@@ -1,11 +1,11 @@
 import { app } from "./src/app.ts";
 import { config } from "./config.ts";
 
-import "./src/jobs/syncMatches.cronJob.ts"; // Toutes les 20 min
+/* import "./src/jobs/syncMatches.cronJob.ts"; // Toutes les 20 min
 import "./src/jobs/syncCompetitions.cronJob.ts"; // 1er du mois à 3h02
 import "./src/jobs/syncStandings.cronJob.ts"; // Toutes les 3 heures à la minute 10'
 import "./src/jobs/syncMetadaCompetitions.cronJob.ts"; // 15 août à 4h02
-
+ */
 
 import {
   syncAllCompetitions,
