@@ -12,12 +12,14 @@ export async function getAllMatches(req: Request, res: Response) {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const leagueCode = req.query.league as string | undefined;
+    const teamSlug = req.query.team as string | undefined;
     const isHot = req.query.filter === "hot";
 
     const matches = await matchService.findAllMatches(
       page,
       limit,
       leagueCode,
+      teamSlug,
       isHot
     );
 
