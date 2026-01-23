@@ -27,7 +27,7 @@ console.log('⏰ Cron Job démarré (Matchs) - Synchronisation toutes les 20 min
 
 
 
-console.log('⏳ Synchronisation des matchs prévue dans 2 minutes...');
+console.log('⏳ Synchronisation des matchs prévue immédiatement...');
 
 // ## SYNCHRONISATION AU DÉMARRAGE DU SERVEUR
 // Récupère tout les infos des matchs (Équipes, etc) et d'avoir des données fraîches dès le lancement du serveur

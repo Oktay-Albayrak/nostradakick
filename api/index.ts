@@ -1,14 +1,16 @@
 import { app } from "./src/app.ts";
 import { config } from "./config.ts";
 
-/* import "./src/jobs/syncMatches.cronJob.ts"; // Toutes les 20 min
-import "./src/jobs/syncStandings.cronJob.ts"; // Toutes les 3 heures à la minute 10'
+import "./src/jobs/syncMatches.cronJob.ts"; // Toutes les 20 min
 import "./src/jobs/syncCompetitions.cronJob.ts"; // 1er du mois à 3h02
-import "./src/jobs/syncMetadaCompetitions.cronJob.ts"; // 15 août à 4h02 */
+import "./src/jobs/syncStandings.cronJob.ts"; // Toutes les 3 heures à la minute 10'
+import "./src/jobs/syncMetadaCompetitions.cronJob.ts"; // 15 août à 4h02
+
 
 import {
   syncAllCompetitions,
   syncAllMatches,
+  syncStandings,
   //syncMatchesForCompetition,
 } from "./src/services/sync.service.ts";
 
@@ -41,6 +43,22 @@ app.get("/api/admin/test-sync-matches", async (req, res) => {
     res.status(500).json({
       error: "La synchro a échoué",
       detail: error.message,
+    });
+  }
+});
+
+app.get("/api/admin/test-sync-standig", async (req, res) => {
+  try {
+    // On teste avec toutes les compétitions
+    await syncStandings();
+    res.json({
+      message: "Synchro réussie !",
+      info: "Vérifie ton interface client ou Prisma Studio.",
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      error: "La synchro a échoué",
+      details: error.message,
     });
   }
 });

@@ -1,0 +1,118 @@
+/* ========================================
+  STATS SECTION
+   ======================================== */
+.statsSection {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--box-shadow);
+}
+
+.sectionTitle {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  text-align: center;
+  color: var(--primary);
+}
+
+.statsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.statCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.statHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.statIcon {
+  font-size: 1.5rem;
+}
+
+.statTeam {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.statBar {
+  width: 100%;
+  height: 24px;
+  background: var(--dark-grey);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.statBarFill {
+  height: 100%;
+  border-radius: 12px;
+  transition: width 0.6s ease;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 0.5rem;
+}
+
+.statFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.statPercentage {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.statCount {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.trendCard {
+  background: linear-gradient(135deg, var(--action-color) 0%, var(--action-color-hover) 100%);
+  color: var(--primary);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* ========================================
+  RESPONSIVE - TABLETTE ET DESKTOP
+   ======================================== */
+@media (min-width: 650px) {
+  .sectionTitle {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .statsSection {
+    padding: 2rem;
+  }
+
+  .statsGrid {
+    gap: 2rem;
+  }
+
+  .statPercentage {
+    font-size: 1.5rem;
+  }
+
+  .trendCard {
+    font-size: 1.05rem;
+  }
+}
