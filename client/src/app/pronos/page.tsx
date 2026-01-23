@@ -1,6 +1,5 @@
 import Image from "next/image";
 import styles from "./page.module.css";
-import { notFound } from "next/navigation";
 import { IPrediction } from "@/types/match";
 import SearchBar from "@/components/search/searchBar";
 
@@ -24,7 +23,6 @@ const formatDate = (dateString: string) => {
 export default async function Pronos() {
   // Récupération des pronostics (route publique)
   let predictions: IPrediction[] = [];
-  let error: string | null = null;
 
   try {
     const response = await fetch("http://localhost:4000/api/predictions", {
@@ -32,13 +30,11 @@ export default async function Pronos() {
     });
 
     if (!response.ok) {
-      error = `Erreur ${response.status} lors du chargement des pronostics`;
       console.error("Erreur API:", response.status, response.statusText);
     } else {
       predictions = await response.json();
     }
   } catch (e) {
-    error = "Impossible de charger les pronostics";
     console.error("Erreur:", e);
   }
 
@@ -131,10 +127,11 @@ export default async function Pronos() {
                       publié le {formatDate(prono.updated_at)}
                     </div>
                   </div>
-                ))}
+                </div>
+              ))}
               </div>
             ))
-          )}
+          }
         </div>
       </section>
     </main>
