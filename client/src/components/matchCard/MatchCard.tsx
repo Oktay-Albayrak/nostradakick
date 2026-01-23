@@ -73,34 +73,28 @@ export default function MatchCard({
 
   // Récupère le pronostic existant de l'utilisateur pour ce match via GET /api/predictions
   useEffect(() => {
-    if (!user_id || !match.id) {
-      console.log("⚠️ MatchCard - Pas de user_id ou match.id", { user_id, matchId: match.id });
-      return;
-    }
+    if (!user_id || !match.id) return;
 
     const fetchUserPrediction = async () => {
       try {
-        const url = `http://localhost:4000/api/predictions?user_id=${user_id}&match_id=${match.id}`;
-        console.log("🔍 MatchCard - Appel API:", url);
-        
-        const response = await fetch(url, { credentials: "include" });
-        
-        console.log("📡 MatchCard - Réponse API status:", response.status);
+        console.log("🔍 Chargement du pronostic existant pour user:", user_id, "match:", match.id);
+        const response = await fetch(
+          `http://localhost:4000/api/predictions?user_id=${user_id}&match_id=${match.id}`,
+          { credentials: "include" }
+        );
 
         if (response.ok) {
           const prediction = await response.json();
-          console.log("✅ MatchCard - Prédiction trouvée:", prediction);
+          console.log("✅ Prédiction existante trouvée:", prediction.prediction_value);
           setSelectedPrediction(prediction.prediction_value);
         } else if (response.status === 404) {
-          console.log("ℹ️ MatchCard - Aucun pronostic existant");
+          console.log("ℹ️ Aucun pronostic existant pour ce match");
           setSelectedPrediction(null);
         } else {
-          console.error("❌ MatchCard - Erreur API status:", response.status);
-          const errorData = await response.json();
-          console.error("❌ MatchCard - Erreur détail:", errorData);
+          console.error("❌ Erreur API:", response.status);
         }
       } catch (error) {
-        console.error("💥 MatchCard - Erreur lors du fetch:", error);
+        console.error("💥 Erreur lors du chargement du pronostic:", error);
       }
     };
 
@@ -172,8 +166,6 @@ export default function MatchCard({
     setIsLoading(true);
 
     try {
-      console.log("📤 MatchCard - Soumission prédiction:", { user_id, match_id: match.id, prediction_value: pendingPrediction });
-      
       const response = await fetch("http://localhost:4000/api/predictions", {
         method: "POST",
         credentials: "include",
@@ -187,11 +179,8 @@ export default function MatchCard({
         }),
       });
 
-      console.log("📡 MatchCard - Réponse soumission status:", response.status);
-
       if (response.ok) {
-        const responseData = await response.json();
-        console.log("✅ MatchCard - Prédiction enregistrée:", responseData);
+        console.log("✅ Prédiction enregistrée avec succès");
         
         const predictionLabels: Record<string, string> = {
           "HOME": homeTeam.name,
@@ -214,7 +203,7 @@ export default function MatchCard({
         });
       } else {
         const error = await response.json();
-        console.error("❌ MatchCard - Erreur soumission:", error);
+        console.error("❌ Erreur lors de l'enregistrement:", error);
         
         setModalConfig({
           isOpen: true,
@@ -226,7 +215,7 @@ export default function MatchCard({
         });
       }
     } catch (error) {
-      console.error("💥 MatchCard - Erreur réseau:", error);
+      console.error("💥 Erreur réseau:", error);
       
       setModalConfig({
         isOpen: true,
