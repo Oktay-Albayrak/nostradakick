@@ -5,9 +5,9 @@ services:
     container_name: dev_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: nostrada
-      POSTGRES_PASSWORD: nostrada
-      POSTGRES_DB: nostrada
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5433:5432"
     volumes:
@@ -31,11 +31,11 @@ services:
       - "4000:4000"
       - "51212:51212"
     environment:
-      PORT: 4000
-      DATABASE_URL: postgresql://nostrada:nostrada@db:5432/nostrada?schema=public
-      ALLOWED_ORIGIN: http://localhost:3000
-      JWT_SECRET: ***REMOVED***
-      FOOTBALL_DATA_API_TOKEN: ***REMOVED***
+      PORT: ${PORT}
+      DATABASE_URL: ${DATABASE_URL}
+      ALLOWED_ORIGIN: ${ALLOWED_ORIGIN}
+      JWT_SECRET: ${JWT_SECRET}
+      FOOTBALL_DATA_API_TOKEN: ${FOOTBALL_DATA_API_TOKEN}
     volumes:
       - ./api:/app
       - /app/node_modules
