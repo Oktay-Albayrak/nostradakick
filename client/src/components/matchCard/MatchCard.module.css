@@ -7,6 +7,10 @@
   margin-bottom: 1rem;
 }
 
+.cardWithStatus {
+  padding-bottom: 2rem;
+}
+
 .competitionBadge {
   position: absolute;
   top: 0;
@@ -17,6 +21,20 @@
   font-size: 0.7rem;
   font-weight: bold;
   border-radius: 8px 0 8px 0;
+  text-transform: uppercase;
+}
+
+.competitionBadgeStatus {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--primary);
+  color: var(--white);
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border-radius: 8px 8px 0 0;
   text-transform: uppercase;
 }
 
@@ -86,6 +104,27 @@
   color: var(--primary);
 }
 
+.scoreBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.scoreLabel {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--primary);
+  min-width: 40px;
+  text-align: center;
+}
+
+.scoreSeparator {
+  font-size: 1.4rem;
+  color: #999;
+  font-weight: bold;
+}
+
 .predictionGrid {
   display: flex;
   gap: 8px;
@@ -102,6 +141,11 @@
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.3 ease;
+}
+
+.predButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .btnFullName {
