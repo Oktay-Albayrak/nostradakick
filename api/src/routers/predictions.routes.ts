@@ -1,11 +1,18 @@
+// Routeur des prédictions : GET (avec smart routing), POST (UPSERT), DELETE
 import { Router } from "express";
-import { getAllPredictions, getOnePrediction, upsertPrediction, deletePrediction } from "../controllers/predictions.controller.ts";
-import { requireAuth } from "../middleware/auth.middleware.ts";
+import { getAllPredictions, getOnePrediction, upsertPrediction, deletePrediction, getUserPredictionForMatch } from "../controllers/predictions.controller.ts";
+import { requireAuth, requireAdmin } from "../middleware/auth.middleware.ts";
 
 export const router: Router = Router();
 
-// Routes publiques : tout le monde peut voir les pronostics
-router.get("/predictions", getAllPredictions);
+// GET /predictions : si user_id+match_id → prédiction spécifique, sinon toutes les prédictions
+router.get("/predictions", (req, res, next) => {
+  if (req.query.user_id && req.query.match_id) {
+    return getUserPredictionForMatch(req, res);
+  }
+  return getAllPredictions(req, res);
+});
+
 router.get("/predictions/:id", getOnePrediction);
 
 // Routes authentifiées : seuls MEMBER et ADMIN peuvent créer/modifier/supprimer
