@@ -11,6 +11,7 @@ export async function getAllMatches(req: Request, res: Response) {
     const skip = (page - 1) * limit;
 
     const leagueCode = req.query.league;
+    const teamSlug = req.query.team;
     const filter = req.query.filter;
 
     const whereConditions: any = {
@@ -25,6 +26,31 @@ export async function getAllMatches(req: Request, res: Response) {
       whereConditions.competition = {
         code: leagueCode,
       };
+    }
+
+    if (teamSlug) {
+      // On re-transforme le slug en nom (ex: "paris-saint-germain" -> "Paris Saint Germain")
+      // On utilise 'mode: insensitive' pour ignorer les majuscules/minuscules
+      const searchTerms = (teamSlug as string)
+        .split("-")
+        .filter((term) => term.length > 2 && term.toLowerCase() !== "fc");
+
+      whereConditions.OR = [
+        {
+          home_team: {
+            AND: searchTerms.map((term) => ({
+              name: { contains: term, mode: "insensitive" },
+            })),
+          },
+        },
+        {
+          away_team: {
+            AND: searchTerms.map((term) => ({
+              name: { contains: term, mode: "insensitive" },
+            })),
+          },
+        },
+      ];
     }
 
     if (filter === "hot") {
