@@ -54,6 +54,20 @@ GET http://localhost:4000/api/users/user_9
 
 ### Delete ONE User (nécessite ADMIN - voir section tests protection)
 # DELETE http://localhost:4000/api/users/3a9f3244-c29c-4b25-b2ed-3ecf5dae5c21
+### Mise à jour multiple de plusieurs champs d'un utilisateur
+PATCH http://localhost:4000/api/users/f5f503b4-5861-4149-b868-5c9597415757
+Content-Type: application/json
+
+{
+  "username": "JesuisAdminMec",
+  "email": "admin@admin.com",
+  "avatar_url": "https://admin.com/grand-admin.png",
+  "password": "Jesuis.membre1",
+  "confirmPassword": "Jesuis.membre1"
+}
+
+### Delete ONE User
+DELETE http://localhost:4000/api/users/445bfd95-1c81-48db-8844-71dee02989b1
 
 ### Get All Competitions
 GET http://localhost:4000/api/competitions
@@ -129,7 +143,8 @@ Content-Type: application/json
 {
   "username": "test_admin",
   "email": "test_admin@example.com",
-  "password": "TestPassword123"
+  "password": "TestPassword123",
+  "role":"ADMIN"
 }
 
 ### Test 6: Login avec l'utilisateur ADMIN

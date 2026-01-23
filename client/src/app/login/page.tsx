@@ -1,3 +1,4 @@
+// Page de connexion : formulaire email/password avec validation serveur et refreshAuth après login
 "use client"
 
 import { useRouter } from "next/navigation";
@@ -8,10 +9,10 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const [messageError, setMessageError] = useState([]);
-
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, refreshAuth } = useAuth();
 
+  // Traite la soumission du formulaire : POST /api/auth/login, appelle login(), refreshAuth(), puis redirect
   async function handleForm(formData: FormData) {
     const email = formData.get("email");
     const password = formData.get("password");
@@ -26,14 +27,17 @@ export default function LoginPage() {
           email,
           password
         }),
-        credentials: 'include',
+        credentials: 'include', // Envoie les cookies au serveur
       })
       const result = await response.json();
       if (response.status >= 300) {
+        // Affiche les erreurs (email incorrect, mot de passe invalide, etc.)
         setMessageError(result.error);
       } else {
+        // Succès : met à jour le contexte et charge user_id
         login();
-        router.push("/");
+        await refreshAuth(); // Attendre que user_id soit chargé
+        router.push("/"); // Redirection vers l'accueil
       }
     } catch (e) {
       console.error("error : ", e as Error);
@@ -106,4 +110,3 @@ export default function LoginPage() {
     </main>
   );
 }
-
