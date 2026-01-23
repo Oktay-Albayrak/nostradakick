@@ -40,7 +40,7 @@ export default function MatchDetailPage({ params }: MatchDetailPageProps) {
         console.log("🔍 Fetching match with api_id:", api_id);
 
         const response = await fetch(
-          `http://localhost:4000/api/matches/${api_id}`,
+          `${process.env.NEXT_PUBLIC_API_URL_CLIENT}/api/matches/${api_id}`,
           {
             cache: 'no-store'
           }

@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    */
   const refreshAuth = async () => {
     try {
-      const response = await fetch("http://localhost:4000/api/auth/me", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL_CLIENT}/api/auth/me`, {
         method: "GET",
         credentials: "include", // Envoie les cookies de session
       });

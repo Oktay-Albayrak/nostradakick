@@ -79,7 +79,7 @@ export default function MatchCard({
       try {
         console.log("🔍 Chargement du pronostic existant pour user:", user_id, "match:", match.id);
         const response = await fetch(
-          `http://localhost:4000/api/predictions?user_id=${user_id}&match_id=${match.id}`,
+          `${process.env.NEXT_PUBLIC_API_URL_CLIENT}/api/predictions?user_id=${user_id}&match_id=${match.id}`,
           { credentials: "include" }
         );
 
@@ -166,7 +166,7 @@ export default function MatchCard({
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:4000/api/predictions", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL_CLIENT} /api/predictions`, {
         method: "POST",
         credentials: "include",
         headers: {
