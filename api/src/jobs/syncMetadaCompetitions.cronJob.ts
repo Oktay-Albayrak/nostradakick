@@ -20,13 +20,13 @@ teamsCountriesCronJob.start();
 console.log('🌎 Cron pour les pays des équipes démarré - Synchronisation le 15 août à 4h02');
 
 /**
- * Lance une synchronisation 4 minutes après le démarrage du serveur
+ * Lance une synchronisation 3 minutes après le démarrage du serveur
  * Permet de compléter les pays manquant (competitions) sans bloquer le démarrage
  */
 
-console.log('⏳ Synchronisation des Teams prévue dans 4 minutes...');
+console.log('⏳ Synchronisation des Teams prévue dans 3 minutes...');
 
 setTimeout(() => {
-  console.log("\n🌎 Lancement de la synchronisation des pays des équipes...\n");
+  console.log("\n🌎 Lancement de la synchronisation des pays des équipe etc...\n");
   syncCompetitionsMetadata().catch(err => console.error('Erreur sync teams countries:', err));
-}, 4 * 60 * 1000); // 4 minutes en millisecondes
+}, 2 * 60 * 1000); // 4 minutes en millisecondes*/
