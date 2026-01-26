@@ -131,10 +131,10 @@ export default async function Pronos() {
                       publié le {formatDate(prono.updated_at)}
                     </div>
                   </div>
-                ))}
-              </div>
-            ))
-          )}
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
       </section>
     </main>
