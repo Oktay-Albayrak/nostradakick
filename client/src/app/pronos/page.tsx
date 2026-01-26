@@ -129,9 +129,8 @@ export default async function Pronos() {
                   </div>
                 </div>
               ))}
-              </div>
-            ))
-          }
+            </div>
+          ))}
         </div>
       </section>
     </main>

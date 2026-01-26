@@ -1,111 +1,187 @@
-import { prisma } from "../lib/prisma.ts";
 import type { Request, Response } from "express";
+import { uuidSchema } from "../validations/utils.validation.ts";
+import { ZodError } from "zod";
+import { createMatchSchema, updateMatchSchema } from "../validations/match.validation.ts";
+import * as matchService from "../services/match.service.ts";
 
+
+  // RÉCUPÉRER TOUS LES MATCHS (avec pagination et filtres)
 export async function getAllMatches(req: Request, res: Response) {
   try {
-    // Récupération des paramètres (ex: ?page=1&limit=10)
+    // Récupération des paramètres de la requête
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
+    const leagueCode = req.query.league as string | undefined;
+    const teamSlug = req.query.team as string | undefined;
+    const isHot = req.query.filter === "hot";
 
-    // Exemple: Page demandée: 2 => Calcul: (2 - 1) * 10 = 10 (On saute les 10 premiers, on prends de 11 à 20)
-    const skip = (page - 1) * limit;
+    const matches = await matchService.findAllMatches(
+      page,
+      limit,
+      leagueCode,
+      teamSlug,
+      isHot
+    );
 
-    const leagueCode = req.query.league;
-    const teamSlug = req.query.team;
-    const filter = req.query.filter;
-
-    const whereConditions: any = {
-      status: {
-        in: ["SCHEDULED", "TIMED", "IN_PLAY", "PAUSED"],
-      },
-      date: {
-        gte: new Date(),
-      },
-    };
-    if (leagueCode) {
-      whereConditions.competition = {
-        code: leagueCode,
-      };
-    }
-
-    if (teamSlug) {
-      // On re-transforme le slug en nom (ex: "paris-saint-germain" -> "Paris Saint Germain")
-      // On utilise 'mode: insensitive' pour ignorer les majuscules/minuscules
-      const searchTerms = (teamSlug as string)
-        .split("-")
-        .filter((term) => term.length > 2 && term.toLowerCase() !== "fc");
-
-      whereConditions.OR = [
-        {
-          home_team: {
-            AND: searchTerms.map((term) => ({
-              name: { contains: term, mode: "insensitive" },
-            })),
-          },
-        },
-        {
-          away_team: {
-            AND: searchTerms.map((term) => ({
-              name: { contains: term, mode: "insensitive" },
-            })),
-          },
-        },
-      ];
-    }
-
-    if (filter === "hot") {
-      whereConditions.is_featured = true;
-    }
-
-    const matches = await prisma.match.findMany({
-      where: whereConditions,
-      take: limit,
-      skip: skip,
-      include: {
-        home_team: true,
-        away_team: true,
-        competition: true,
-      },
-      orderBy: {
-        date: "asc", // Les plus proches en premier
-      },
-    });
     res.json(matches);
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des matchs (controller.getAllMatches) :",
+      error
+    );
     res
       .status(500)
       .json({ message: "Erreur lors de la récupération des matches" });
   }
 }
 
+  // RÉCUPÉRER UN MATCH PAR SON API_ID
 export async function getOneMatch(req: Request, res: Response) {
-  const { api_id } = req.params;
+  try {
+    const { api_id } = req.params;
 
-  // On verifie que l'api_id est bien present
-  if (!api_id || typeof api_id !== "string") {
-    return res.status(400).json({ message: "Paramètre apiId invalide." });
+    // Validation de l'api_id
+    if (!api_id || typeof api_id !== "string") {
+      return res.status(400).json({ message: "Paramètre apiId invalide." });
+    }
+
+    const matchId = parseInt(api_id, 10);
+
+    if (isNaN(matchId)) {
+      return res
+        .status(400)
+        .json({ message: "L'ID fourni n'est pas un nombre valide." });
+    }
+
+    const match = await matchService.findMatchByApiId(matchId);
+
+    if (!match) {
+      return res.status(404).json({ message: "Match non trouvé." });
+    }
+
+    res.json(match);
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération du match (controller.getOneMatch) :",
+      error
+    );
+    res
+      .status(500)
+      .json({ message: "Erreur lors de la récupération du match" });
   }
+}
 
-  const matchId = parseInt(api_id, 10);
+  // CRÉER UN MATCH (réservé aux admins)
+export async function createOneMatch(req: Request, res: Response) {
+  try {
+    // Vérification du rôle admin
+    const userPayload = (req as any).user;
+    if (!userPayload || userPayload.userRole !== "ADMIN") {
+      return res.status(403).json({
+        message: "Accès refusé. Seuls les admins peuvent créer un match.",
+      });
+    }
 
-  if (isNaN(matchId)) {
-    return res
-      .status(400)
-      .json({ message: "L'ID fourni n'est pas un nombre valide." });
+    // Validation des données avec Zod
+    const createData = createMatchSchema.parse(req.body);
+
+    // Création ou mise à jour du match (upsert)
+    const match = await matchService.createMatch(createData);
+
+    res.status(201).json(match);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        error: "Données invalides",
+        details: error.issues.map((issue) => issue.message),
+      });
+    }
+
+    console.error(
+      "Erreur lors de la création du match (controller.createOneMatch) :",
+      error
+    );
+    res.status(500).json({ message: "Erreur lors de la création du match" });
   }
+}
 
-  const match = await prisma.match.findUnique({
-    where: { api_id: matchId },
-    include: {
-      home_team: true,
-      away_team: true,
-      competition: true,
-      predictions: true,
-    },
-  });
+  // METTRE À JOUR UN MATCH (réservé aux admins)
+export async function updateOneMatch(req: Request, res: Response) {
+  try {
+    // Validation de l'ID du match
+    const { id } = uuidSchema.parse(req.params);
 
-  if (!match) return res.status(404).json({ message: "Match non trouvé." });
+    // Vérification du rôle admin
+    const userPayload = (req as any).user;
+    if (!userPayload || userPayload.userRole !== "ADMIN") {
+      return res.status(403).json({
+        message: "Accès refusé. Seuls les admins peuvent modifier un match.",
+      });
+    }
 
-  res.json(match);
+    // Vérification de l'existence du match
+    const matchExists = await matchService.findMatchById(id);
+    if (!matchExists) {
+      return res.status(404).json({ message: "Match non trouvé." });
+    }
+
+    // Validation des données avec Zod
+    const updateData = updateMatchSchema.parse(req.body);
+
+    // Mise à jour du match
+    const updatedMatch = await matchService.updateMatch(id, updateData);
+
+    res.json(updatedMatch);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        error: "Données invalides",
+        details: error.issues.map((issue) => issue.message),
+      });
+    }
+
+    console.error(
+      "Erreur lors de la mise à jour du match (controller.updateOneMatch) :",
+      error
+    );
+    res.status(500).json({ message: "Erreur lors de la mise à jour du match" });
+  }
+}
+
+  // SUPPRIMER UN MATCH (réservé aux admins)
+export async function deleteOneMatch(req: Request, res: Response) {
+  try {
+    // Validation de l'UUID du match
+    const { id } = uuidSchema.parse(req.params);
+
+    // Vérification du rôle admin
+    const userPayload = (req as any).user;
+    if (!userPayload || userPayload.userRole !== "ADMIN") {
+      return res.status(403).json({
+        message: "Accès refusé. Seuls les admins peuvent supprimer un match.",
+      });
+    }
+
+    // Vérification de l'existence du match
+    const matchExists = await matchService.findMatchById(id);
+    if (!matchExists) {
+      return res.status(404).json({ message: "Match non trouvé." });
+    }
+
+    await matchService.deleteMatch(id);
+    res.json({ message: "Match supprimé avec succès." });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        error: "Données invalides",
+        details: error.issues.map((issue) => issue.message),
+      });
+    }
+
+    console.error(
+      "Erreur lors de la suppression du match (controller.deleteOneMatch) :",
+      error
+    );
+    res.status(500).json({ message: "Erreur lors de la suppression du match" });
+  }
 }

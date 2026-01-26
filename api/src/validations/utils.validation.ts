@@ -11,7 +11,7 @@ import z from "zod";
 
 
 
-    
+    // Schema servant à validé l'ID
   export const uuidSchema = z.object({
     id: z.uuid(),
   });
