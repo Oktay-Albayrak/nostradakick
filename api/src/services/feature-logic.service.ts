@@ -1,4 +1,4 @@
-import { RIVALRIES } from "../config/metadata.ts";
+import { CL_ELITE_IDS, RIVALRIES } from "../config/metadata.ts";
 
 export interface IFootballApiMatch {
   id: number;
@@ -42,11 +42,17 @@ export function getMatchHotStatus(
   }
 
   // 3. Check CHAMPIONS LEAGUE (Optionnel : Tout match de phase finale ou gros choc)
-  if (
-    match.competition.code === "CL" &&
-    (top5Ids.has(homeApiId) || top5Ids.has(awayApiId))
-  ) {
-    return { isHot: true, name: "Affiche CL" };
+  if (match.competition.code === "CL") {
+    // On crée un groupe "Prestige" : Top 5 actuel OU liste Elite (Ajax, etc.)
+    const isHomeElite =
+      top5Ids.has(homeApiId) || CL_ELITE_IDS.includes(homeApiId);
+    const isAwayElite =
+      top5Ids.has(awayApiId) || CL_ELITE_IDS.includes(awayApiId);
+
+    // Un match de CL est "Hot" uniquement si les DEUX sont dans le groupe Prestige
+    if (isHomeElite && isAwayElite) {
+      return { isHot: true, name: "Affiche CL" };
+    }
   }
 
   return { isHot: false, name: null };

@@ -19,7 +19,7 @@ async function runFullSync() {
     console.log("⏳ 1/4 - Synchronisation des Compétitions...");
     await syncAllCompetitions();
     console.log(
-      "💤 Pause de sécurité (65s) pour réinitialiser le quota API...",
+      "💤 Pause de sécurité (45s) pour réinitialiser le quota API...",
     );
     await delay(45000);
 
@@ -27,7 +27,7 @@ async function runFullSync() {
     console.log("⏳ 2/4 - Synchronisation des Classements (Standings)...");
     await syncStandings();
     console.log(
-      "💤 Pause de sécurité (65s) pour réinitialiser le quota API...",
+      "💤 Pause de sécurité (45s) pour réinitialiser le quota API...",
     );
     await delay(45000);
 
@@ -35,7 +35,7 @@ async function runFullSync() {
     console.log("⏳ 3/4 - Synchronisation des Matchs...");
     await syncAllMatches();
     console.log(
-      "💤 Pause de sécurité (65s) pour réinitialiser le quota API...",
+      "💤 Pause de sécurité (45s) pour réinitialiser le quota API...",
     );
     await delay(45000);
 
