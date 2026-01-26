@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./admin.module.css";
-import { IMatch, ICompetition, ITeam } from "@/types/match";
+import { IMatch, ICompetition } from "@/types/match";
 
 interface CreateMatchModalProps {
   match?: IMatch;
@@ -20,8 +20,8 @@ export default function CreateMatchModal({
   const isEditMode = !!match;
 
   const [formData, setFormData] = useState({
-    api_id: match?.api_id || "",
-    date: match ? new Date(match.date).toISOString().slice(0, 16) : "",
+    date: match ? new Date(match.date).toISOString().slice(0, 10) : "",
+    time: match ? new Date(match.date).toTimeString().slice(0, 5) : "",
     status: match?.status || "SCHEDULED",
     home_team_id: match?.home_team.id || "",
     away_team_id: match?.away_team.id || "",
@@ -32,36 +32,9 @@ export default function CreateMatchModal({
     featured_name: match?.featured_name || "",
   });
 
-  const [teams, setTeams] = useState<ITeam[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-
-  // Récupérer les équipes depuis les matchs existants
-  useEffect(() => {
-    async function fetchTeams() {
-      try {
-        const response = await fetch("http://localhost:4000/api/matches?page=1&limit=1000");
-        if (response.ok) {
-          const matches: IMatch[] = await response.json();
-          // Extraire toutes les équipes uniques
-          const uniqueTeams = new Map<string, ITeam>();
-          matches.forEach((m) => {
-            if (!uniqueTeams.has(m.home_team.id)) {
-              uniqueTeams.set(m.home_team.id, m.home_team);
-            }
-            if (!uniqueTeams.has(m.away_team.id)) {
-              uniqueTeams.set(m.away_team.id, m.away_team);
-            }
-          });
-          setTeams(Array.from(uniqueTeams.values()));
-        }
-      } catch (e) {
-        console.error("Erreur lors de la récupération des équipes:", e);
-      }
-    }
-    fetchTeams();
-  }, []);
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -86,8 +59,21 @@ export default function CreateMatchModal({
     setError(null);
 
     try {
-      const payload: any = {
-        date: new Date(formData.date).toISOString(),
+      // Combiner date et heure
+      const dateTime = new Date(`${formData.date}T${formData.time}`);
+      
+      const payload: {
+        date: string;
+        status: string;
+        home_team_id: string;
+        away_team_id: string;
+        competition_id: string;
+        home_score: number | null;
+        away_score: number | null;
+        is_featured: boolean;
+        featured_name: string | null;
+      } = {
+        date: dateTime.toISOString(),
         status: formData.status,
         home_team_id: formData.home_team_id,
         away_team_id: formData.away_team_id,
@@ -100,10 +86,6 @@ export default function CreateMatchModal({
         featured_name: formData.featured_name || null,
       };
 
-      if (!isEditMode) {
-        // Création : ajouter api_id
-        payload.api_id = parseInt(formData.api_id);
-      }
 
       const url = isEditMode
         ? `http://localhost:4000/api/matches/${match.id}`
@@ -162,33 +144,34 @@ export default function CreateMatchModal({
         )}
 
         <form onSubmit={handleSubmit} className={styles.modalForm}>
-          {!isEditMode && (
-            <label className={styles.modalLabel}>
-              API ID
+          <div style={{ display: "flex", gap: "1rem" }}>
+            <label className={styles.modalLabel} style={{ flex: 1 }}>
+              Date
               <input
-                type="number"
-                name="api_id"
-                value={formData.api_id}
+                type="date"
+                name="date"
+                value={formData.date}
                 onChange={handleChange}
                 className={styles.modalInput}
                 required
                 disabled={isLoading}
+                lang="fr"
               />
             </label>
-          )}
-
-          <label className={styles.modalLabel}>
-            Date et heure
-            <input
-              type="datetime-local"
-              name="date"
-              value={formData.date}
-              onChange={handleChange}
-              className={styles.modalInput}
-              required
-              disabled={isLoading}
-            />
-          </label>
+            <label className={styles.modalLabel} style={{ flex: 1 }}>
+              Heure (24h)
+              <input
+                type="time"
+                name="time"
+                value={formData.time}
+                onChange={handleChange}
+                className={styles.modalInput}
+                required
+                disabled={isLoading}
+                step="60"
+              />
+            </label>
+          </div>
 
           <label className={styles.modalLabel}>
             Statut
@@ -201,7 +184,6 @@ export default function CreateMatchModal({
               disabled={isLoading}
             >
               <option value="SCHEDULED">Programmé</option>
-              <option value="TIMED">Programmé</option>
               <option value="IN_PLAY">En cours</option>
               <option value="PAUSED">Pause</option>
               <option value="FINISHED">Terminé</option>
@@ -213,60 +195,45 @@ export default function CreateMatchModal({
           </label>
 
           <label className={styles.modalLabel}>
-            Compétition
-            <select
+            Compétition (ID)
+            <input
+              type="text"
               name="competition_id"
               value={formData.competition_id}
               onChange={handleChange}
               className={styles.modalInput}
               required
               disabled={isLoading}
-            >
-              <option value="">Sélectionner une compétition</option>
-              {competitions.map((comp) => (
-                <option key={comp.id} value={comp.id}>
-                  {comp.name}
-                </option>
-              ))}
-            </select>
+              placeholder="Entrer l'ID de la compétition"
+            />
           </label>
 
           <label className={styles.modalLabel}>
-            Équipe à domicile
-            <select
+            Équipe à domicile (ID)
+            <input
+              type="text"
               name="home_team_id"
               value={formData.home_team_id}
               onChange={handleChange}
               className={styles.modalInput}
               required
               disabled={isLoading}
-            >
-              <option value="">Sélectionner une équipe</option>
-              {teams.map((team) => (
-                <option key={team.id} value={team.id}>
-                  {team.name}
-                </option>
-              ))}
-            </select>
+              placeholder="Entrer l'ID de l'équipe à domicile"
+            />
           </label>
 
           <label className={styles.modalLabel}>
-            Équipe à l'extérieur
-            <select
+            Équipe à l{"'"}extérieur (ID)
+            <input
+              type="text"
               name="away_team_id"
               value={formData.away_team_id}
               onChange={handleChange}
               className={styles.modalInput}
               required
               disabled={isLoading}
-            >
-              <option value="">Sélectionner une équipe</option>
-              {teams.map((team) => (
-                <option key={team.id} value={team.id}>
-                  {team.name}
-                </option>
-              ))}
-            </select>
+              placeholder="Entrer l'ID de l'équipe à l'extérieur"
+            />
           </label>
 
           <div style={{ display: "flex", gap: "1rem" }}>
