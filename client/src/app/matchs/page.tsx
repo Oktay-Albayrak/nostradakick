@@ -69,22 +69,6 @@ export default async function Matchs({
     return "Matchs à venir";
   };
 
-  /* // --- LOGIQUE DE FILTRAGE HOT ---
-  // Pour la colonne centrale : on filtre si le bouton HOT est activé
-  const displayMatches = isHotFilter
-    ? initialMatches.filter((m) => m.is_featured)
-    : initialMatches;
-
-  // Pour l'Aside : on veut TOUJOURS les "is_featured", peu importe le bouton HOT
-  // On filtre les matchs qui sont soit marqués "featured" en DB, soit très populaires
-  const featuredMatches = initialMatches
-    .filter(
-      (m) => m.is_featured === true || (m.popularity && m.popularity > 50),
-    )
-    // S'il n'y a pas assez de matchs "Hot", on complète avec les 3 premiers de la liste
-    .concat(initialMatches.filter((m) => !m.is_featured))
-    .slice(0, 6); // On en garde 5 maximum pour ne pas étouffer l'aside */
-
   return (
     <div className={styles.container}>
       {/* 1. BARRE DE RECHERCHE (Visible uniquement sur Desktop) */}
