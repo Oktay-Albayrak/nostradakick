@@ -115,7 +115,7 @@ export default function SearchOverlay({
               <div
                 key={match.id}
                 className={styles.resultItem}
-                onClick={() => navigateTo(`/matchs/${match.api_id}`)}
+                onClick={() => navigateTo(`/matchs/${match.id}`)}
               >
                 <div className={`${styles.badge} ${styles.matchBadge}`}>
                   Match
