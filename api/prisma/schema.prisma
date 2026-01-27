@@ -47,8 +47,8 @@ model User {
   created_at    DateTime @default(now()) @db.Timestamptz()
   updated_at    DateTime @updatedAt @db.Timestamptz()
 
-  stats       UserStat?    @relation("UserToUserStat")
-  predictions Prediction[] @relation("UserToPrediction")
+  stats         UserStat?      @relation("UserToUserStat")
+  predictions   Prediction[]   @relation("UserToPrediction")
   refresh_token RefreshToken[] @relation("UserToRefreshToken")
 
   @@map("user")
@@ -131,6 +131,7 @@ model Match {
   api_id         Int          @unique
   date           DateTime     @db.Timestamptz
   status         MatchStatus  @default(SCHEDULED)
+  venue          String?
   home_score     Int?
   away_score     Int?
   home_team      Team         @relation("home_team", fields: [home_team_id], references: [id])
@@ -165,14 +166,14 @@ model Prediction {
 }
 
 model RefreshToken {
-  id          String   @id @default(uuid()) @db.Uuid
-  token       String   @db.Text
+  id    String @id @default(uuid()) @db.Uuid
+  token String @db.Text
 
-  created_at  DateTime @default(now()) @db.Timestamptz
-  expires_at  DateTime @updatedAt @db.Timestamptz
+  created_at DateTime @default(now()) @db.Timestamptz
+  expires_at DateTime @updatedAt @db.Timestamptz
 
-  user        User     @relation("UserToRefreshToken", fields: [user_id], references: [id])
-  user_id     String   @db.Uuid
+  user    User   @relation("UserToRefreshToken", fields: [user_id], references: [id])
+  user_id String @db.Uuid
 
   @@map("refresh_token")
 }

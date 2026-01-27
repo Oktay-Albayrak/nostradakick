@@ -12,21 +12,17 @@ export type MatchStatus =
   | "AWARDED";
 
 export type PredictionValue =
-  |"HOME" // "1"
-  |"DRAW" // "N"
-  |"AWAY"; // "2"
+  | "HOME" // "1"
+  | "DRAW" // "N"
+  | "AWAY"; // "2"
 
-export type PredictionStatus =
-  |"PENDING"
-  |"WON"
-  |"LOST"
-  |"CANCELLED";
+export type PredictionStatus = "PENDING" | "WON" | "LOST" | "CANCELLED";
 
 export interface ICompetition {
   id: string;
   api_id: number;
   name: string;
-  code: string;  // Timestamps
+  code: string; // Timestamps
   created_at?: string;
   updated_at?: string;
   emblem_url: string;
@@ -50,13 +46,14 @@ export interface IMatch {
   status: MatchStatus;
   home_score: number | null;
   away_score: number | null;
+  venue?: string | null; // Stade non fourni par le Free Tier de l'API, on le laisse pour plus tard
 
   // Relations (objets complets)
   home_team: ITeam;
   away_team: ITeam;
   competition: ICompetition;
   predictions?: IPrediction[];
-  
+
   // Timestamps
   created_at?: string;
   updated_at?: string;
