@@ -22,3 +22,4 @@ router.use(adminRouter);
 router.use(competitionsRouter);
 router.use(teamsRouter);
 router.use(searchRouter);
+router.use(teamsRouter);
