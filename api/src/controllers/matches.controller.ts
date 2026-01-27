@@ -41,25 +41,13 @@ export async function getAllMatches(req: Request, res: Response) {
   }
 }
 
-// RÉCUPÉRER UN MATCH PAR SON API_ID
-export async function getOneMatch(req: Request, res: Response) {
+  // RÉCUPÉRER UN MATCH PAR SON UUID
+export async function getOneMatchById(req: Request, res: Response) {
   try {
-    const { api_id } = req.params;
+    // Validation de l'UUID avec Zod
+    const { id } = uuidSchema.parse(req.params);
 
-    // Validation de l'api_id
-    if (!api_id || typeof api_id !== "string") {
-      return res.status(400).json({ message: "Paramètre apiId invalide." });
-    }
-
-    const matchId = parseInt(api_id, 10);
-
-    if (isNaN(matchId)) {
-      return res
-        .status(400)
-        .json({ message: "L'ID fourni n'est pas un nombre valide." });
-    }
-
-    const match = await matchService.findMatchByApiId(matchId);
+    const match = await matchService.findMatchById(id);
 
     if (!match) {
       return res.status(404).json({ message: "Match non trouvé." });
@@ -67,9 +55,16 @@ export async function getOneMatch(req: Request, res: Response) {
 
     res.json(match);
   } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        error: "Données invalides",
+        details: error.issues.map((issue) => issue.message),
+      });
+    }
+
     console.error(
-      "Erreur lors de la récupération du match (controller.getOneMatch) :",
-      error,
+      "Erreur lors de la récupération du match (controller.getOneMatchById) :",
+      error
     );
     res
       .status(500)
@@ -88,13 +83,21 @@ export async function createOneMatch(req: Request, res: Response) {
       });
     }
 
-    // Validation des données avec Zod
-    const createData = createMatchSchema.parse(req.body);
+    const { home_team, away_team, competition, ...matchData } = req.body;
 
-    // Création ou mise à jour du match (upsert)
-    const match = await matchService.createMatch(createData);
+    // Validation des données avec Zod
+    const createData = createMatchSchema.parse(matchData);
+
+    // Création du match avec création/récupération automatique des entités
+    const match = await matchService.createMatch(
+      createData,
+      home_team,
+      away_team,
+      competition
+    );
 
     res.status(201).json(match);
+    
   } catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({
@@ -102,11 +105,7 @@ export async function createOneMatch(req: Request, res: Response) {
         details: error.issues.map((issue) => issue.message),
       });
     }
-
-    console.error(
-      "Erreur lors de la création du match (controller.createOneMatch) :",
-      error,
-    );
+    console.error("Erreur création match:", error);
     res.status(500).json({ message: "Erreur lors de la création du match" });
   }
 }

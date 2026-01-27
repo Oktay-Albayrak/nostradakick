@@ -78,24 +78,39 @@ GET http://localhost:4000/api/matches
 ### Get Match by ID
 GET http://localhost:4000/api/matches/551996
 
-### Create Match (NÉCESSITE NULL API_ID DANS LA DB)(nécessite ADMIN)
-# POST http://localhost:4000/api/matches
+### Create Match (nécessite ADMIN)
+POST http://localhost:4000/api/matches
 Content-Type: application/json
-Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiOTUzYTM0Yi0xZTZhLTQ5ZmQtYmFjYi01YzBjMjU2NGM4N2EiLCJ1c2VyUm9sZSI6IkFETUlOIiwiaWF0IjoxNzY5MjAyNjc0LCJleHAiOjE3NjkyMDYyNzR9.lespq0SwuQkNOdwPVHz6L7T89K2w-RGUkIKiUM8mfIE
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlOTkwZmQ0Ni0zMDExLTQwNGUtOGZlOS1kYWI1OWZlNTdhMzEiLCJ1c2VyUm9sZSI6IkFETUlOIiwiaWF0IjoxNzY5NTIzNzAyLCJleHAiOjE3Njk1MjczMDJ9.bS6Ex1h4C3Q28Ywau9TOfVU7_wj8Bcn5CZahy6GAu5M
 
 {
-  "api_id": "999999",
-  "home_team": "Test FC",
-  "away_team": "Test United",
-  "competition_id": "2021",
-  "match_date": "2025-06-01T20:00:00Z",
-  "status": "SCHEDULED"
+  "date": "2026-02-16T20:00:00Z",
+  "status": "SCHEDULED",
+  "home_team": {
+    "name": "demain",
+    "tla": "ttt",
+    "crest_url": "https://crests.football-data.org/524.png",
+    "country": "chine"
+  },
+  "away_team": {
+    "name": "aujourdhui",
+    "short_name": "test2",
+    "tla": "aaa",
+    "crest_url": "https://crests.football-data.org/516.png",
+    "country": "amerique"
+  },
+  "competition": {
+    "name": "Ligue 5",
+    "code": "FL5",
+    "emblem_url": "https://crests.football-data.org/FL1.png",
+    "country": "international"
+  }
 }
 
-### Update Match (NÉCESSITE NULL API_ID DANS LA DB)(nécessite ADMIN)
-PATCH http://localhost:4000/api/matches/MATCH_ID
+### Update Match (nécessite ADMIN)
+PATCH http://localhost:4000/api/matches/8355e234-596c-40b9-9734-e910543602a1
 Content-Type: application/json
-Cookie: accessToken=VOTRE_TOKEN_ADMIN_ICI
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlOTkwZmQ0Ni0zMDExLTQwNGUtOGZlOS1kYWI1OWZlNTdhMzEiLCJ1c2VyUm9sZSI6IkFETUlOIiwiaWF0IjoxNzY5NTIzNzAyLCJleHAiOjE3Njk1MjczMDJ9.bS6Ex1h4C3Q28Ywau9TOfVU7_wj8Bcn5CZahy6GAu5M
 
 {
   "status": "FINISHED",
@@ -104,8 +119,9 @@ Cookie: accessToken=VOTRE_TOKEN_ADMIN_ICI
 }
 
 ### Delete Match (nécessite ADMIN)
-DELETE http://localhost:4000/api/matches/MATCH_ID
-Cookie: accessToken=VOTRE_TOKEN_ADMIN_ICI
+DELETE http://localhost:4000/api/matches/8b8c9922-61ea-4776-a8fe-f0f8017c1f55
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlOTkwZmQ0Ni0zMDExLTQwNGUtOGZlOS1kYWI1OWZlNTdhMzEiLCJ1c2VyUm9sZSI6IkFETUlOIiwiaWF0IjoxNzY5NTIzNzAyLCJleHAiOjE3Njk1MjczMDJ9.bS6Ex1h4C3Q28Ywau9TOfVU7_wj8Bcn5CZahy6GAu5M
+
 
 ### Get All Predictions (nécessite ADMIN - voir section tests protection)
 # GET http://localhost:4000/api/predictions

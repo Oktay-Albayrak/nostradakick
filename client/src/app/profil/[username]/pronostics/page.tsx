@@ -1,7 +1,7 @@
-import Link from "next/link";
 import styles from "./page.module.css";
 import { notFound } from "next/navigation";
 import { IUserStats } from "@/types/userStats";
+import ReturnButton from "@/components/ReturnButton/ReturnButton";
 
 // On définit le type des props
 interface PageProps {
@@ -64,9 +64,7 @@ export default async function ProfilPronos({ params }: PageProps) {
       <section className={styles.mainGrid}>
         {/* 3. COLONNE GAUCHE : FILTRES PAR STATUT */}
         <aside className={styles.filterList}>
-          <Link href="/dashboard" className={styles.backLink}>
-            ← Retour
-          </Link>
+          <ReturnButton className={styles.returnButton}/>
           <h2 className={styles.sidebarTitle}>Filtres</h2>
           <ul>
             <li>Tous</li>
@@ -78,7 +76,7 @@ export default async function ProfilPronos({ params }: PageProps) {
 
         {/* 4. COLONNE CENTRALE : MES PRONOSTICS */}
         <main className={styles.pronosticsContent}>
-          <h1 className={styles.sectionTitle}>Mes pronostics</h1>
+          <h1 className={styles.sectionTitle}>Pronostics de {user.username}</h1>
 
           <div className={styles.pronosticsGrid}>
             {user.predictions?.map((p, index) => (
