@@ -13,7 +13,7 @@
  * - showStatus: affiche le badge de statut du match (défaut: false)
  * - showFullTeamNames: affiche les noms complets des équipes (défaut: false)
  * 
- * Cliquable : cliquer sur la carte redirige vers /matchs/{api_id}
+ * Cliquable : cliquer sur la carte redirige vers /matchs/{id} (UUID du match)
  * Les boutons de prédiction ne déclenchent pas la navigation.
  */
 
@@ -301,7 +301,7 @@ export default function MatchCard({
       
       {/* LIEN CLIQUABLE SEULEMENT SUR LES ÉQUIPES, HORAIRE ET AVATARS */}
       <Link 
-        href={`/matchs/${match.api_id}`} 
+        href={`/matchs/${match.id}`} 
         style={{ textDecoration: "none", color: "inherit" }}
       >
         <section className={styles.mainInfo}>
