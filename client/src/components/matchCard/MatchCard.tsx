@@ -7,6 +7,16 @@
  * * MODIFICATIONS :
  * - Si le match est FINISHED : Affiche le statut en bas et les noms sous les logos.
  * - Si la carte est en mode compact (Aside) : Garde l'affichage des TLA via .teamTla.
+ * 
+ * Props :
+ * - match: objet IMatch contenant tous les détails du match
+ * - isHot: affiche un badge 🔥 si c'est un match "à l'affiche"
+ * - showPredictions: affiche les boutons de prédiction (défaut: true)
+ * - showStatus: affiche le badge de statut du match (défaut: false)
+ * - showFullTeamNames: affiche les noms complets des équipes (défaut: false)
+ * 
+ * Cliquable : cliquer sur la carte redirige vers /matchs/{id} (UUID du match)
+ * Les boutons de prédiction ne déclenchent pas la navigation.
  */
 
 "use client";
@@ -184,7 +194,7 @@ export default function MatchCard({
         </section>
 
         <Link
-          href={`/matchs/${match.api_id}`}
+          href={`/matchs/${match.id}`}
           style={{ textDecoration: "none", color: "inherit" }}
         >
           <section className={styles.mainInfo}>

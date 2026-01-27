@@ -5,41 +5,46 @@ import type {
 } from "../validations/match.validation.ts";
 
 /**
- * Crée ou met à jour un match (upsert) basé sur l'id
- * Si le match existe déjà (même id), il sera mis à jour
- * Sinon, un nouveau match sera créé
+ * Interface pour les entités optionnelles (team/competition) lors de la création d'un match
  */
-export async function createMatch(createData: CreateMatchInput) {
-  const match = await prisma.match.upsert({
-    // Recherche le match par son id
-    where: { id: createData.id },
+interface OptionalTeam {
+  name: string;
+  short_name?: string | null;
+  tla: string;
+  crest_url: string;
+  country: string;
+  api_id?: number | null,
+}
 
-    // Si le match n'existe pas, on le crée avec toutes les données
-    create: {
-      id: createData.id,
-      api_id: createData.api_id, // à supprimer après mise à jour bdd
-      date: new Date(createData.date),
-      status: createData.status ?? "SCHEDULED",
-      home_score: createData.home_score ?? null,
-      away_score: createData.away_score ?? null,
-      home_team_id: createData.home_team_id,
-      away_team_id: createData.away_team_id,
-      competition_id: createData.competition_id,
-      venue: createData.venue ?? null,
-      is_featured: createData.is_featured ?? false,
-      featured_name: createData.featured_name ?? null,
-    },
+interface OptionalCompetition {
+  name: string;
+  code?: string | null;
+  emblem_url: string;
+  country: string;
+  api_id?: number | null,
+}
 
-    // Si le match existe déjà, on le met à jour avec les nouvelles données
-    // L'opérateur ?? remplace undefined par une valeur par défaut
-    update: {
-      date: new Date(createData.date),
-      status: createData.status ?? "SCHEDULED",
-      home_score: createData.home_score ?? null,
-      away_score: createData.away_score ?? null,
-      venue: createData.venue ?? null,
-      is_featured: createData.is_featured ?? false,
-      featured_name: createData.featured_name ?? null,
+/**
+ * Crée un match directement (pas d'upsert car id auto-généré)
+ * Fonction interne (non exportée)
+ */
+async function createMatchInDb(
+  matchData: CreateMatchInput,
+  homeTeamId: string,
+  awayTeamId: string,
+  competitionId: string
+) {
+  const match = await prisma.match.create({
+    data: {
+      date: new Date(matchData.date),
+      status: matchData.status ?? "SCHEDULED",
+      home_score: matchData.home_score ?? null,
+      away_score: matchData.away_score ?? null,
+      home_team_id: homeTeamId,
+      away_team_id: awayTeamId,
+      competition_id: competitionId,
+      is_featured: matchData.is_featured ?? false,
+      featured_name: matchData.featured_name ?? null,
     },
 
     // On inclut les relations pour avoir les détails complets du match
@@ -53,6 +58,103 @@ export async function createMatch(createData: CreateMatchInput) {
 
   return match;
 }
+
+/**
+ * Crée un match avec création/récupération automatique des équipes et compétition
+ * Utile pour créer un match avec des données complètes depuis le body de la requête
+ */
+export async function createMatch(
+  matchData: CreateMatchInput,
+  homeTeam?: OptionalTeam,
+  awayTeam?: OptionalTeam,
+  competition?: OptionalCompetition
+) {
+  // Validation : au moins une équipe et une compétition doivent être fournies
+  if (!homeTeam || !awayTeam || !competition) {
+    throw new Error(
+      "Les objets home_team, away_team et competition sont requis pour créer un match"
+    );
+  }
+
+  // 1. Créer/récupérer la compétition
+  const comp = await prisma.competition.upsert({
+    where: { name: competition.name },
+    create: {
+      name: competition.name,
+      code: competition.code ?? null,
+      emblem_url: competition.emblem_url,
+      country: competition.country,
+      api_id: competition.api_id ?? null,
+    },
+    update: {
+      // Optionnel : mettre à jour les infos si besoin
+      ...(competition.code !== undefined && { code: competition.code }),
+
+      ...(competition.emblem_url !== undefined && { emblem_url: competition.emblem_url }),
+      
+      ...(competition.country !== undefined && { country: competition.country}),
+    },
+  });
+
+  // 2. Créer/récupérer équipe domicile
+  const home = await prisma.team.upsert({
+    where: { name: homeTeam.name },
+    create: {
+      name: homeTeam.name,
+      short_name: homeTeam.short_name ?? null,
+      tla: homeTeam.tla,
+      crest_url: homeTeam.crest_url,
+      country: homeTeam.country,
+      api_id: homeTeam.api_id ?? null,
+    },
+    update: {
+      // Optionnel : mettre à jour les infos si besoin
+      ...(homeTeam.short_name !== undefined && {
+        short_name: homeTeam.short_name }),
+
+      ...(homeTeam.tla !== undefined && {
+        tla: homeTeam.tla }),
+
+      ...(homeTeam.crest_url !== undefined && { crest_url: homeTeam.crest_url }),
+
+      ...(homeTeam.country !== undefined && {
+        country: homeTeam.country }),
+    },
+  });
+
+  // 3. Créer/récupérer équipe extérieure
+  const away = await prisma.team.upsert({
+    where: { name: awayTeam.name },
+    create: {
+      name: awayTeam.name,
+      short_name: awayTeam.short_name ?? null,
+      tla: awayTeam.tla,
+      crest_url: awayTeam.crest_url,
+      country: awayTeam.country,
+      api_id: awayTeam.api_id ?? null,
+    },
+    update: {
+      // Optionnel : mettre à jour les infos si besoin
+      ...(awayTeam.name !== undefined && {
+        name: awayTeam.name }),
+
+      ...(awayTeam.short_name !== undefined && {
+        short_name: awayTeam.short_name }),
+
+      ...(awayTeam.tla !== undefined && {
+        tla: awayTeam.tla }),
+
+      ...(awayTeam.crest_url !== undefined && { crest_url: awayTeam.crest_url }),
+
+      ...(awayTeam.country !== undefined && {
+        country: awayTeam.country }),
+    },
+  });
+
+  // 4. Créer le match avec les IDs récupérés
+  return createMatchInDb(matchData, home.id, away.id, comp.id);
+}
+
 
 /**
  * Récupère tous les matchs avec filtres optionnels
@@ -162,23 +264,6 @@ export async function findAllMatches(
   });
 
   return matches;
-}
-
-/**
- * Récupère un match par son api_id
- */
-export async function findMatchByApiId(api_id: number) {
-  const match = await prisma.match.findUnique({
-    where: { api_id },
-    include: {
-      home_team: true,
-      away_team: true,
-      competition: true,
-      predictions: true,
-    },
-  });
-
-  return match;
 }
 
 /**
