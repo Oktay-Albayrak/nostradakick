@@ -59,7 +59,7 @@ export default async function Home() {
               pronos.map((prediction) => (
                 <div key={prediction.id} className={styles.pronoRow}>
                   <span className={styles.pronoLabel}>
-                    {prediction.user.username} | {prediction.match.home_team.short_name || prediction.match.home_team.name} - {prediction.match.away_team.short_name || prediction.match.away_team.name}
+                    <Link className={styles.userLink} href={`/profil/${prediction.user.username}`}>{prediction.user.username}</Link> - <Link className={styles.pronoMatchLink} href={`/matchs/${prediction.match.api_id}`}>{prediction.match.home_team.short_name || prediction.match.home_team.name} - {prediction.match.away_team.short_name || prediction.match.away_team.name}</Link>
                   </span>
                   <div className={styles.picks}>
                     <span className={`${styles.pick} ${prediction.prediction_value === "HOME" ? styles.pickActive : ""}`}>
