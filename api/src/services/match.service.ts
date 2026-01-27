@@ -306,9 +306,6 @@ export async function updateMatch(id: string, updateData: UpdateMatchInput) {
     ...(updateData.featured_name !== undefined && {
       featured_name: updateData.featured_name,
     }),
-    ...(updateData.popularity !== undefined && {
-      popularity: updateData.popularity,
-    }),
   };
 
   const updatedMatch = await prisma.match.update({
