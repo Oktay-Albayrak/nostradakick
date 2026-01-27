@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./admin.module.css";
 import { IMatch, ICompetition } from "@/types/match";
+import TeamSearchInput from "./TeamSearchInput";
+import CompetitionSearchInput from "./CompetitionSearchInput";
 
 interface CreateMatchModalProps {
   match?: IMatch;
@@ -19,9 +21,14 @@ export default function CreateMatchModal({
   const router = useRouter();
   const isEditMode = !!match;
 
+  const matchTime = match ? new Date(match.date).toTimeString().slice(0, 5) : "00:00";
+  const matchDate = match ? new Date(match.date) : new Date();
   const [formData, setFormData] = useState({
-    date: match ? new Date(match.date).toISOString().slice(0, 10) : "",
-    time: match ? new Date(match.date).toTimeString().slice(0, 5) : "",
+    day: match ? matchDate.getDate().toString().padStart(2, "0") : new Date().getDate().toString().padStart(2, "0"),
+    month: match ? (matchDate.getMonth() + 1).toString().padStart(2, "0") : (new Date().getMonth() + 1).toString().padStart(2, "0"),
+    year: match ? matchDate.getFullYear().toString() : new Date().getFullYear().toString(),
+    hour: matchTime.split(":")[0] || "00",
+    minute: matchTime.split(":")[1] || "00",
     status: match?.status || "SCHEDULED",
     home_team_id: match?.home_team.id || "",
     away_team_id: match?.away_team.id || "",
@@ -53,6 +60,52 @@ export default function CreateMatchModal({
     }
   }
 
+  async function createNewTeam(name: string) {
+    const response = await fetch("http://localhost:4000/api/teams", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        name,
+        country: "Unknown",
+        tla: "N/A",
+        crest_url: "",
+      }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.message || "Erreur lors de la création de l'équipe");
+    }
+
+    return await response.json();
+  }
+
+  async function createNewCompetition(name: string, code: string) {
+    const response = await fetch("http://localhost:4000/api/competitions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        name,
+        code,
+        country: "Unknown",
+        emblem_url: "",
+      }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.message || "Erreur lors de la création de la compétition");
+    }
+
+    return await response.json();
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsLoading(true);
@@ -60,60 +113,87 @@ export default function CreateMatchModal({
 
     try {
       // Combiner date et heure
-      const dateTime = new Date(`${formData.date}T${formData.time}`);
+      const dateString = `${formData.year}-${formData.month.padStart(2, "0")}-${formData.day.padStart(2, "0")}`;
+      const timeString = `${formData.hour.padStart(2, "0")}:${formData.minute.padStart(2, "0")}`;
+      const dateTime = new Date(`${dateString}T${timeString}`);
       
-      const payload: {
-        date: string;
-        status: string;
-        home_team_id: string;
-        away_team_id: string;
-        competition_id: string;
-        home_score: number | null;
-        away_score: number | null;
-        is_featured: boolean;
-        featured_name: string | null;
-      } = {
-        date: dateTime.toISOString(),
-        status: formData.status,
-        home_team_id: formData.home_team_id,
-        away_team_id: formData.away_team_id,
-        competition_id: formData.competition_id,
-        home_score:
-          formData.home_score === "" ? null : parseInt(formData.home_score),
-        away_score:
-          formData.away_score === "" ? null : parseInt(formData.away_score),
-        is_featured: formData.is_featured,
-        featured_name: formData.featured_name || null,
-      };
+      if (!isEditMode) {
+        // Pour la création, on doit générer un id et un api_id
+        const payload = {
+          id: crypto.randomUUID(),
+          api_id: Date.now(), // Utiliser un timestamp comme api_id temporaire
+          date: dateTime.toISOString(),
+          status: formData.status,
+          home_team_id: formData.home_team_id,
+          away_team_id: formData.away_team_id,
+          competition_id: formData.competition_id,
+          home_score:
+            formData.home_score === "" ? null : parseInt(formData.home_score),
+          away_score:
+            formData.away_score === "" ? null : parseInt(formData.away_score),
+          is_featured: formData.is_featured,
+          featured_name: formData.featured_name || null,
+        };
 
+        const response = await fetch("http://localhost:4000/api/matches", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        });
 
-      const url = isEditMode
-        ? `http://localhost:4000/api/matches/${match.id}`
-        : "http://localhost:4000/api/matches";
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(
+            data.error || data.message || "Erreur lors de l'enregistrement"
+          );
+        }
 
-      const method = isEditMode ? "PATCH" : "POST";
+        setSuccess(true);
+        setTimeout(() => {
+          router.refresh();
+          onClose();
+        }, 1500);
+      } else {
+        // Pour la modification
+        const payload = {
+          status: formData.status,
+          home_score:
+            formData.home_score === "" ? null : parseInt(formData.home_score),
+          away_score:
+            formData.away_score === "" ? null : parseInt(formData.away_score),
+          is_featured: formData.is_featured,
+          featured_name: formData.featured_name || null,
+        };
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(
-          data.error || data.message || "Erreur lors de l'enregistrement"
+        const response = await fetch(
+          `http://localhost:4000/api/matches/${match.id}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify(payload),
+          }
         );
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(
+            data.error || data.message || "Erreur lors de l'enregistrement"
+          );
+        }
+
+        setSuccess(true);
+        setTimeout(() => {
+          router.refresh();
+          onClose();
+        }, 1500);
       }
 
-      setSuccess(true);
-      setTimeout(() => {
-        router.refresh();
-        onClose();
-      }, 1500);
     } catch (e) {
       setError(
         e instanceof Error ? e.message : "Erreur lors de l'enregistrement"
@@ -147,29 +227,102 @@ export default function CreateMatchModal({
           <div style={{ display: "flex", gap: "1rem" }}>
             <label className={styles.modalLabel} style={{ flex: 1 }}>
               Date
-              <input
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                className={styles.modalInput}
-                required
-                disabled={isLoading}
-                lang="fr"
-              />
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <select
+                  name="day"
+                  value={formData.day}
+                  onChange={handleChange}
+                  className={styles.modalInput}
+                  required
+                  disabled={isLoading}
+                  style={{ flex: 1 }}
+                >
+                  {Array.from({ length: 31 }, (_, i) => {
+                    const day = (i + 1).toString().padStart(2, "0");
+                    return (
+                      <option key={day} value={day}>
+                        {day}
+                      </option>
+                    );
+                  })}
+                </select>
+                <select
+                  name="month"
+                  value={formData.month}
+                  onChange={handleChange}
+                  className={styles.modalInput}
+                  required
+                  disabled={isLoading}
+                  style={{ flex: 1 }}
+                >
+                  <option value="01">Janvier</option>
+                  <option value="02">Février</option>
+                  <option value="03">Mars</option>
+                  <option value="04">Avril</option>
+                  <option value="05">Mai</option>
+                  <option value="06">Juin</option>
+                  <option value="07">Juillet</option>
+                  <option value="08">Août</option>
+                  <option value="09">Septembre</option>
+                  <option value="10">Octobre</option>
+                  <option value="11">Novembre</option>
+                  <option value="12">Décembre</option>
+                </select>
+                <select
+                  name="year"
+                  value={formData.year}
+                  onChange={handleChange}
+                  className={styles.modalInput}
+                  required
+                  disabled={isLoading}
+                  style={{ flex: 1 }}
+                >
+                  {Array.from({ length: 10 }, (_, i) => {
+                    const year = (new Date().getFullYear() + i).toString();
+                    return (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
             </label>
             <label className={styles.modalLabel} style={{ flex: 1 }}>
               Heure (24h)
-              <input
-                type="time"
-                name="time"
-                value={formData.time}
-                onChange={handleChange}
-                className={styles.modalInput}
-                required
-                disabled={isLoading}
-                step="60"
-              />
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <select
+                  name="hour"
+                  value={formData.hour}
+                  onChange={handleChange}
+                  className={styles.modalInput}
+                  required
+                  disabled={isLoading}
+                  style={{ flex: 1 }}
+                >
+                  {Array.from({ length: 24 }, (_, i) => (
+                    <option key={i} value={i.toString().padStart(2, "0")}>
+                      {i.toString().padStart(2, "0")}
+                    </option>
+                  ))}
+                </select>
+                <span style={{ alignSelf: "center", padding: "0 0.25rem" }}>:</span>
+                <select
+                  name="minute"
+                  value={formData.minute}
+                  onChange={handleChange}
+                  className={styles.modalInput}
+                  required
+                  disabled={isLoading}
+                  style={{ flex: 1 }}
+                >
+                  {Array.from({ length: 60 }, (_, i) => (
+                    <option key={i} value={i.toString().padStart(2, "0")}>
+                      {i.toString().padStart(2, "0")}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </label>
           </div>
 
@@ -194,47 +347,29 @@ export default function CreateMatchModal({
             </select>
           </label>
 
-          <label className={styles.modalLabel}>
-            Compétition (ID)
-            <input
-              type="text"
-              name="competition_id"
-              value={formData.competition_id}
-              onChange={handleChange}
-              className={styles.modalInput}
-              required
-              disabled={isLoading}
-              placeholder="Entrer l'ID de la compétition"
-            />
-          </label>
+          <CompetitionSearchInput
+            value={formData.competition_id}
+            onChange={(id) => setFormData((prev) => ({ ...prev, competition_id: id }))}
+            label="Compétition"
+            disabled={isLoading}
+            onCreateNew={createNewCompetition}
+          />
 
-          <label className={styles.modalLabel}>
-            Équipe à domicile (ID)
-            <input
-              type="text"
-              name="home_team_id"
-              value={formData.home_team_id}
-              onChange={handleChange}
-              className={styles.modalInput}
-              required
-              disabled={isLoading}
-              placeholder="Entrer l'ID de l'équipe à domicile"
-            />
-          </label>
+          <TeamSearchInput
+            value={formData.home_team_id}
+            onChange={(id) => setFormData((prev) => ({ ...prev, home_team_id: id }))}
+            label="Équipe à domicile"
+            disabled={isLoading}
+            onCreateNew={createNewTeam}
+          />
 
-          <label className={styles.modalLabel}>
-            Équipe à l{"'"}extérieur (ID)
-            <input
-              type="text"
-              name="away_team_id"
-              value={formData.away_team_id}
-              onChange={handleChange}
-              className={styles.modalInput}
-              required
-              disabled={isLoading}
-              placeholder="Entrer l'ID de l'équipe à l'extérieur"
-            />
-          </label>
+          <TeamSearchInput
+            value={formData.away_team_id}
+            onChange={(id) => setFormData((prev) => ({ ...prev, away_team_id: id }))}
+            label="Équipe à l'extérieur"
+            disabled={isLoading}
+            onCreateNew={createNewTeam}
+          />
 
           <div style={{ display: "flex", gap: "1rem" }}>
             <label className={styles.modalLabel} style={{ flex: 1 }}>
