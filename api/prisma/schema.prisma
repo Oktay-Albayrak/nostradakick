@@ -67,7 +67,7 @@ model UserStat {
 model Competition {
   id         String   @id @default(uuid()) @db.Uuid
   api_id     Int?     @unique
-  name       String   @db.Text
+  name       String   @unique @db.Text
   code       String   @db.VarChar(10)
   emblem_url String   @db.Text
   country    String   @db.Text
@@ -84,7 +84,7 @@ model Competition {
 model Team {
   id         String   @id @default(uuid()) @db.Uuid
   api_id     Int?     @unique
-  name       String   @db.Text
+  name       String   @unique @db.Text
   short_name String?  @db.Text
   tla        String   @db.VarChar(6)
   crest_url  String   @db.Text
