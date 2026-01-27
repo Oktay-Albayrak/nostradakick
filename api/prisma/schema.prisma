@@ -49,6 +49,7 @@ model User {
 
   stats       UserStat?    @relation("UserToUserStat")
   predictions Prediction[] @relation("UserToPrediction")
+  refresh_token RefreshToken[] @relation("UserToRefreshToken")
 
   @@map("user")
 }
@@ -161,4 +162,17 @@ model Prediction {
 
   @@unique([user_id, match_id])
   @@map("prediction")
+}
+
+model RefreshToken {
+  id          String   @id @default(uuid()) @db.Uuid
+  token       String   @db.Text
+
+  created_at  DateTime @default(now()) @db.Timestamptz
+  expires_at  DateTime @updatedAt @db.Timestamptz
+
+  user        User     @relation("UserToRefreshToken", fields: [user_id], references: [id])
+  user_id     String   @db.Uuid
+
+  @@map("refresh_token")
 }
