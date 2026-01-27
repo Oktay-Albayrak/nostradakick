@@ -11,6 +11,8 @@ interface InfiniteMatchesProps {
   league?: string;
   team?: string;
   isHot?: boolean;
+  date?: string;
+  status?: string;
 }
 
 export default function InfiniteMatches({
@@ -18,6 +20,8 @@ export default function InfiniteMatches({
   league,
   isHot,
   team,
+  date,
+  status,
 }: InfiniteMatchesProps) {
   // --- ÉTAT (STATE) ---
 
@@ -68,6 +72,8 @@ export default function InfiniteMatches({
 
       // 4. On ajoute l'équipe si elle existe
       if (team) params.set("team", team);
+      if (date) params.set("date", date);
+      if (status) params.set("status", status);
 
       // 5. On appelle l'API avec l'URL complète
       const response = await fetch(
@@ -104,7 +110,22 @@ export default function InfiniteMatches({
     }
   };
 
-  // --- AFFICHAGE (RENDERING) ---
+  const isArchiveMode = !!date;
+
+  const getEndMessage = () => {
+    if (isArchiveMode) {
+      return {
+        title: "🏁 Fin des résultats",
+        sub: `Tous les scores du ${new Date(date).toLocaleDateString("fr-FR")} ont été chargés.`,
+      };
+    }
+    return {
+      title: "📅 C'est tout pour le moment",
+      sub: "Revenez plus tard pour découvrir les nouveaux matchs ajoutés.",
+    };
+  };
+
+  const message = getEndMessage();
 
   return (
     <>
@@ -129,9 +150,21 @@ export default function InfiniteMatches({
           </>
         )}
         {!hasMore && matches.length > 0 && (
-          <p className={styles.finished}>
-            🏁 Vous avez vu tous les prochains matchs.
-          </p>
+          <div className={styles.endMessage}>
+            <p className={styles.endTitle}>{message.title}</p>
+            <p className={styles.endSub}>{message.sub}</p>
+          </div>
+        )}
+
+        {/* Cas où il n'y a VRAIMENT rien (ex: pas de matchs du tout aujourd'hui) */}
+        {matches.length === 0 && !isLoading && (
+          <div className={styles.noMatch}>
+            <p>
+              {isArchiveMode
+                ? "Aucun résultat enregistré pour cette date."
+                : "Aucun match prévu pour cette sélection."}
+            </p>
+          </div>
         )}
       </div>
     </>

@@ -4,7 +4,7 @@
   box-shadow: var(--box-shadow);
   padding: 1rem;
   position: relative;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .cardWithStatus {
@@ -36,6 +36,7 @@
   font-weight: bold;
   border-radius: 8px 8px 0 0;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .derbyName {
@@ -78,10 +79,19 @@
   margin-bottom: 0.5rem;
 }
 
+/* Style original pour les TLA dans l'Aside */
 .teamTla {
   font-weight: bold;
-  font-size: 0.9rem;
+  margin: 0.5rem;
   color: var(--primary);
+}
+
+/* Style pour le nom sous le logo (Matchs terminés) */
+.teamNameUnder {
+  font-weight: 800;
+  margin-top: 5px;
+  color: var(--primary);
+  text-align: center;
 }
 
 .dateTime {
@@ -97,7 +107,6 @@
   text-transform: capitalize;
   color: #666;
 }
-
 .timeLabel {
   font-size: 1.1rem;
   font-weight: bold;
@@ -110,7 +119,6 @@
   justify-content: center;
   gap: 12px;
 }
-
 .scoreLabel {
   font-size: 1.8rem;
   font-weight: bold;
@@ -118,7 +126,6 @@
   min-width: 40px;
   text-align: center;
 }
-
 .scoreSeparator {
   font-size: 1.4rem;
   color: #999;
@@ -148,12 +155,13 @@
   cursor: not-allowed;
 }
 
+/* Gestion Mobile/Desktop pour les noms */
 .btnFullName {
-  display: none; /* Cache le nom long */
+  display: none;
 }
-
 .btnTlaName {
-  display: inline; /* Affiche le TLA (PSG, OM...) */
+  font-size: 1.2rem;
+  display: inline;
   font-weight: 800;
 }
 
@@ -180,20 +188,17 @@
 /* --- TABLETTE ET DESKTOP (>= 650px) --- */
 @media (min-width: 650px) {
   .btnFullName {
-    display: inline; /* Affiche le nom complet */
-    font-size: 1rem;
+    display: inline;
+    font-size: 1.1rem;
   }
-
   .btnTlaName {
-    display: none; /* Cache le TLA */
+    display: none;
   }
-
   .predButton {
     padding: 12px 10px;
-    min-width: 100px; /* Évite que les boutons soient trop étroits */
+    min-width: 100px;
   }
 
-  /* Style quand la carte est dans l'aside (compacte) */
   .compactCard {
     padding: 0.8rem;
     border: 1px solid var(--action-color);
@@ -206,16 +211,13 @@
     left: 50%;
     transform: translateX(-50%);
     border-radius: 8px 8px 0 0;
-    margin: 0;
     white-space: nowrap;
   }
 
   .compactCard .hotBadge {
     position: absolute;
-    /* On le fait sortir de 15px vers le haut et 10px vers la droite */
     top: -15px;
     right: -5px;
-
     background: var(--action-color);
     width: 34px;
     height: 34px;
@@ -223,11 +225,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-
     font-size: 1.2rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     border: 2px solid var(--primary);
-    /* Animation pour rendre le "HOT" vivant */
     animation: pulseHot 2s infinite;
   }
 
@@ -242,13 +242,9 @@
       transform: scale(1);
     }
   }
+
   .compactCard .mainInfo {
     margin-top: 2rem;
-    margin-bottom: 0.5rem;
-  }
-  .teamNameUnder {
-    font-weight: 800;
-    margin-top: 5px;
-    color: var(--primary);
+    margin-bottom: 0.8rem;
   }
 }
