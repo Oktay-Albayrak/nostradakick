@@ -37,7 +37,7 @@ export default function MobileCompetitionMenu({
               className={styles.closeButton}
               onClick={() => setIsOpen(false)}
             >
-              Fermer
+              X
             </button>
           </div>
           <ul className={styles.overlayList}>
