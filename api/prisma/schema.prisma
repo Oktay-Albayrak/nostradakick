@@ -49,6 +49,7 @@ model User {
 
   stats       UserStat?    @relation("UserToUserStat")
   predictions Prediction[] @relation("UserToPrediction")
+  refresh_token RefreshToken[] @relation("UserToRefreshToken")
 
   @@map("user")
 }
@@ -65,9 +66,9 @@ model UserStat {
 
 model Competition {
   id         String   @id @default(uuid()) @db.Uuid
-  api_id     Int      @unique
-  name       String   @db.Text
-  code       String   @db.VarChar(10)
+  api_id     Int?     @unique
+  name       String   @unique @db.Text
+  code       String?  @db.VarChar(10)
   emblem_url String   @db.Text
   country    String   @db.Text
   created_at DateTime @default(now()) @db.Timestamptz()
@@ -82,8 +83,8 @@ model Competition {
 
 model Team {
   id         String   @id @default(uuid()) @db.Uuid
-  api_id     Int      @unique
-  name       String   @db.Text
+  api_id     Int?     @unique
+  name       String   @unique @db.Text
   short_name String?  @db.Text
   tla        String   @db.VarChar(6)
   crest_url  String   @db.Text
@@ -127,7 +128,7 @@ model Standing {
 
 model Match {
   id             String       @id @default(uuid()) @db.Uuid
-  api_id         Int          @unique
+  api_id         Int?         @unique
   date           DateTime     @db.Timestamptz
   status         MatchStatus  @default(SCHEDULED)
   home_score     Int?
@@ -154,11 +155,24 @@ model Prediction {
   status           PredictionStatus @default(PENDING)
   user             User             @relation("UserToPrediction", fields: [user_id], references: [id], onDelete: Cascade)
   user_id          String           @db.Uuid
-  match            Match            @relation(fields: [match_id], references: [id])
+  match            Match            @relation(fields: [match_id], references: [id], onDelete: Cascade)
   match_id         String           @db.Uuid
   created_at       DateTime         @default(now()) @db.Timestamptz
   updated_at       DateTime         @updatedAt @db.Timestamptz
 
   @@unique([user_id, match_id])
   @@map("prediction")
+}
+
+model RefreshToken {
+  id          String   @id @default(uuid()) @db.Uuid
+  token       String   @db.Text
+
+  created_at  DateTime @default(now()) @db.Timestamptz
+  expires_at  DateTime @updatedAt @db.Timestamptz
+
+  user        User     @relation("UserToRefreshToken", fields: [user_id], references: [id])
+  user_id     String   @db.Uuid
+
+  @@map("refresh_token")
 }

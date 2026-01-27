@@ -1,25 +1,67 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import styles from "./page.module.css";
+import { IUser } from "@/types/user";
 
-export default async function DashboardPage() {
-  // const userData = await getUserData();
-  // const predictions = await getUserPredictions();
-  // const stats = await getUserStats();
+export default function DashboardPage() {
+  const [userMe, setUserMe] = useState<IUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const userMeResponse = await fetch("http://localhost:4000/api/auth/me", {
+          credentials: "include",
+          cache: "no-store",
+        });
+
+        if (userMeResponse.ok) {
+          const data: IUser = await userMeResponse.json();
+          setUserMe(data);
+        } else {
+          setUserMe(null);
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement de l'utilisateur:", error);
+        setUserMe(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUser();
+  }, []);
+
+  if (isLoading) {
+    return <div>Chargement...</div>;
+  }
+
+  if (!userMe) {
+    return (
+      <div>
+        Non connecté. <Link href="/login">Se connecter</Link>
+      </div>
+    );
+  }
 
   return (
     <main className={styles.main}>
       <section className={styles.profil}>
         <Image
           className={styles.avatar}
-          src="/default-avatar.jpg"
+          src={userMe.avatar_url || "/default-avatar.jpg"}
           width={200}
           height={200}
           alt="Avatar du membre"
         />
         <div className={styles.bio}>
-          <h2>ParisienFou</h2>
-          <p>Membre depuis 02/2021</p>
+          <h2>{userMe.username}</h2>
+          <p>E-mail : {userMe.email}</p>
+          <p>Membre depuis : {new Date(userMe.created_at).toLocaleDateString()}</p>
+          <p>Rôle : {userMe.role}</p>
           <p>600 pronostics</p>
           <p>5450 points gagnés</p>
           <Link href="/profil/edit" className={styles.editButton}>

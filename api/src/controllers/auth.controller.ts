@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
-import { prisma } from "../lib/prisma.ts";
+import { prisma, type User } from "../lib/prisma.ts";
 import z from "zod";
+import crypto from "node:crypto";
 import argon2 from "argon2";
 import { generateAccessToken, extractAccessTokenFromRequest, decodeJWT } from "../lib/auth.ts";
 
@@ -106,52 +107,128 @@ export async function loginUser(req: Request, res: Response) {
   // Générer le JWT
   const accessToken = generateAccessToken(user);
 
-  // Le renvoyer dans les cookies
-  setTokensInCookies(res, accessToken);
+  // Générer et sauvegarder le refreshToken
+  const refreshToken = await generateRefreshToken(user);
 
-  res.json({ accessToken });
+  // Le renvoyer dans les cookies
+  setTokensInCookies(res, accessToken, refreshToken);
+
+  res.json({ accessToken, refreshToken });
 }
 
 export async function getAuthenticatedUser(req: Request, res: Response) {
   // Controler si l'utilisateur qui fait la requête (req) fourni un JWT
   const accessToken = extractAccessTokenFromRequest(req);
 
-  if (accessToken === null) {
-    throw new Error("Utilisateur non identifié");
-  }
-
   const payload = decodeJWT(accessToken);
 
   // Condition pour enlever erreur prisma
   if (!payload?.userId) {
-    throw new Error("Utilisateur non identifié");
+    res.status(401).send("Utilisateur non identifié");
+    return;
   }
 
   // Récupérer le user en BDD (sans son mot de passe)
   const user = await prisma.user.findUnique({
-    where: { id: payload?.userId },
+    where: { id: payload.userId },
     omit: { password_hash: true }
   });
 
   // Si pas d'utilisateur correspondant au JWT fourni
   if (!user) {
-    throw new Error("Provided JWT does not match any user currently in database");
+    res.status(401).send("Provided JWT does not match any user currently in database");
+    return;
   }
 
   // Le renvoyer
   res.json(user);
 }
 
+export async function refreshAccessToken(req: Request, res: Response) {
+  // Récupérer le refresh token fourni (soit dans le body, soit dans les cookies)
+  const rawToken = req.body.refreshToken || req.cookies.refreshToken; // taKhXtq6rAlR...
+
+  // Valider son type (string)
+  const token = z.string().parse(rawToken);
+
+  // Récupérer le refresh token en BDD (accompagné de son utilisateur)
+  const refreshToken = await prisma.refreshToken.findFirst({
+    where: { token },
+    include: { user: true } // JOINTURE entre la table des "refreshToken" et la tables des "user"
+  }); // { id, token, expires_at, user: {...} }
+
+  // Si PAS EN BDD
+  if (!refreshToken) { throw new Error("Invalid refresh token"); }
+
+  // Si NON VALIDE
+  // Si la date actuelle est APRES la date d'expiration du token, alors il est périmé
+  if (new Date() > refreshToken.expires_at) { throw new Error ("Expired refresh token"); }
+
+  // Supprimer les refreshTokens de l'utilisateur avant d'en créer un autre
+  await prisma.refreshToken.deleteMany({ where: { user_id: refreshToken.user_id } });
+
+  // On génère des nouveaux tokens
+  const accessToken = generateAccessToken(refreshToken.user);
+  const newRefreshToken = await generateRefreshToken(refreshToken.user);
+
+  // On les renvoies dans les cookies
+  setTokensInCookies(res, accessToken, newRefreshToken);
+
+  // Et également dans le body
+  res.json({ accessToken, refreshToken: newRefreshToken });
+}
+
 export async function logoutUser(req: Request, res: Response) {
   // le backend renvoie des nouveaux cookies "vierges" pour écraser ceux qui sont côté client
 
-  res.clearCookie("accessToken");
-  res.status(204).end(); // No Content
+  try {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (refreshToken) {
+      // 1. Supprimer le refresh token de la BDD pour qu'il ne soit plus utilisable
+      // Exemple avec Prisma :
+      await prisma.refreshToken.deleteMany({
+        where: { token: refreshToken }
+      });
+    }
+
+    // 2. Nettoyer les cookies sur le navigateur
+    res.clearCookie("accessToken", { httpOnly: true, secure: true, sameSite: 'strict' });
+    res.clearCookie("refreshToken", { httpOnly: true, secure: true, sameSite: 'strict', path: "/api/auth/refresh" });
+
+    return res.status(204).end();
+  } catch (error) {
+    console.error("Logout error:", error);
+    return res.status(500).json({ message: "Erreur lors de la déconnexion" });
+  }
 }
 
-function setTokensInCookies(res: Response, accessToken: string) {
+export async function generateRefreshToken(user: User) {
+  // Générer un refresh token (token opaque, ie. token sans information) de 7jours
+  const refreshToken = crypto.randomBytes(64).toString("base64"); // chaine de caractère de 64 caractères aléatoire
+
+  // Insérer le refresh token en BDD
+  await prisma.refreshToken.create({
+    data: {
+      token: refreshToken,
+      user_id: user.id,
+      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      //                   ^ nb de MS mtn  +   7 jours en MS
+    }
+  });
+
+  return refreshToken;
+}
+
+function setTokensInCookies(res: Response, accessToken: string, refreshToken: string) {
   res.cookie("accessToken", accessToken, {
     maxAge: 1 * 60 * 60 * 1000, // 1h en MS
     httpOnly: true // en HTTPOnly, les cookies ne sont pas lisible par le code frontend (console.log(document.cookies) -> rien !)) => sécurité !
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours en MS
+    httpOnly: true,
+    path: "/api/auth/refresh" // Pour préciser que le client ne doit envoyer le cookie que s'il fait une requête vers la route /api/auth/refresh (et pas sur les autres routes !)
   });
 }

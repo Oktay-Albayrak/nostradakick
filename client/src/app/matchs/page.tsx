@@ -17,42 +17,41 @@ export default async function Matchs({
   const selectedTeam = params.team || "";
   const isHotFilter = params.filter === "hot";
 
+  // --- 1. APPELS API EN PARALLÈLE ---
+
+  // A. Fetch des compétitions (pour la sidebar gauche)
   const leaguesResponse = await fetch("http://localhost:4000/api/competitions");
   const leagues = await leaguesResponse.json();
 
+  // B. Fetch des matchs DYNAMIQUES (pour la colonne centrale)
   let apiURL = `http://localhost:4000/api/matches?page=1&limit=10`;
   if (selectedLeague) apiURL += `&league=${selectedLeague}`;
   if (selectedTeam) apiURL += `&team=${selectedTeam}`;
+  if (isHotFilter) apiURL += `&filter=hot`;
 
   const matchesResponse = await fetch(apiURL, { cache: "no-store" });
   if (!matchesResponse.ok) {
     return <div>Erreur lors du chargement des matchs</div>;
   }
-
   const initialMatches: IMatch[] = await matchesResponse.json();
+
+  // C. Fetch des matchs VEDETTES (pour l'aside droite - FIXE)
+  const featuredResponse = await fetch(
+    `http://localhost:4000/api/matches?filter=hot&limit=6`,
+    { next: { revalidate: 300 } },
+  ); // Cache de 5 min car ce sont les mêmes pour tout le monde);
+  const featuredMatches: IMatch[] = featuredResponse.ok
+    ? await featuredResponse.json()
+    : [];
+
+  // --- 2. PRÉPARATION DE L'AFFICHAGE ---
 
   // On cherche l'objet compétition qui a le même code que celui de l'URL
   const currentLeague = leagues.find(
     (league: ICompetition) => league.code === selectedLeague,
   );
 
-  // --- LOGIQUE DE FILTRAGE HOT ---
-  // Pour la colonne centrale : on filtre si le bouton HOT est activé
-  const displayMatches = isHotFilter
-    ? initialMatches.filter((m) => m.is_featured)
-    : initialMatches;
-
-  // Pour l'Aside : on veut TOUJOURS les "is_featured", peu importe le bouton HOT
-  // On filtre les matchs qui sont soit marqués "featured" en DB, soit très populaires
-  const featuredMatches = initialMatches
-    .filter(
-      (m) => m.is_featured === true || (m.popularity && m.popularity > 50),
-    )
-    // S'il n'y a pas assez de matchs "Hot", on complète avec les 3 premiers de la liste
-    .concat(initialMatches.filter((m) => !m.is_featured))
-    .slice(0, 6); // On en garde 5 maximum pour ne pas étouffer l'aside
-
-  // 3. HELPER POUR LES LIENS (pour ne pas se répéter)
+  // HELPER POUR LES LIENS (pour ne pas se répéter)
   const getUrl = (lCode: string = "", hot: boolean = isHotFilter) => {
     const p = new URLSearchParams();
     if (lCode) p.set("league", lCode);
@@ -61,6 +60,7 @@ export default async function Matchs({
     return qs ? `/matchs?${qs}` : "/matchs";
   };
 
+  // Changer le titre (h1) selon ce qui est affiché
   const getSectionTitle = () => {
     if (isHotFilter) return "Matchs à l'affiche 🔥";
     if (selectedTeam)
@@ -95,7 +95,9 @@ export default async function Matchs({
             <li className={styles.sidebarItem}>
               <Link
                 href={getUrl("", isHotFilter)}
-                className={!selectedLeague ? styles.activeLeague : ""}
+                className={
+                  !selectedLeague && !selectedTeam ? styles.activeLeague : ""
+                }
               >
                 Toutes les compétitions
               </Link>
@@ -123,7 +125,7 @@ export default async function Matchs({
             {/* Quand initialMatches change (suite au clic Link), InfiniteMatches se reset tout seul */}
             <InfiniteMatches
               key={`${selectedLeague}-${isHotFilter}-${selectedTeam}`}
-              initialMatches={displayMatches}
+              initialMatches={initialMatches}
               league={selectedLeague}
               isHot={isHotFilter}
               team={selectedTeam}

@@ -1,4 +1,4 @@
-// Page de détail d'un match (/matchs/[api_id]) avec stats de prédictions
+// Page de détail d'un match (/matchs/[id]) avec stats de prédictions
 "use client";
 
 import { notFound } from "next/navigation";
@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 
 interface MatchDetailPageProps {
   params: {
-    api_id: string;
+    id: string;
   };
 }
 
@@ -19,28 +19,28 @@ export default function MatchDetailPage({ params }: MatchDetailPageProps) {
   const [match, setMatch] = useState<IMatch | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [api_id, setApiId] = useState<string | null>(null);
+  const [id, setId] = useState<string | null>(null);
 
-  // Résout les params (Promise en Next.js 15+) et récupère l'api_id
+  // Résout les params (Promise en Next.js 15+) et récupère l'id (UUID)
   useEffect(() => {
     const resolveParams = async () => {
       const resolvedParams = await params;
-      setApiId(resolvedParams.api_id);
+      setId(resolvedParams.id);
     };
     resolveParams();
   }, [params]);
 
-  // Récupère les détails du match une fois que l'api_id est disponible
+  // Récupère les détails du match une fois que l'id est disponible
   useEffect(() => {
-    if (!api_id) return;
+    if (!id) return;
 
     const fetchMatch = async () => {
       try {
         setIsLoading(true);
-        console.log("🔍 Fetching match with api_id:", api_id);
+        console.log("🔍 Fetching match with id:", id);
 
         const response = await fetch(
-          `http://localhost:4000/api/matches/${api_id}`,
+          `http://localhost:4000/api/matches/${id}`,
           {
             cache: 'no-store'
           }
@@ -74,7 +74,7 @@ export default function MatchDetailPage({ params }: MatchDetailPageProps) {
     };
 
     fetchMatch();
-  }, [api_id]);
+  }, [id]);
 
   /**
    * RENDU CONDITIONNEL
