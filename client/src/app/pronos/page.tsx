@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import styles from "./page.module.css";
 import { IPrediction } from "@/types/match";
 import SearchBar from "@/components/search/searchBar";
@@ -87,25 +88,27 @@ export default async function Pronos() {
         <div className={styles.pronoList}>
           {pronos.map((group) => (
             <div key={group.user.id} className={styles.userGroup}>
-              <div className={styles.userInfo}>
-                <Image
-                  className={styles.avatar}
-                  src="/default-avatar.jpg"
-                  width={200}
-                  height={200}
-                  alt="Avatar du membre"
-                />
-                <div className={styles.profilColumn}>
-                  <span className={styles.username}>{group.user.username}</span>
+              <Link href={`/profil/${group.user.username}`}>
+                <div className={styles.userInfo}>
+                  <Image
+                    className={styles.avatar}
+                    src="/default-avatar.jpg"
+                    width={200}
+                    height={200}
+                    alt="Avatar du membre"
+                  />
+                  <div className={styles.profilColumn}>
+                    <span className={styles.username}>{group.user.username}</span>
+                  </div>
                 </div>
-              </div>
+              </Link>
               {group.latestPredictions.map((prono) => (
                 <div key={prono.id} className={styles.pronoRow}>
                   <div className={styles.matchInfo}>
-                    <div className={styles.pronoLabel}>
+                    <Link href={`/matchs/${prono.match.api_id}`} className={styles.pronoLabel}>
                       {prono.match.home_team.name} -{" "}
                       {prono.match.away_team.name}
-                    </div>
+                    </Link>
                     <div className={styles.picks}>
                       <span
                         className={`${styles.pick} ${prono.prediction_value === "HOME" ? styles.pickActive : ""}`}
@@ -129,6 +132,7 @@ export default async function Pronos() {
                   </div>
                 </div>
               ))}
+              <Link href={`/profil/${group.user.username}/pronostics`} className={styles.seeLink}>Voir tout ses pronos ➜</Link>
             </div>
           ))}
         </div>

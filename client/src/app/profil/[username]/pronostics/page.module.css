@@ -146,6 +146,15 @@
   font-weight: 500;
 }
 
+.returnButton {
+  color: var(--action-color);
+  font-weight: bold;
+}
+
+.returnButton:hover {
+  color: var(--action-color-hover);
+}
+
 /* --- TABLETTE ET DESKTOP (>= 650px) --- */
 @media (min-width: 650px) {
   .searchSection {
