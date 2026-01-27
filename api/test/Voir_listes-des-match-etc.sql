@@ -205,3 +205,9 @@ FROM match m
 JOIN competition c ON m.competition_id = c.id
 GROUP BY c.code
 ORDER BY c.code;
+
+-- Compétitions en doublon
+SELECT name, COUNT(*) c FROM competition GROUP BY name HAVING COUNT(*) > 1;
+
+-- Équipes en doublon
+SELECT name, COUNT(*) c FROM team GROUP BY name HAVING COUNT(*) > 1;
