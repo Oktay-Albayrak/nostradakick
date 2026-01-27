@@ -224,10 +224,10 @@ export default function CreateMatchModal({
         )}
 
         <form onSubmit={handleSubmit} className={styles.modalForm}>
-          <div style={{ display: "flex", gap: "1rem" }}>
+          <div className={styles.dateTimeRow}>
             <label className={styles.modalLabel} style={{ flex: 1 }}>
               Date
-              <div style={{ display: "flex", gap: "0.5rem" }}>
+              <div className={styles.dateSelects}>
                 <select
                   name="day"
                   value={formData.day}
@@ -290,7 +290,7 @@ export default function CreateMatchModal({
             </label>
             <label className={styles.modalLabel} style={{ flex: 1 }}>
               Heure (24h)
-              <div style={{ display: "flex", gap: "0.5rem" }}>
+              <div className={styles.timeSelects}>
                 <select
                   name="hour"
                   value={formData.hour}
@@ -371,7 +371,7 @@ export default function CreateMatchModal({
             onCreateNew={createNewTeam}
           />
 
-          <div style={{ display: "flex", gap: "1rem" }}>
+          <div className={styles.dateTimeRow}>
             <label className={styles.modalLabel} style={{ flex: 1 }}>
               Score domicile
               <input
