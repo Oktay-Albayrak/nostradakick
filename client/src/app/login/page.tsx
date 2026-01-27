@@ -1,5 +1,5 @@
 // Page de connexion : formulaire email/password avec validation serveur et refreshAuth après login
-"use client"
+"use client";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -25,10 +25,10 @@ export default function LoginPage() {
         },
         body: JSON.stringify({
           email,
-          password
+          password,
         }),
-        credentials: 'include', // Envoie les cookies au serveur
-      })
+        credentials: "include", // Envoie les cookies au serveur
+      });
       const result = await response.json();
       if (response.status >= 300) {
         // Affiche les erreurs (email incorrect, mot de passe invalide, etc.)
@@ -37,7 +37,7 @@ export default function LoginPage() {
         // Succès : met à jour le contexte et charge user_id
         login();
         await refreshAuth(); // Attendre que user_id soit chargé
-        router.push("/"); // Redirection vers l'accueil
+        router.back(); // Redirection vers l'accueil
       }
     } catch (e) {
       console.error("error : ", e as Error);
@@ -72,10 +72,7 @@ export default function LoginPage() {
                   placeholder="Votre mot de passe"
                   required
                 />
-                <span
-                  className={styles.passwordIcon}
-                  aria-hidden="true"
-                >
+                <span className={styles.passwordIcon} aria-hidden="true">
                   👁
                 </span>
               </div>
@@ -86,21 +83,23 @@ export default function LoginPage() {
                 Mot de passe oublié ?
               </Link>
             </div>
-            {messageError && messageError.map((msg, index) => (
-              <p key={index} className={styles.error}>{msg}</p>
-            ))}
+            {messageError &&
+              messageError.map((msg, index) => (
+                <p key={index} className={styles.error}>
+                  {msg}
+                </p>
+              ))}
             <button type="submit" className={styles.submitButton}>
               Se connecter
             </button>
           </form>
-          
         </div>
 
         <div className={styles.rightPane}>
           <h2 className={styles.subtitle}>Nouveau sur NostradaKick ?</h2>
           <p className={styles.helperText}>
-            Créez un compte pour suivre vos pronostics, comparer vos stats
-            avec les autres membres et ne rien rater des prochains matchs.
+            Créez un compte pour suivre vos pronostics, comparer vos stats avec
+            les autres membres et ne rien rater des prochains matchs.
           </p>
           <Link href="/register" className={styles.secondaryButton}>
             Créer un compte
