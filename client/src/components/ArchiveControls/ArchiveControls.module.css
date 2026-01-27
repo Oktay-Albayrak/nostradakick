@@ -1,0 +1,202 @@
+/* --- BOUTON MOBILE (Filtres) --- */
+.archiveMobileBtn {
+  width: 100%; /* Au lieu de flex: 1 */
+  height: 44px;
+  padding: 0;
+  background-color: var(--primary);
+  color: var(--white);
+  border-radius: 20px;
+  border: none;
+  font-weight: bold;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--box-shadow);
+}
+
+/* --- ÉTAT ACTIF COMMUN --- */
+.activeArchive,
+.activeChip {
+  background-color: var(--action-color) !important;
+  border-color: var(--action-color) !important;
+  color: var(--primary) !important;
+  box-shadow: none !important;
+}
+
+/* --- BANDEAU DE DATES (MOBILE & DESKTOP) --- */
+.dateStripUniversal {
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: calc(100vw - 2rem);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.dateScroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 10px 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.dateScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.dateChip {
+  flex: 0 0 auto;
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: none;
+  background: var(--white);
+  box-shadow: var(--box-shadow);
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+/* --- DESKTOP SIDEBAR --- */
+.desktopArchiveBox {
+  display: none;
+  margin-top: 2rem;
+}
+
+.desktopToggle {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--action-color);
+  background: transparent;
+  color: var(--white);
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.desktopToggle:hover {
+  background: var(--action-color);
+  color: var(--primary);
+}
+
+@media (min-width: 1120px) {
+  .archiveMobileBtn {
+    display: none;
+  }
+  .desktopArchiveBox {
+    display: block;
+  }
+
+  .sidebarTitle {
+    color: var(--action-color);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+  }
+
+  .calendarPositioner {
+    position: relative;
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .calendarWrapper {
+    width: 100%;
+    padding: 15px; /* Plus d'espace interne */
+    transition: filter 0.3s ease;
+  }
+
+  /* --- STYLE DU CALENDRIER (Taille augmentée) --- */
+  .customCalendar {
+    width: 100% !important;
+    border: none !important;
+    font-family: inherit !important;
+    line-height: 2.5em !important; /* Hauteur de ligne globale */
+  }
+
+  /* Hauteur des tuiles (jours) */
+  :global(.react-calendar__tile) {
+    height: 40px; /* Augmente la hauteur des cases */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    border: 0.5px solid var(--primary);
+    transition: background 0.2s;
+  }
+
+  :global(.react-calendar__month-view__weekdays__weekday) {
+    padding: 0.5em 0 !important;
+    text-align: center;
+    text-transform: uppercase;
+    text-decoration: none !important;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--primary);
+  }
+
+  :global(.react-calendar__navigation) {
+    margin-bottom: 15px !important;
+    text-align: center;
+    height: 40px !important;
+  }
+
+  :global(.react-calendar__navigation button) {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: var(--primary);
+    border: none;
+    margin: 6px;
+  }
+
+  :global(.react-calendar__tile--active) {
+    background: var(--action-color) !important;
+    color: var(--primary) !important;
+  }
+
+  :global(.react-calendar__tile:enabled:hover) {
+    background-color: rgba(255, 69, 0, 0.1) !important;
+  }
+
+  /* --- OVERLAY --- */
+  .blurred {
+    filter: blur(10px);
+    pointer-events: none;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(14, 30, 64, 0.8);
+    z-index: 20;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .loginLink {
+    background-color: var(--action-color);
+    color: var(--primary);
+    padding: 12px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-top: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+}
