@@ -185,6 +185,7 @@ export async function syncAllMatches() {
             home_score: m.score?.fullTime?.home ?? null,
             away_score: m.score?.fullTime?.away ?? null,
             date: new Date(m.utcDate),
+            venue: m.venue ?? null,
           },
           create: {
             api_id: m.id,
@@ -197,6 +198,7 @@ export async function syncAllMatches() {
             competition_id: dbComp.id,
             home_score: m.score?.fullTime?.home ?? null,
             away_score: m.score?.fullTime?.away ?? null,
+            venue: m.venue ?? null,
           },
         });
       }

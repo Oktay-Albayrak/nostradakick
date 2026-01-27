@@ -1,11 +1,13 @@
 import type { Request, Response } from "express";
 import { uuidSchema } from "../validations/utils.validation.ts";
 import { ZodError } from "zod";
-import { createMatchSchema, updateMatchSchema } from "../validations/match.validation.ts";
+import {
+  createMatchSchema,
+  updateMatchSchema,
+} from "../validations/match.validation.ts";
 import * as matchService from "../services/match.service.ts";
 
-
-  // RÉCUPÉRER TOUS LES MATCHS (avec pagination et filtres)
+// RÉCUPÉRER TOUS LES MATCHS (avec pagination et filtres)
 export async function getAllMatches(req: Request, res: Response) {
   try {
     // Récupération des paramètres de la requête
@@ -14,20 +16,24 @@ export async function getAllMatches(req: Request, res: Response) {
     const leagueCode = req.query.league as string | undefined;
     const teamSlug = req.query.team as string | undefined;
     const isHot = req.query.filter === "hot";
+    const date = req.query.date as string | undefined;
+    const status = req.query.status as string | undefined;
 
     const matches = await matchService.findAllMatches(
       page,
       limit,
       leagueCode,
       teamSlug,
-      isHot
+      isHot,
+      date,
+      status,
     );
 
     res.json(matches);
   } catch (error) {
     console.error(
       "Erreur lors de la récupération des matchs (controller.getAllMatches) :",
-      error
+      error,
     );
     res
       .status(500)
@@ -35,7 +41,7 @@ export async function getAllMatches(req: Request, res: Response) {
   }
 }
 
-  // RÉCUPÉRER UN MATCH PAR SON API_ID
+// RÉCUPÉRER UN MATCH PAR SON API_ID
 export async function getOneMatch(req: Request, res: Response) {
   try {
     const { api_id } = req.params;
@@ -63,7 +69,7 @@ export async function getOneMatch(req: Request, res: Response) {
   } catch (error) {
     console.error(
       "Erreur lors de la récupération du match (controller.getOneMatch) :",
-      error
+      error,
     );
     res
       .status(500)
@@ -71,7 +77,7 @@ export async function getOneMatch(req: Request, res: Response) {
   }
 }
 
-  // CRÉER UN MATCH (réservé aux admins)
+// CRÉER UN MATCH (réservé aux admins)
 export async function createOneMatch(req: Request, res: Response) {
   try {
     // Vérification du rôle admin
@@ -99,13 +105,13 @@ export async function createOneMatch(req: Request, res: Response) {
 
     console.error(
       "Erreur lors de la création du match (controller.createOneMatch) :",
-      error
+      error,
     );
     res.status(500).json({ message: "Erreur lors de la création du match" });
   }
 }
 
-  // METTRE À JOUR UN MATCH (réservé aux admins)
+// METTRE À JOUR UN MATCH (réservé aux admins)
 export async function updateOneMatch(req: Request, res: Response) {
   try {
     // Validation de l'ID du match
@@ -142,13 +148,13 @@ export async function updateOneMatch(req: Request, res: Response) {
 
     console.error(
       "Erreur lors de la mise à jour du match (controller.updateOneMatch) :",
-      error
+      error,
     );
     res.status(500).json({ message: "Erreur lors de la mise à jour du match" });
   }
 }
 
-  // SUPPRIMER UN MATCH (réservé aux admins)
+// SUPPRIMER UN MATCH (réservé aux admins)
 export async function deleteOneMatch(req: Request, res: Response) {
   try {
     // Validation de l'UUID du match
@@ -180,7 +186,7 @@ export async function deleteOneMatch(req: Request, res: Response) {
 
     console.error(
       "Erreur lors de la suppression du match (controller.deleteOneMatch) :",
-      error
+      error,
     );
     res.status(500).json({ message: "Erreur lors de la suppression du match" });
   }
