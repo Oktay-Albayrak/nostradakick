@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import styles from "./searchBar.module.css";
 import { ICompetition, IMatch, ITeam } from "@/types/match";
@@ -20,7 +20,10 @@ export default function SearchBar() {
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
   const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const currentDate = searchParams.get("date");
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -52,6 +55,23 @@ export default function SearchBar() {
       return () => clearTimeout(timer);
     }
   }, [query]);
+
+  /**
+   * Helper pour construire l'URL de destination en préservant le contexte "Archive"
+   */
+  const getSmartPath = (type: "league" | "team", value: string) => {
+    const params = new URLSearchParams();
+
+    if (type === "league") params.set("league", value);
+    if (type === "team") params.set("team", value);
+
+    // Si on est en mode archive, on garde la date pour voir les résultats passés de cette équipe/ligue
+    if (currentDate) {
+      params.set("date", currentDate);
+    }
+
+    return `/matchs?${params.toString()}`;
+  };
 
   const navigateTo = (path: string) => {
     router.push(path);
@@ -93,7 +113,9 @@ export default function SearchBar() {
                 <div
                   key={league.id}
                   className={styles.resultItem}
-                  onClick={() => navigateTo(`/matchs?league=${league.code}`)}
+                  onClick={() =>
+                    navigateTo(getSmartPath("league", league.code))
+                  }
                 >
                   <div className={styles.logoContainer}>
                     {/* Si tu as un emblème pour la ligue */}
@@ -123,7 +145,7 @@ export default function SearchBar() {
                   key={team.id}
                   className={styles.resultItem}
                   onClick={() =>
-                    navigateTo(`/matchs?team=${slugify(team.name)}`)
+                    navigateTo(getSmartPath("team", slugify(team.name)))
                   }
                 >
                   <div className={styles.logoContainer}>
