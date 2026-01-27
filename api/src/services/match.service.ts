@@ -1,5 +1,8 @@
 import { Prisma, prisma } from "../lib/prisma.ts";
-import type { CreateMatchInput, UpdateMatchInput } from "../validations/match.validation.ts";
+import type {
+  CreateMatchInput,
+  UpdateMatchInput,
+} from "../validations/match.validation.ts";
 
 /**
  * Crée ou met à jour un match (upsert) basé sur l'id
@@ -10,11 +13,11 @@ export async function createMatch(createData: CreateMatchInput) {
   const match = await prisma.match.upsert({
     // Recherche le match par son id
     where: { id: createData.id },
-    
+
     // Si le match n'existe pas, on le crée avec toutes les données
     create: {
       id: createData.id,
-      api_id: createData.api_id,  // à supprimer après mise à jour bdd
+      api_id: createData.api_id, // à supprimer après mise à jour bdd
       date: new Date(createData.date),
       status: createData.status ?? "SCHEDULED",
       home_score: createData.home_score ?? null,
@@ -22,10 +25,11 @@ export async function createMatch(createData: CreateMatchInput) {
       home_team_id: createData.home_team_id,
       away_team_id: createData.away_team_id,
       competition_id: createData.competition_id,
+      venue: createData.venue ?? null,
       is_featured: createData.is_featured ?? false,
       featured_name: createData.featured_name ?? null,
     },
-    
+
     // Si le match existe déjà, on le met à jour avec les nouvelles données
     // L'opérateur ?? remplace undefined par une valeur par défaut
     update: {
@@ -33,10 +37,11 @@ export async function createMatch(createData: CreateMatchInput) {
       status: createData.status ?? "SCHEDULED",
       home_score: createData.home_score ?? null,
       away_score: createData.away_score ?? null,
+      venue: createData.venue ?? null,
       is_featured: createData.is_featured ?? false,
       featured_name: createData.featured_name ?? null,
     },
-    
+
     // On inclut les relations pour avoir les détails complets du match
     include: {
       home_team: true,
@@ -58,36 +63,60 @@ export async function findAllMatches(
   limit: number = 10,
   leagueCode?: string,
   teamSlug?: string,
-  isHot: boolean = false
+  isHot: boolean = false,
+  date?: string,
+  status?: string, // Paramètre ajouté pour basculer entre passé/futur
 ) {
   // Calcul du nombre d'éléments à sauter pour la pagination
   const skip = (page - 1) * limit;
 
-  // Construction des conditions WHERE pour filtrer les matchs
-  const whereConditions: any = {
-    // Statuts des matchs à inclure (exclu les matchs terminés)
-    status: {
-      in: ["SCHEDULED", "TIMED", "IN_PLAY", "PAUSED"],
-    },
-    // Seulement les matchs futurs ou en cours
-    date: {
-      gte: new Date(),
-    },
-  };
+  // Initialisation des conditions WHERE
+  const whereConditions: any = {};
 
-  // Filtre par code de compétition si fourni
-  if (leagueCode) {
-    whereConditions.competition = {
-      code: leagueCode,
+  /**
+   * 1. GESTION DU FILTRE TEMPOREL (HIÉRARCHIE)
+   */
+  if (date) {
+    // PRIORITÉ MAX : Sélection d'un jour précis (Pastilles ou Calendrier)
+    // On affiche uniquement les matchs de ce jour-là
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    whereConditions.date = {
+      gte: startOfDay,
+      lte: endOfDay,
+    };
+    // Pas de filtre de status ici pour voir les scores finis et les éventuels reports du jour
+  } else if (status === "past") {
+    // PRIORITÉ 2 : Mode "Résultats/Archives" sans date fixe (Bouton sidebar ou mobile)
+    // On veut remonter le temps indéfiniment au scroll
+    whereConditions.date = {
+      lt: new Date(), // Tout ce qui est avant l'instant T
+    };
+    whereConditions.status = {
+      in: ["FINISHED", "AWARDED"],
+    };
+  } else {
+    // MODE PAR DÉFAUT : Prochains matchs (Futur)
+    whereConditions.date = {
+      gte: new Date(),
+    };
+    whereConditions.status = {
+      in: ["SCHEDULED", "TIMED", "IN_PLAY", "PAUSED"],
     };
   }
 
+  /**
+   * 2. FILTRES DE CONTENU (COMPÉTITION, ÉQUIPE, HOT)
+   */
+  if (leagueCode) {
+    whereConditions.competition = { code: leagueCode };
+  }
 
-  // Filtre par équipe (slug transformé en termes de recherche)
   if (teamSlug) {
-    // On re-transforme le slug en nom (ex: "paris-saint-germain" -> "Paris Saint Germain")
-    // On filtre les termes trop courts et "fc"
-    // On utilise 'mode: insensitive' pour ignorer les majuscules/minuscules
     const searchTerms = teamSlug
       .split("-")
       .filter((term) => term.length > 2 && term.toLowerCase() !== "fc");
@@ -110,12 +139,13 @@ export async function findAllMatches(
     ];
   }
 
-
-  // Filtre pour les matchs "à l'affiche" (hot)
   if (isHot) {
     whereConditions.is_featured = true;
   }
 
+  /**
+   * 3. EXÉCUTION ET TRI
+   */
   const matches = await prisma.match.findMany({
     where: whereConditions,
     take: limit,
@@ -126,7 +156,8 @@ export async function findAllMatches(
       competition: true,
     },
     orderBy: {
-      date: "asc", // Les plus proches en premier
+      // Si on est dans le passé (date ou status), on veut le plus récent en premier
+      date: status === "past" || date ? "desc" : "asc",
     },
   });
 
@@ -173,18 +204,27 @@ export async function findMatchById(id: string) {
  * Filtre automatiquement les valeurs undefined
  */
 export async function updateMatch(id: string, updateData: UpdateMatchInput) {
-
   // Construction de l'objet de mise à jour typé avec Prisma
   // Chaque champ n'est ajouté que s'il est défini (pas undefined)
   const dataToUpdate: Prisma.MatchUpdateInput = {
     ...(updateData.status !== undefined && { status: updateData.status }),
-    ...(updateData.home_score !== undefined && { home_score: updateData.home_score }),
-    ...(updateData.away_score !== undefined && { away_score: updateData.away_score }),
-    ...(updateData.is_featured !== undefined && { is_featured: updateData.is_featured }),
-    ...(updateData.featured_name !== undefined && { featured_name: updateData.featured_name }),
-    ...(updateData.popularity !== undefined && { popularity: updateData.popularity }),
+    ...(updateData.home_score !== undefined && {
+      home_score: updateData.home_score,
+    }),
+    ...(updateData.away_score !== undefined && {
+      away_score: updateData.away_score,
+    }),
+    ...(updateData.venue !== undefined && { venue: updateData.venue }),
+    ...(updateData.is_featured !== undefined && {
+      is_featured: updateData.is_featured,
+    }),
+    ...(updateData.featured_name !== undefined && {
+      featured_name: updateData.featured_name,
+    }),
+    ...(updateData.popularity !== undefined && {
+      popularity: updateData.popularity,
+    }),
   };
-
 
   const updatedMatch = await prisma.match.update({
     where: { id },
@@ -192,6 +232,7 @@ export async function updateMatch(id: string, updateData: UpdateMatchInput) {
     include: {
       home_team: true,
       away_team: true,
+
       competition: true,
       predictions: true,
     },
