@@ -82,6 +82,11 @@
   text-overflow: ellipsis;
 }
 
+.userLink:hover,
+.pronoMatchLink:hover {
+  color: var(--action-color-hover);
+}
+
 /* CHOIX 1 / N / 2 */
 .picks {
   display: flex;
@@ -106,8 +111,10 @@
 
 /* BUTTON */
 .primaryButton {
-  width: 100%;
+  display: block;
+  width: fit-content;
   padding: 0.9rem;
+  margin: auto;
   background-color: #3562a6;
   color: #ffffff;
   border-radius: 999px;
@@ -122,7 +129,7 @@
 }
 
 /* ✅ Desktop : layout maquette (2 colonnes globales) */
-@media (min-width: 900px) {
+@media (min-width: 1230px) {
   .mainGrid {
     grid-template-columns: 2fr 1fr;
     align-items: start;
