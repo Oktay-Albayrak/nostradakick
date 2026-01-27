@@ -149,7 +149,7 @@ export default function SearchBar() {
                 <div
                   key={match.id}
                   className={styles.resultItem}
-                  onClick={() => navigateTo(`/matchs/${match.api_id}`)}
+                  onClick={() => navigateTo(`/matchs/${match.id}`)}
                 >
                   <div className={styles.matchIcon}>⚽</div>
                   <div className={styles.info}>

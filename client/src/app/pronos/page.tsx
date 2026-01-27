@@ -1,6 +1,6 @@
 import Image from "next/image";
+import Link from "next/link";
 import styles from "./page.module.css";
-import { notFound } from "next/navigation";
 import { IPrediction } from "@/types/match";
 import SearchBar from "@/components/search/searchBar";
 
@@ -24,7 +24,6 @@ const formatDate = (dateString: string) => {
 export default async function Pronos() {
   // Récupération des pronostics (route publique)
   let predictions: IPrediction[] = [];
-  let error: string | null = null;
 
   try {
     const response = await fetch("http://localhost:4000/api/predictions", {
@@ -32,13 +31,11 @@ export default async function Pronos() {
     });
 
     if (!response.ok) {
-      error = `Erreur ${response.status} lors du chargement des pronostics`;
       console.error("Erreur API:", response.status, response.statusText);
     } else {
       predictions = await response.json();
     }
   } catch (e) {
-    error = "Impossible de charger les pronostics";
     console.error("Erreur:", e);
   }
 
@@ -91,25 +88,27 @@ export default async function Pronos() {
         <div className={styles.pronoList}>
           {pronos.map((group) => (
             <div key={group.user.id} className={styles.userGroup}>
-              <div className={styles.userInfo}>
-                <Image
-                  className={styles.avatar}
-                  src="/default-avatar.jpg"
-                  width={200}
-                  height={200}
-                  alt="Avatar du membre"
-                />
-                <div className={styles.profilColumn}>
-                  <span className={styles.username}>{group.user.username}</span>
+              <Link href={`/profil/${group.user.username}`}>
+                <div className={styles.userInfo}>
+                  <Image
+                    className={styles.avatar}
+                    src="/default-avatar.jpg"
+                    width={200}
+                    height={200}
+                    alt="Avatar du membre"
+                  />
+                  <div className={styles.profilColumn}>
+                    <span className={styles.username}>{group.user.username}</span>
+                  </div>
                 </div>
-              </div>
+              </Link>
               {group.latestPredictions.map((prono) => (
                 <div key={prono.id} className={styles.pronoRow}>
                   <div className={styles.matchInfo}>
-                    <div className={styles.pronoLabel}>
+                    <Link href={`/matchs/${prono.match.api_id}`} className={styles.pronoLabel}>
                       {prono.match.home_team.name} -{" "}
                       {prono.match.away_team.name}
-                    </div>
+                    </Link>
                     <div className={styles.picks}>
                       <span
                         className={`${styles.pick} ${prono.prediction_value === "HOME" ? styles.pickActive : ""}`}
@@ -133,6 +132,7 @@ export default async function Pronos() {
                   </div>
                 </div>
               ))}
+              <Link href={`/profil/${group.user.username}/pronostics`} className={styles.seeLink}>Voir tout ses pronos ➜</Link>
             </div>
           ))}
         </div>

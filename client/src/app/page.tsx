@@ -2,15 +2,29 @@ import styles from "./page.module.css";
 import MatchCard from "@/components/matchCard/MatchCard";
 import { IMatch } from "../types/match";
 import SearchBar from "@/components/search/searchBar";
+import Link from "next/link";
+import { IPrediction } from "../types/prediction";
 
 export default async function Home() {
-  const response = await fetch("http://localhost:4000/api/matches");
-  if (!response.ok) {
+
+  // Récupération des matchs de l'API et on récupère 6 matchs à afficher
+  const matchResponse = await fetch("http://localhost:4000/api/matches");
+  if (!matchResponse.ok) {
     return <div>Erreur lors du chargement des matchs</div>;
   }
 
-  const matchs: IMatch[] = await response.json();
+  const matchs: IMatch[] = await matchResponse.json();
   const homeMatchs = matchs.slice(0, 6);
+
+  
+  // Récupération des prédictions de l'API et on en récupère 4 à afficher
+  const predictionsResponse = await fetch("http://localhost:4000/api/predictions");
+  if (!predictionsResponse.ok) {
+    return <div>Erreur lors du chargement des derniers pronos</div>;
+  }
+  
+  const predictions: IPrediction[] = await predictionsResponse.json();
+  const pronos = predictions.slice(0, 4);
 
   return (
     <div className={styles.page}>
@@ -31,9 +45,9 @@ export default async function Home() {
             )}
           </div>
 
-          <button className={styles.primaryButton} type="button">
+          <Link className={styles.primaryButton} href="/matchs">
             Voir tous les matchs
-          </button>
+          </Link>
         </div>
 
         {/* DERNIERS PRONOSTICS */}
@@ -41,48 +55,33 @@ export default async function Home() {
           <h2 className={styles.sectionTitle}>Derniers pronostics</h2>
 
           <div className={styles.pronoList}>
-            <div className={styles.pronoRow}>
-              <span className={styles.pronoLabel}>HACmen | HAC - OM</span>
-              <div className={styles.picks}>
-                <span className={`${styles.pick} ${styles.pickActive}`}>1</span>
-                <span className={styles.pick}>N</span>
-                <span className={styles.pick}>2</span>
-              </div>
-            </div>
-
-            <div className={styles.pronoRow}>
-              <span className={styles.pronoLabel}>ParisienFou | PFC - OL</span>
-              <div className={styles.picks}>
-                <span className={`${styles.pick} ${styles.pickActive}`}>1</span>
-                <span className={styles.pick}>N</span>
-                <span className={styles.pick}>2</span>
-              </div>
-            </div>
-
-            <div className={styles.pronoRow}>
-              <span className={styles.pronoLabel}>
-                ParisienFou | PSG - LOSC
-              </span>
-              <div className={styles.picks}>
-                <span className={`${styles.pick} ${styles.pickActive}`}>1</span>
-                <span className={styles.pick}>N</span>
-                <span className={styles.pick}>2</span>
-              </div>
-            </div>
-
-            <div className={styles.pronoRow}>
-              <span className={styles.pronoLabel}>MomoHenni | HAC - OM</span>
-              <div className={styles.picks}>
-                <span className={styles.pick}>1</span>
-                <span className={styles.pick}>N</span>
-                <span className={`${styles.pick} ${styles.pickActive}`}>2</span>
-              </div>
-            </div>
+            {predictions.length > 0 ? (
+              pronos.map((prediction) => (
+                <div key={prediction.id} className={styles.pronoRow}>
+                  <span className={styles.pronoLabel}>
+                    <Link className={styles.userLink} href={`/profil/${prediction.user.username}`}>{prediction.user.username}</Link> - <Link className={styles.pronoMatchLink} href={`/matchs/${prediction.match.api_id}`}>{prediction.match.home_team.short_name || prediction.match.home_team.name} - {prediction.match.away_team.short_name || prediction.match.away_team.name}</Link>
+                  </span>
+                  <div className={styles.picks}>
+                    <span className={`${styles.pick} ${prediction.prediction_value === "HOME" ? styles.pickActive : ""}`}>
+                      1
+                    </span>
+                    <span className={`${styles.pick} ${prediction.prediction_value === "DRAW" ? styles.pickActive : ""}`}>
+                      N
+                    </span>
+                    <span className={`${styles.pick} ${prediction.prediction_value === "AWAY" ? styles.pickActive : ""}`}>
+                      2
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p>Aucun pronostic pour le moment.</p>
+            )}
           </div>
 
-          <button className={styles.primaryButton} type="button">
+          <Link href="/pronos" className={styles.primaryButton}>
             Voir tous les pronostics
-          </button>
+          </Link>
         </div>
       </section>
     </div>

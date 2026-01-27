@@ -46,55 +46,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    */
   const refreshAuth = async () => {
     try {
-      const response = await fetch("http://localhost:4000/api/auth/me", {
+      let response = await fetch("http://localhost:4000/api/auth/me", {
         method: "GET",
         credentials: "include", // Envoie les cookies de session
       });
 
+      // 2. Si l'access token est expiré ou invalide (ex: 401)
+      if (!response.ok) {
+        // 3. Deuxième tentative : on appelle /refresh pour obtenir un nouvel Access Token
+        const refreshResponse = await fetch("http://localhost:4000/api/auth/refresh", {
+          method: "POST",
+          credentials: "include",
+        });
+
+        if (refreshResponse.ok) {
+          console.log("✅ Token rafraîchi avec succès");
+          // 4. On re-tente l'appel /me original pour récupérer les données user
+          response = await fetch("http://localhost:4000/api/auth/me", {
+            method: "GET",
+            credentials: "include",
+          });
+        } else {
+          // Le refresh token est aussi mort (ex: plus de 7 jours)
+          setIsLoggedIn(false);
+          setUserId(null);
+        }
+      }
+
+      // 5. Si on arrive ici et que la réponse est OK (soit du 1er coup, soit après refresh)
       if (response.ok) {
         const userData = await response.json();
         setIsLoggedIn(true);
         setUserId(userData.id);
-        console.log("✅ Auth rafraîchi, user_id:", userData.id);
-      } else {
-        setIsLoggedIn(false);
-        setUserId(null);
       }
     } catch (error) {
-      console.error("Erreur lors du rafraîchissement auth:", error);
+      console.error("Erreur auth:", error);
       setIsLoggedIn(false);
       setUserId(null);
+    } finally {
+      // On s'assure que le chargement s'arrête quoi qu'il arrive
+      setIsLoading(false); 
     }
   };
 
-  // Vérifie la session au démarrage et récupère l'ID utilisateur via /api/auth/me
   useEffect(() => {
-    const verifyUser = async () => {
-      try {
-        const response = await fetch("http://localhost:4000/api/auth/me", {
-          method: "GET",
-          credentials: "include", // Envoie les cookies au backend
-        });
-
-        if (response.ok) {
-          const userData = await response.json();
-          setIsLoggedIn(true);
-          setUserId(userData.id);
-        } else {
-          setIsLoggedIn(false);
-          setUserId(null);
-        }
-      } catch (error) {
-        console.error("Erreur de vérification auth:", error);
-        setIsLoggedIn(false);
-        setUserId(null);
-      } finally {
-        // IMPORTANT : termine le chargement pour afficher l'app
-        setIsLoading(false);
-      }
-    };
-
-    verifyUser();
+    refreshAuth();
   }, []);
 
   return (

@@ -7,6 +7,14 @@ export const COMPETITION_NAMES_MAP: Record<string, string> = {
   CL: "Champions League",
 };
 
+export const CL_ELITE_IDS = [
+  678, // Ajax
+  1903, // Benfica
+  498, // Sporting CP
+  674, // PSV
+  610, // Galatasaray
+];
+
 export const RIVALRIES = [
   // FRANCE (Ligue 1 - FL1)
   { teams: [524, 516], name: "Le Classique" }, // PSG - OM
