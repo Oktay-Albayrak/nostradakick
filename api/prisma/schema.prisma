@@ -68,7 +68,7 @@ model Competition {
   id         String   @id @default(uuid()) @db.Uuid
   api_id     Int?     @unique
   name       String   @unique @db.Text
-  code       String   @db.VarChar(10)
+  code       String?  @db.VarChar(10)
   emblem_url String   @db.Text
   country    String   @db.Text
   created_at DateTime @default(now()) @db.Timestamptz()
