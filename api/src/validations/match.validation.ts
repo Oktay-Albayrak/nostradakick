@@ -5,6 +5,7 @@ export const createMatchSchema = z.object({
   id: z.uuid(),
   api_id: z.number().int(), // à supprimer après mise à jour de la bdd
   date: z.iso.datetime(),
+  venue: z.string().nullable().optional(),
   status: z
     .enum([
       "SCHEDULED",
@@ -27,7 +28,6 @@ export const createMatchSchema = z.object({
   featured_name: z.string().optional(),
 });
 
-
 // Schéma de validation pour mettre à jour un match
 // Tous les champs sont optionnels pour permettre une mise à jour partielle
 export const updateMatchSchema = z.object({
@@ -44,6 +44,7 @@ export const updateMatchSchema = z.object({
       "AWARDED",
     ])
     .optional(),
+  venue: z.string().nullable().optional(),
   home_score: z.number().int().min(0).optional(),
   away_score: z.number().int().min(0).optional(),
   is_featured: z.boolean().optional(),
