@@ -23,13 +23,7 @@ export function generateAccessToken(user: User) {
 
 export function extractAccessTokenFromRequest(req: Request) {
   // Récupérer l'accessToken depuis les cookies
-  if (typeof req.cookies.accessToken === "string") {
-    console.log(req.cookies.accessToken);
-    return req.cookies.accessToken;
-  }
-  else {
-    return null;
-  }
+  return req.cookies.accessToken;
 
   // Récupérer le header "authorization"
   // const authorizationHeader = req.headers.authorization; // "Bearer eyJhbGciOiJIUzI1..."
