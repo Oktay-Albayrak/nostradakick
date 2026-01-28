@@ -41,7 +41,7 @@ export default async function ProfilPronos({ params }: PageProps) {
   const wins = user.stats?.wins_count ?? 0;
   const losses = user.stats?.losses_count ?? 0;
   const totalGames = wins + losses;
-  const points = wins * 5 - losses;
+  const points = Math.max(0, wins * 5 - losses); // Minimum 0 point
   const winRate = totalGames > 0 ? ((wins * 100) / totalGames).toFixed(2) : "0";
 
   return (

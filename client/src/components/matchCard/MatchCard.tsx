@@ -23,7 +23,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Modal from "@/components/Modal/Modal";
 import styles from "./MatchCard.module.css";
@@ -51,6 +51,17 @@ export default function MatchCard({
 
   // Détermination du statut
   const isFinished = match.status === "FINISHED";
+  
+  // Vérifier si le match a commencé ou si on ne peut plus pronostiquer
+  const canPredict = useCallback(() => {
+    // Le match doit être SCHEDULED ou TIMED ET la date doit être dans le futur
+    const now = new Date();
+    const matchDate = new Date(match.date);
+    return (
+      (match.status === "SCHEDULED" || match.status === "TIMED") &&
+      matchDate > now
+    );
+  }, [match.status, match.date]);
 
   const [modalConfig, setModalConfig] = useState({
     isOpen: false,
@@ -67,7 +78,7 @@ export default function MatchCard({
 
   // Récupération du pronostic
   useEffect(() => {
-    if (!user_id || !match.id || isFinished) return;
+    if (!user_id || !match.id || isFinished || !canPredict()) return;
     const fetchUserPrediction = async () => {
       try {
         const response = await fetch(
@@ -83,7 +94,7 @@ export default function MatchCard({
       }
     };
     fetchUserPrediction();
-  }, [user_id, match.id, isFinished]);
+  }, [user_id, match.id, isFinished, canPredict]);
 
   if (!match) return null;
 
@@ -112,6 +123,20 @@ export default function MatchCard({
       });
       return;
     }
+    
+    // Vérifier que le match n'a pas commencé
+    if (!canPredict()) {
+      setModalConfig({
+        isOpen: true,
+        title: "⚠️ Trop tard",
+        message: "Le match a déjà commencé, vous ne pouvez plus pronostiquer",
+        confirmText: "OK",
+        isConfirmation: false,
+        onConfirm: () => {},
+      });
+      return;
+    }
+    
     setPendingPrediction(predictionValue);
     setModalConfig({
       isOpen: true,
@@ -297,7 +322,7 @@ export default function MatchCard({
         )}
 
         {/* GRILLE DE PRONOS (Matchs à venir uniquement) */}
-        {!isFinished && showPredictions && (
+        {!isFinished && canPredict() && showPredictions && (
           <section
             className={styles.predictionGrid}
             onClick={(e) => e.stopPropagation()}
