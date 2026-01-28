@@ -7,14 +7,14 @@
  * * MODIFICATIONS :
  * - Si le match est FINISHED : Affiche le statut en bas et les noms sous les logos.
  * - Si la carte est en mode compact (Aside) : Garde l'affichage des TLA via .teamTla.
- * 
+ *
  * Props :
  * - match: objet IMatch contenant tous les détails du match
  * - isHot: affiche un badge 🔥 si c'est un match "à l'affiche"
  * - showPredictions: affiche les boutons de prédiction (défaut: true)
  * - showStatus: affiche le badge de statut du match (défaut: false)
  * - showFullTeamNames: affiche les noms complets des équipes (défaut: false)
- * 
+ *
  * Cliquable : cliquer sur la carte redirige vers /matchs/{id} (UUID du match)
  * Les boutons de prédiction ne déclenchent pas la navigation.
  */
@@ -35,6 +35,7 @@ interface MatchProps {
   showPredictions?: boolean;
   showStatus?: boolean;
   showFullTeamNames?: boolean;
+  isCompact?: boolean;
 }
 
 export default function MatchCard({
@@ -42,6 +43,7 @@ export default function MatchCard({
   isHot,
   showPredictions = true,
   showStatus = false,
+  isCompact = false,
 }: MatchProps) {
   const { isLoggedIn, user_id } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
@@ -184,7 +186,7 @@ export default function MatchCard({
   return (
     <>
       <article
-        className={`${styles.card} ${!showPredictions ? styles.compactCard : ""} ${displayStatusBadge ? styles.cardWithStatus : ""}`}
+        className={`${styles.card} ${isCompact ? styles.compactCard : ""} ${displayStatusBadge ? styles.cardWithStatus : ""}`}
       >
         <section>
           <div className={styles.competitionBadge}>
