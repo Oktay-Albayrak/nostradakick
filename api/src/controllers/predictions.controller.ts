@@ -151,6 +151,40 @@ export async function upsertPrediction(req: Request, res: Response) {
       });
     }
 
+    // Vérifier que le match n'a pas encore commencé
+    const match = await prisma.match.findUnique({
+      where: { id: match_id },
+      select: { 
+        id: true, 
+        date: true, 
+        status: true,
+        home_team: { select: { name: true } },
+        away_team: { select: { name: true } }
+      }
+    });
+
+    if (!match) {
+      return res.status(404).json({ 
+        error: "Le match spécifié n'existe pas" 
+      });
+    }
+
+    // Vérifier que le match n'a pas commencé (date future ET status = SCHEDULED ou TIMED)
+    const now = new Date();
+    const matchStarted = match.date <= now || !["SCHEDULED", "TIMED"].includes(match.status);
+
+    if (matchStarted) {
+      return res.status(403).json({ 
+        error: "Impossible de pronostiquer : le match a déjà commencé ou est terminé",
+        match: {
+          home_team: match.home_team.name,
+          away_team: match.away_team.name,
+          date: match.date,
+          status: match.status
+        }
+      });
+    }
+
     // Utilisation de upsert : 
     // update si le combo user_id_match_id existe, sinon create
     // UPSERT : mise à jour OU création selon si la clé composite existe
