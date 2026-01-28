@@ -41,7 +41,7 @@ async function syncMatchesAndUpdateStats() {
     const usernames = affectedUsers.map(u => u.user.username).join(', ');
     console.log(`📊 Stats recalculées pour ${affectedUsers.length} utilisateur(s) après la synchro des matchs: ${usernames}`);
   } catch (error) {
-    console.error("❌ Erreur lors de la synchro et du recalcul des stats:", error);
+    console.error("❌ Erreur lors de la synchro et du recalcule des stats:", error);
   }
 }
 
