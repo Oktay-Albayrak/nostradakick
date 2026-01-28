@@ -123,6 +123,15 @@
     overflow-y: auto;
   }
 
+  /* Pour rendre le scroll invisible mais fonctionnel */
+  .featuredSection::-webkit-scrollbar {
+    width: 5px;
+  }
+  .featuredSection::-webkit-scrollbar-thumb {
+    background: var(--action-color);
+    border-radius: 10px;
+  }
+
   .sidebarTitle {
     font-size: 1.1rem;
     margin-bottom: 1.2rem;
