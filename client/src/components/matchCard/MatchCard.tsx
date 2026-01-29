@@ -23,7 +23,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Modal from "@/components/Modal/Modal";
 import styles from "./MatchCard.module.css";
@@ -327,35 +327,43 @@ export default function MatchCard({
 
         {/* GRILLE DE PRONOS (Matchs à venir uniquement) */}
         {!isFinished && canUserPredict && showPredictions && (
-          <section
-            className={styles.predictionGrid}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className={`${styles.predButton} ${selectedPrediction === "HOME" ? styles.selected : ""}`}
-              onClick={() => handlePrediction("HOME")}
-              disabled={isLoading}
-            >
-              <span className={styles.btnFullName}>{homeTeam.name}</span>
-              <span className={styles.btnTlaName}>{homeTeam.tla}</span>
-            </button>
-            <button
-              className={`${styles.predButton} ${selectedPrediction === "DRAW" ? styles.selected : ""}`}
-              onClick={() => handlePrediction("DRAW")}
-              disabled={isLoading}
-            >
-              <span className={styles.btnFullName}>Match Nul</span>
-              <span className={styles.btnTlaName}>NUL</span>
-            </button>
-            <button
-              className={`${styles.predButton} ${selectedPrediction === "AWAY" ? styles.selected : ""}`}
-              onClick={() => handlePrediction("AWAY")}
-              disabled={isLoading}
-            >
-              <span className={styles.btnFullName}>{awayTeam.name}</span>
-              <span className={styles.btnTlaName}>{awayTeam.tla}</span>
-            </button>
-          </section>
+          <>
+            {isLoggedIn ? (
+              <section
+                className={styles.predictionGrid}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  className={`${styles.predButton} ${selectedPrediction === "HOME" ? styles.selected : ""}`}
+                  onClick={() => handlePrediction("HOME")}
+                  disabled={isLoading}
+                >
+                  <span className={styles.btnFullName}>{homeTeam.name}</span>
+                  <span className={styles.btnTlaName}>{homeTeam.tla}</span>
+                </button>
+                <button
+                  className={`${styles.predButton} ${selectedPrediction === "DRAW" ? styles.selected : ""}`}
+                  onClick={() => handlePrediction("DRAW")}
+                  disabled={isLoading}
+                >
+                  <span className={styles.btnFullName}>Match Nul</span>
+                  <span className={styles.btnTlaName}>NUL</span>
+                </button>
+                <button
+                  className={`${styles.predButton} ${selectedPrediction === "AWAY" ? styles.selected : ""}`}
+                  onClick={() => handlePrediction("AWAY")}
+                  disabled={isLoading}
+                >
+                  <span className={styles.btnFullName}>{awayTeam.name}</span>
+                  <span className={styles.btnTlaName}>{awayTeam.tla}</span>
+                </button>
+              </section>
+            ) : (
+              <Link href="/login" className={styles.loginLink}>
+                Se connecter
+              </Link>
+            )}
+          </>
         )}
       </article>
 
