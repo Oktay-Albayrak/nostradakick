@@ -2,13 +2,17 @@ import { prisma } from "../lib/prisma.ts";
 import type { Request, Response } from "express";
 import { z } from "zod";
 
-// Schéma de validation pour créer une compétition
+/**
+ * Champs requis pour créer une compétition (nécessaires pour pouvoir créer un match) :
+ * - name, emblem_url, country
+ * code et api_id sont optionnels (compétitions créées à la main).
+ */
 const createCompetitionSchema = z.object({
-  name: z.string().min(1),
-  code: z.string().max(10),
-  emblem_url: z.string().default(""),
-  country: z.string().default("Unknown"),
-  api_id: z.number().int().optional(), // Optionnel pour les compétitions créées manuellement
+  name: z.string().min(1, "Le nom est requis"),
+  code: z.string().max(10).optional(),
+  emblem_url: z.string().default(""), // Idéalement une URL d'emblème ; "" accepté pour création rapide
+  country: z.string().min(1, "Le pays est requis").default("Unknown"),
+  api_id: z.number().int().optional(),
 });
 
 export async function getAllCompetitions(req: Request, res: Response) {
@@ -65,7 +69,8 @@ export async function createCompetition(req: Request, res: Response) {
         where: { api_id: { lt: 0 } },
         orderBy: { api_id: "asc" },
       });
-      api_id = existingCompetition ? existingCompetition.api_id - 1 : -1;
+      api_id =
+        existingCompetition?.api_id != null ? existingCompetition.api_id - 1 : -1;
     }
 
     // Vérifier si l'api_id existe déjà
@@ -83,8 +88,8 @@ export async function createCompetition(req: Request, res: Response) {
       data: {
         api_id,
         name: competitionData.name,
-        code: competitionData.code,
-        emblem_url: competitionData.emblem_url,
+        code: competitionData.code ?? null,
+        emblem_url: competitionData.emblem_url || "",
         country: competitionData.country,
       },
     });
