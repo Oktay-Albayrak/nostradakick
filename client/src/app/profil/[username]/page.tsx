@@ -84,7 +84,7 @@ export default async function Profil({ params }: PageProps) {
               </article>
             ))}
             <Link href={`/profil/${username}/pronostics`} className={styles.goPronos}>
-              tous les pronos ➜
+              Voir tous ses pronostics ➜
             </Link>
           </div>
         </section>
@@ -94,15 +94,15 @@ export default async function Profil({ params }: PageProps) {
           <div>
             <article className={styles.stat}>
               <Image className={styles.logo} src="/croissance.png" width={50} height={50} alt="Série" />
-              <p>Meilleure série: {userStats.stats?.best_streak ?? 0}</p>
+              <p>Meilleure série gagnante : {userStats.stats?.best_streak ?? 0}</p>
             </article>
             <article className={styles.stat}>
               <Image className={styles.logo} src="/prix.png" width={50} height={50} alt="Gagnants" />
-              <p>Pronos gagnants: {wins}</p>
+              <p>Pronostics gagnants : {wins}</p>
             </article>
             <article className={styles.stat}>
               <Image className={styles.logo} src="/taux.png" width={50} height={50} alt="Taux" />
-              <p>Taux de réussite: {winRate}%</p>
+              <p>Taux de réussite :{winRate}%</p>
             </article>
           </div>
         </section>

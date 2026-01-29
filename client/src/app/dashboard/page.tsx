@@ -99,9 +99,6 @@ export default function DashboardPage() {
         <section className={styles.pronos}>
           <div className={styles.pronosHeader}>
             <h2>Mes derniers pronos</h2>
-            <Link href="/dashboard/pronostics" className={styles.viewAllLink}>
-              Voir tous mes pronostics →
-            </Link>
           </div>
           <div>
             {userStats?.predictions?.slice(0, 4).map((p, index) => (
@@ -116,10 +113,13 @@ export default function DashboardPage() {
                 </div>
               </article>
             ))}
+            <Link href="/dashboard/pronostics" className={styles.viewAllLink}>
+              Voir tous mes pronostics →
+            </Link>
           </div>
         </section>
         <section className={styles.stats}>
-          <h2>Mes stats</h2>
+          <h2>Mes statistiques</h2>
           <div>
             <article className={styles.stat}>
               <Image
