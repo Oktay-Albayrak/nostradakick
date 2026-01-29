@@ -10,13 +10,21 @@ interface Team {
   tla?: string;
 }
 
+export interface CreateTeamData {
+  name: string;
+  tla: string;
+  crest_url: string;
+  country: string;
+  short_name?: string;
+}
+
 interface TeamSearchInputProps {
   value: string;
   onChange: (teamId: string) => void;
   placeholder?: string;
   label: string;
   disabled?: boolean;
-  onCreateNew?: (name: string) => Promise<Team>;
+  onCreateNew?: (data: CreateTeamData) => Promise<Team>;
 }
 
 export default function TeamSearchInput({
@@ -33,10 +41,14 @@ export default function TeamSearchInput({
   const [isSearching, setIsSearching] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newTeamName, setNewTeamName] = useState("");
+  const [newTeamTla, setNewTeamTla] = useState("");
+  const [newTeamCrestUrl, setNewTeamCrestUrl] = useState("");
+  const [newTeamCountry, setNewTeamCountry] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const createFormRef = useRef<HTMLDivElement>(null);
 
   // Charger l'équipe sélectionnée au montage si value est définie
   useEffect(() => {
@@ -44,6 +56,13 @@ export default function TeamSearchInput({
       fetchTeamById(value);
     }
   }, [value]);
+
+  // Faire défiler le formulaire de création dans la vue quand il s'ouvre
+  useEffect(() => {
+    if (showCreateForm && createFormRef.current) {
+      createFormRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [showCreateForm]);
 
   // Fermer le dropdown si on clique en dehors
   useEffect(() => {
@@ -123,19 +142,27 @@ export default function TeamSearchInput({
   }
 
   async function handleCreateNew() {
-    if (!newTeamName.trim() || !onCreateNew) return;
+    if (!newTeamName.trim() || !newTeamTla.trim() || !newTeamCountry.trim() || !onCreateNew) return;
 
     setIsCreating(true);
     try {
-      const newTeam = await onCreateNew(newTeamName.trim());
+      const newTeam = await onCreateNew({
+        name: newTeamName.trim(),
+        tla: newTeamTla.trim().slice(0, 6),
+        crest_url: newTeamCrestUrl.trim(),
+        country: newTeamCountry.trim(),
+      });
       setSelectedTeam(newTeam);
       setSearchQuery(newTeam.name);
       onChange(newTeam.id);
       setShowCreateForm(false);
       setNewTeamName("");
+      setNewTeamTla("");
+      setNewTeamCrestUrl("");
+      setNewTeamCountry("");
     } catch (error) {
       console.error("Erreur lors de la création de l'équipe:", error);
-      alert("Erreur lors de la création de l'équipe");
+      alert(error instanceof Error ? error.message : "Erreur lors de la création de l'équipe");
     } finally {
       setIsCreating(false);
     }
@@ -145,6 +172,11 @@ export default function TeamSearchInput({
     <div style={{ position: "relative" }}>
       <label className={styles.modalLabel}>
         {label}
+        {onCreateNew && (
+          <span style={{ display: "block", fontSize: "0.8rem", color: "#666", marginTop: "2px" }}>
+            Pas trouvé ? Tapez un nom puis cliquez sur « + Créer » pour afficher le formulaire.
+          </span>
+        )}
         <input
           ref={inputRef}
           type="text"
@@ -205,6 +237,7 @@ export default function TeamSearchInput({
               {onCreateNew && (
                 <div
                   onClick={() => {
+                    setNewTeamName(searchQuery);
                     setShowCreateForm(true);
                     setShowDropdown(false);
                   }}
@@ -226,6 +259,7 @@ export default function TeamSearchInput({
               {onCreateNew && (
                 <div
                   onClick={() => {
+                    setNewTeamName(searchQuery);
                     setShowCreateForm(true);
                     setShowDropdown(false);
                   }}
@@ -248,13 +282,14 @@ export default function TeamSearchInput({
 
       {showCreateForm && onCreateNew && (
         <div
+          ref={createFormRef}
           style={{
             position: "absolute",
             top: "100%",
             left: 0,
             right: 0,
             backgroundColor: "white",
-            border: "1px solid #2196f3",
+            border: "2px solid #2196f3",
             borderRadius: "4px",
             padding: "12px",
             zIndex: 1001,
@@ -262,14 +297,42 @@ export default function TeamSearchInput({
             marginTop: "4px",
           }}
         >
-          <div style={{ marginBottom: "8px", fontWeight: "bold" }}>
-            Créer une nouvelle équipe
+          <div style={{ marginBottom: "8px", fontWeight: "bold", color: "#1976d2" }}>
+            Créer une nouvelle équipe (nom, TLA, logo, pays)
           </div>
           <input
             type="text"
             value={newTeamName}
             onChange={(e) => setNewTeamName(e.target.value)}
-            placeholder="Nom de l'équipe"
+            placeholder="Nom de l'équipe *"
+            className={styles.modalInput}
+            style={{ marginBottom: "8px" }}
+            disabled={isCreating}
+          />
+          <input
+            type="text"
+            value={newTeamTla}
+            onChange={(e) => setNewTeamTla(e.target.value.toUpperCase())}
+            placeholder="Code TLA (ex: PSG, OM) *"
+            className={styles.modalInput}
+            style={{ marginBottom: "8px" }}
+            disabled={isCreating}
+            maxLength={6}
+          />
+          <input
+            type="text"
+            value={newTeamCrestUrl}
+            onChange={(e) => setNewTeamCrestUrl(e.target.value)}
+            placeholder="URL du logo (crest)"
+            className={styles.modalInput}
+            style={{ marginBottom: "8px" }}
+            disabled={isCreating}
+          />
+          <input
+            type="text"
+            value={newTeamCountry}
+            onChange={(e) => setNewTeamCountry(e.target.value)}
+            placeholder="Pays *"
             className={styles.modalInput}
             style={{ marginBottom: "8px" }}
             disabled={isCreating}
@@ -278,7 +341,7 @@ export default function TeamSearchInput({
             <button
               type="button"
               onClick={handleCreateNew}
-              disabled={!newTeamName.trim() || isCreating}
+              disabled={!newTeamName.trim() || !newTeamTla.trim() || !newTeamCountry.trim() || isCreating}
               className={styles.modalConfirmButton}
               style={{ flex: 1, padding: "6px 12px" }}
             >
@@ -289,6 +352,9 @@ export default function TeamSearchInput({
               onClick={() => {
                 setShowCreateForm(false);
                 setNewTeamName("");
+                setNewTeamTla("");
+                setNewTeamCrestUrl("");
+                setNewTeamCountry("");
               }}
               className={styles.modalCancelButton}
               style={{ flex: 1, padding: "6px 12px" }}
