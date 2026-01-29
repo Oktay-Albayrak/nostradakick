@@ -182,6 +182,7 @@ export default async function Matchs({
               <MatchCard
                 key={`featured-${m.id}`}
                 match={m}
+                isCompact={true}
                 showPredictions={false}
                 isHot={true}
               />
