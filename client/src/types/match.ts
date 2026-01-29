@@ -20,9 +20,9 @@ export type PredictionStatus = "PENDING" | "WON" | "LOST" | "CANCELLED";
 
 export interface ICompetition {
   id: string;
-  api_id: number;
+  api_id: number | null;
   name: string;
-  code: string; // Timestamps
+  code: string | null;
   created_at?: string;
   updated_at?: string;
   emblem_url: string;
@@ -31,7 +31,7 @@ export interface ICompetition {
 
 export interface ITeam {
   id: string;
-  api_id: number;
+  api_id: number | null;
   name: string;
   short_name: string | null;
   tla: string;
@@ -41,12 +41,12 @@ export interface ITeam {
 
 export interface IMatch {
   id: string;
-  api_id: number;
+  api_id: number | null;
   date: string;
   status: MatchStatus;
   home_score: number | null;
   away_score: number | null;
-  venue?: string | null; // Stade non fourni par le Free Tier de l'API, on le laisse pour plus tard
+  venue?: string | null;
 
   // Relations (objets complets)
   home_team: ITeam;
@@ -61,7 +61,7 @@ export interface IMatch {
   // Propriétés Logique Métier
   is_featured: boolean;
   featured_name: string | null;
-  popularity: number;
+  popularity?: number;
 
   // Propriétés UI
   isHot?: boolean; // Basé sur popularity > X

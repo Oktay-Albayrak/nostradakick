@@ -7,6 +7,9 @@ import { IUser } from "@/types/user";
 import CreateMatchButton from "@/components/admin/CreateMatchButton";
 import MatchTable from "@/components/admin/MatchTable";
 
+// Toujours revalider pour que la liste des matchs soit à jour après création/suppression
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function AdminMatchs() {
   // Récupération du cookie accessToken
@@ -60,10 +63,10 @@ export default async function AdminMatchs() {
     }
 
     // Récupérer tous les matchs (avec une limite élevée pour l'admin)
-    // Note: Pour l'instant, l'API ne retourne que les matchs à venir
-    // Il faudra modifier le backend pour supporter ?all=true
+    // Le paramètre all=true désactive les filtres par défaut pour afficher tous les matchs
+    // (sauf les matchs terminés FINISHED/AWARDED)
     const matchesResponse = await fetch(
-      "http://localhost:4000/api/matches?page=1&limit=1000",
+      "http://localhost:4000/api/matches?page=1&limit=1000&all=true",
       {
         cache: "no-store",
         headers,
@@ -82,7 +85,8 @@ export default async function AdminMatchs() {
     if (!matchesResponse.ok) {
       error = "Erreur lors du chargement des matchs";
     } else {
-      matches = await matchesResponse.json();
+      const data = await matchesResponse.json();
+      matches = Array.isArray(data) ? data : [];
     }
 
     if (competitionsResponse.ok) {

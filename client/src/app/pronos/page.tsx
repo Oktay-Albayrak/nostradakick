@@ -105,7 +105,7 @@ export default async function Pronos() {
               {group.latestPredictions.map((prono) => (
                 <div key={prono.id} className={styles.pronoRow}>
                   <div className={styles.matchInfo}>
-                    <Link href={`/matchs/${prono.match.api_id}`} className={styles.pronoLabel}>
+                    <Link href={`/matchs/${prono.match.id}`} className={styles.pronoLabel}>
                       {prono.match.home_team.name} -{" "}
                       {prono.match.away_team.name}
                     </Link>

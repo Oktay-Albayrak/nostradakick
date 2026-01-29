@@ -19,6 +19,12 @@
   color: var(--dark);
 }
 
+.errorMessage {
+  color: var(--dark-grey, #666);
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+}
+
 /* MATCHS (mobile-first : 1 colonne) */
 .matchGrid {
   display: grid;
