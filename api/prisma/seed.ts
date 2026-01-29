@@ -9,17 +9,20 @@ import { prisma } from "../src/lib/prisma.ts";
 /**
  * Génère un UUID déterministe basé sur un préfixe et un index
  */
-function generateFixedUuid(type: 'user' | 'comp' | 'team' | 'match' | 'pred', index: number): string {
-  const prefixes = { user: '1', comp: '2', team: '3', match: '4', pred: '5' };
-  const hexIndex = index.toString(16).padStart(12, '0');
+function generateFixedUuid(
+  type: "user" | "comp" | "team" | "match" | "pred",
+  index: number,
+): string {
+  const prefixes = { user: "1", comp: "2", team: "3", match: "4", pred: "5" };
+  const hexIndex = index.toString(16).padStart(12, "0");
   return `00000000-${prefixes[type]}000-4000-9000-${hexIndex}`;
 }
 
 /**
  * Retourne une valeur aléatoire d'un tableau
  */
-function randomChoice(array: []) {
-  return array[Math.floor(Math.random() * array.length)];
+function randomChoice<T>(array: T[]): T {
+  return array[Math.floor(Math.random() * array.length)]!;
 }
 
 /**
@@ -27,7 +30,7 @@ function randomChoice(array: []) {
  */
 function determinePredictionStatus(
   match: any,
-  predictionValue: PredictionValue
+  predictionValue: PredictionValue,
 ): PredictionStatus {
   if (match.status !== MatchStatus.FINISHED) {
     return PredictionStatus.PENDING;
@@ -80,13 +83,15 @@ async function main() {
       competition: true,
     },
     orderBy: {
-      date: 'asc',
+      date: "asc",
     },
   });
 
   if (matches.length === 0) {
     console.error("❌ Aucun match trouvé en base de données !");
-    console.log("💡 Veuillez d'abord exécuter le seed qui crée les compétitions et matchs.");
+    console.log(
+      "💡 Veuillez d'abord exécuter le seed qui crée les compétitions et matchs.",
+    );
     return;
   }
 
@@ -153,7 +158,7 @@ async function main() {
   console.log("👥 Création des utilisateurs...");
   const users = [];
   for (let i = 1; i <= 10; i++) {
-    const userId = generateFixedUuid('user', i);
+    const userId = generateFixedUuid("user", i);
     const user = await prisma.user.create({
       data: {
         id: userId,
@@ -161,7 +166,10 @@ async function main() {
         email: `user${i}@example.com`,
         password_hash: "fake_hash",
         role: i === 1 ? UserRole.ADMIN : UserRole.MEMBER,
-        avatar_url: i === 1 ? "https://api.dicebear.com/7.x/avataaars/svg?seed=admin" : null,
+        avatar_url:
+          i === 1
+            ? "https://api.dicebear.com/7.x/avataaars/png?seed=admin"
+            : `https://api.dicebear.com/7.x/avataaars/png?seed=${encodeURIComponent(`user_${i}`)}`,
         stats: {
           create: {
             wins_count: 0,
@@ -177,12 +185,18 @@ async function main() {
   // 6. Création des prédictions
   console.log("🎯 Création des prédictions...");
   const predictions = [];
-  const predictionValues = [PredictionValue.HOME, PredictionValue.DRAW, PredictionValue.AWAY];
+  const predictionValues = [
+    PredictionValue.HOME,
+    PredictionValue.DRAW,
+    PredictionValue.AWAY,
+  ];
   let predIndex = 1;
 
   for (const user of users) {
     // Chaque utilisateur fait des prédictions sur 60-80% des matchs de manière aléatoire
-    const numberOfPredictions = Math.floor(matches.length * (0.6 + Math.random() * 0.2));
+    const numberOfPredictions = Math.floor(
+      matches.length * (0.6 + Math.random() * 0.2),
+    );
 
     // Mélanger les matchs et en prendre un sous-ensemble
     const shuffledMatches = [...matches].sort(() => Math.random() - 0.5);
@@ -195,7 +209,7 @@ async function main() {
       try {
         const prediction = await prisma.prediction.create({
           data: {
-            id: generateFixedUuid('pred', predIndex++),
+            id: generateFixedUuid("pred", predIndex++),
             prediction_value: predictionValue,
             status: status,
             user_id: user.id,
@@ -205,7 +219,9 @@ async function main() {
         predictions.push(prediction);
       } catch (error) {
         // Si doublon (ne devrait pas arriver avec notre logique), on passe
-        console.warn(`⚠️ Prédiction déjà existante pour user ${user.username} et match ${match.id}`);
+        console.warn(
+          `⚠️ Prédiction déjà existante pour user ${user.username} et match ${match.id}`,
+        );
       }
     }
 
@@ -215,9 +231,13 @@ async function main() {
   // 7. Mise à jour des statistiques utilisateurs
   console.log("📊 Calcul des statistiques...");
   for (const user of users) {
-    const userPredictions = predictions.filter(p => p.user_id === user.id);
-    const wins = userPredictions.filter(p => p.status === PredictionStatus.WON).length;
-    const losses = userPredictions.filter(p => p.status === PredictionStatus.LOST).length;
+    const userPredictions = predictions.filter((p) => p.user_id === user.id);
+    const wins = userPredictions.filter(
+      (p) => p.status === PredictionStatus.WON,
+    ).length;
+    const losses = userPredictions.filter(
+      (p) => p.status === PredictionStatus.LOST,
+    ).length;
 
     // Calcul du meilleur streak (séquence de victoires consécutives)
     let currentStreak = 0;
@@ -225,7 +245,11 @@ async function main() {
 
     // Trier les prédictions par date de création
     const sortedPredictions = userPredictions
-      .filter(p => p.status === PredictionStatus.WON || p.status === PredictionStatus.LOST)
+      .filter(
+        (p) =>
+          p.status === PredictionStatus.WON ||
+          p.status === PredictionStatus.LOST,
+      )
       .sort((a, b) => a.created_at.getTime() - b.created_at.getTime());
 
     for (const pred of sortedPredictions) {
@@ -246,8 +270,12 @@ async function main() {
       },
     });
 
-    const pending = userPredictions.filter(p => p.status === PredictionStatus.PENDING).length;
-    console.log(`  ✓ ${user.username}: ${wins}W / ${losses}L / ${pending}P (streak: ${bestStreak})`);
+    const pending = userPredictions.filter(
+      (p) => p.status === PredictionStatus.PENDING,
+    ).length;
+    console.log(
+      `  ✓ ${user.username}: ${wins}W / ${losses}L / ${pending}P (streak: ${bestStreak})`,
+    );
   }
 
   console.log(`\n✅ Seeding terminé :

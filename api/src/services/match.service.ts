@@ -13,7 +13,7 @@ interface OptionalTeam {
   tla: string;
   crest_url: string;
   country: string;
-  api_id?: number | null,
+  api_id?: number | null;
 }
 
 interface OptionalCompetition {
@@ -21,7 +21,7 @@ interface OptionalCompetition {
   code?: string | null;
   emblem_url: string;
   country: string;
-  api_id?: number | null,
+  api_id?: number | null;
 }
 
 /**
@@ -32,7 +32,7 @@ async function createMatchInDb(
   matchData: CreateMatchInput,
   homeTeamId: string,
   awayTeamId: string,
-  competitionId: string
+  competitionId: string,
 ) {
   const match = await prisma.match.create({
     data: {
@@ -67,12 +67,12 @@ export async function createMatch(
   matchData: CreateMatchInput,
   homeTeam?: OptionalTeam,
   awayTeam?: OptionalTeam,
-  competition?: OptionalCompetition
+  competition?: OptionalCompetition,
 ) {
   // Validation : au moins une équipe et une compétition doivent être fournies
   if (!homeTeam || !awayTeam || !competition) {
     throw new Error(
-      "Les objets home_team, away_team et competition sont requis pour créer un match"
+      "Les objets home_team, away_team et competition sont requis pour créer un match",
     );
   }
 
@@ -90,9 +90,13 @@ export async function createMatch(
       // Optionnel : mettre à jour les infos si besoin
       ...(competition.code !== undefined && { code: competition.code }),
 
-      ...(competition.emblem_url !== undefined && { emblem_url: competition.emblem_url }),
-      
-      ...(competition.country !== undefined && { country: competition.country}),
+      ...(competition.emblem_url !== undefined && {
+        emblem_url: competition.emblem_url,
+      }),
+
+      ...(competition.country !== undefined && {
+        country: competition.country,
+      }),
     },
   });
 
@@ -110,15 +114,20 @@ export async function createMatch(
     update: {
       // Optionnel : mettre à jour les infos si besoin
       ...(homeTeam.short_name !== undefined && {
-        short_name: homeTeam.short_name }),
+        short_name: homeTeam.short_name,
+      }),
 
       ...(homeTeam.tla !== undefined && {
-        tla: homeTeam.tla }),
+        tla: homeTeam.tla,
+      }),
 
-      ...(homeTeam.crest_url !== undefined && { crest_url: homeTeam.crest_url }),
+      ...(homeTeam.crest_url !== undefined && {
+        crest_url: homeTeam.crest_url,
+      }),
 
       ...(homeTeam.country !== undefined && {
-        country: homeTeam.country }),
+        country: homeTeam.country,
+      }),
     },
   });
 
@@ -136,25 +145,30 @@ export async function createMatch(
     update: {
       // Optionnel : mettre à jour les infos si besoin
       ...(awayTeam.name !== undefined && {
-        name: awayTeam.name }),
+        name: awayTeam.name,
+      }),
 
       ...(awayTeam.short_name !== undefined && {
-        short_name: awayTeam.short_name }),
+        short_name: awayTeam.short_name,
+      }),
 
       ...(awayTeam.tla !== undefined && {
-        tla: awayTeam.tla }),
+        tla: awayTeam.tla,
+      }),
 
-      ...(awayTeam.crest_url !== undefined && { crest_url: awayTeam.crest_url }),
+      ...(awayTeam.crest_url !== undefined && {
+        crest_url: awayTeam.crest_url,
+      }),
 
       ...(awayTeam.country !== undefined && {
-        country: awayTeam.country }),
+        country: awayTeam.country,
+      }),
     },
   });
 
   // 4. Créer le match avec les IDs récupérés
   return createMatchInDb(matchData, home.id, away.id, comp.id);
 }
-
 
 /**
  * Récupère tous les matchs avec filtres optionnels
@@ -305,9 +319,6 @@ export async function updateMatch(id: string, updateData: UpdateMatchInput) {
     }),
     ...(updateData.featured_name !== undefined && {
       featured_name: updateData.featured_name,
-    }),
-    ...(updateData.popularity !== undefined && {
-      popularity: updateData.popularity,
     }),
   };
 
