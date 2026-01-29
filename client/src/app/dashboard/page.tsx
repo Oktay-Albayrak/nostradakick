@@ -4,10 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
+import { IUser } from "@/types/user";
 import { IUserStats } from "@/types/userStats";
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<IUserStats | null>(null);
+  const [userInfo, setUserInfo] = useState<IUser | null>(null);
+  const [userStats, setUserStats] = useState<IUserStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -20,12 +22,13 @@ export default function DashboardPage() {
         });
 
         if (!userMeResponse.ok) {
-          setUser(null);
+          setUserInfo(null);
           setIsLoading(false);
           return;
         }
 
-        const userData = await userMeResponse.json();
+        const userData: IUser = await userMeResponse.json();
+        setUserInfo(userData);
 
         // 2. Récupérer les stats complètes (avec pronos et stats)
         const statsResponse = await fetch(
@@ -37,13 +40,14 @@ export default function DashboardPage() {
 
         if (statsResponse.ok) {
           const statsData: IUserStats = await statsResponse.json();
-          setUser(statsData);
+          setUserStats(statsData);
         } else {
-          setUser(null);
+          setUserStats(null);
         }
       } catch (error) {
         console.error("Erreur lors du chargement des données:", error);
-        setUser(null);
+        setUserInfo(null);
+        setUserStats(null);
       } finally {
         setIsLoading(false);
       }
@@ -56,7 +60,7 @@ export default function DashboardPage() {
     return <div>Chargement...</div>;
   }
 
-  if (!user) {
+  if (!userInfo) {
     return (
       <div>
         Non connecté. <Link href="/login">Se connecter</Link>
@@ -69,20 +73,20 @@ export default function DashboardPage() {
       <section className={styles.profil}>
         <Image
           className={styles.avatar}
-          src={user.avatar_url || "/default-avatar.jpg"}
+          src={userInfo.avatar_url || "/default-avatar.jpg"}
           width={200}
           height={200}
           alt="Avatar du membre"
         />
         <div className={styles.bio}>
-          <h2>{user.username}</h2>
-          <p>E-mail : {user.email}</p>
-          <p>Membre depuis : {new Date(user.created_at).toLocaleDateString("fr-FR")}</p>
-          <p>Rôle : {user.role}</p>
-          <p>{user.predictions?.length ?? 0} pronostics</p>
+          <h2>{userInfo.username}</h2>
+          <p>E-mail : {userInfo.email}</p>
+          <p>Membre depuis : {new Date(userInfo.created_at).toLocaleDateString("fr-FR")}</p>
+          <p>Rôle : {userInfo.role}</p>
+          <p>{userStats?.predictions?.length ?? 0} pronostics</p>
           <p>
-            {user.stats
-              ? Math.max(0, user.stats.wins_count * 5 - (user.stats.losses_count || 0))
+            {userStats?.stats
+              ? Math.max(0, userStats.stats.wins_count * 5 - (userStats.stats.losses_count || 0))
               : 0}{" "}
             points gagnés
           </p>
@@ -100,7 +104,7 @@ export default function DashboardPage() {
             </Link>
           </div>
           <div>
-            {user.predictions?.slice(0, 4).map((p, index) => (
+            {userStats?.predictions?.slice(0, 4).map((p, index) => (
               <article key={p.id || index} className={styles.prono}>
                 <p>
                   {p.match.home_team.name} - {p.match.away_team.name}
@@ -125,7 +129,7 @@ export default function DashboardPage() {
                 height={50}
                 alt="Meilleure série gagnante"
               />
-              <p>Meilleure série gagnante : {user.stats?.best_streak ?? 0}</p>
+              <p>Meilleure série gagnante : {userStats?.stats?.best_streak ?? 0}</p>
             </article>
             <article className={styles.stat}>
               <Image
@@ -135,7 +139,7 @@ export default function DashboardPage() {
                 height={50}
                 alt="Pronostics gagnants"
               />
-              <p>Pronostics gagnants : {user.stats?.wins_count ?? 0}</p>
+              <p>Pronostics gagnants : {userStats?.stats?.wins_count ?? 0}</p>
             </article>
             <article className={styles.stat}>
               <Image
@@ -147,10 +151,10 @@ export default function DashboardPage() {
               />
               <p>
                 Taux de réussite :{" "}
-                {user.stats && user.stats.wins_count + user.stats.losses_count > 0
+                {userStats?.stats && userStats.stats.wins_count + userStats.stats.losses_count > 0
                   ? (
-                      ((user.stats.wins_count * 100) /
-                        (user.stats.wins_count + user.stats.losses_count)) as number
+                      ((userStats.stats.wins_count * 100) /
+                        (userStats.stats.wins_count + userStats.stats.losses_count)) as number
                     ).toFixed(2)
                   : 0}
                 %
