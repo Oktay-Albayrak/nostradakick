@@ -43,8 +43,8 @@ export default function MatchActions({ match, competitions }: MatchActionsProps)
         throw new Error(data.error || data.message || "Erreur lors de la suppression");
       }
 
-      // Rafraîchir la page pour mettre à jour la liste
-      router.refresh();
+      // Rechargement complet pour que la liste soit à jour
+      window.location.href = "/admin/matchs";
     } catch (e) {
       setError(
         e instanceof Error ? e.message : "Erreur lors de la suppression"
