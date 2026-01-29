@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { IMatch, ICompetition } from "@/types/match";
 import styles from "../../app/admin/matchs/page.module.css";
 import MatchActions from "./MatchActions";
@@ -48,6 +48,11 @@ function getStatusLabel(status: string): string {
 
 export default function MatchTable({ matches, competitions }: MatchTableProps) {
   const [filteredMatches, setFilteredMatches] = useState<IMatch[]>(matches);
+
+  // Resynchroniser la liste filtrée quand les matchs changent (ex. après création et router.refresh())
+  useEffect(() => {
+    setFilteredMatches(matches);
+  }, [matches]);
 
   if (matches.length === 0) {
     return <div className={styles.emptyMessage}>Aucun match trouvé</div>;

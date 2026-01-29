@@ -6,6 +6,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 interface AuthContextType {
   isLoggedIn: boolean;
   user_id: string | null;
+  role: "MEMBER" | "ADMIN" | null;
   login: () => void;
   logout: () => void;
   refreshAuth: () => Promise<void>;
@@ -17,7 +18,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user_id, setUserId] = useState<string | null>(null);
-  
+  const [role, setRole] = useState<"MEMBER" | "ADMIN" | null>(null);
+
   // État de chargement pour éviter les flashs d'UI pendant la vérification
   // Important : on ne montre pas l'appli tant qu'on ne sait pas l'état auth
   const [isLoading, setIsLoading] = useState(true);
@@ -29,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setIsLoggedIn(false);
     setUserId(null);
+    setRole(null);
   };
 
   /**
@@ -70,6 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Le refresh token est aussi mort (ex: plus de 7 jours)
           setIsLoggedIn(false);
           setUserId(null);
+          setRole(null);
         }
       }
 
@@ -78,11 +82,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userData = await response.json();
         setIsLoggedIn(true);
         setUserId(userData.id);
+        setRole(userData.role ?? null);
       }
     } catch (error) {
       console.error("Erreur auth:", error);
       setIsLoggedIn(false);
       setUserId(null);
+      setRole(null);
     } finally {
       // On s'assure que le chargement s'arrête quoi qu'il arrive
       setIsLoading(false); 
@@ -94,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user_id, login, logout, refreshAuth }}>
+    <AuthContext.Provider value={{ isLoggedIn, user_id, role, login, logout, refreshAuth }}>
       {/* 
         Affichage conditionnel :
         - Si isLoading = true : affiche un écran de chargement
