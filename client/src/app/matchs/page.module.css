@@ -1,7 +1,7 @@
 /* --- MOBILE FIRST --- */
 .container {
   width: 100%;
-  max-width: 1700px;
+  max-width: 1440px;
   margin: 0 auto;
   padding: 1rem;
 }
@@ -74,7 +74,6 @@
 @media (min-width: 650px) {
   .searchSection {
     display: block;
-    max-width: 900px;
     margin: 0 auto 2rem;
   }
 
@@ -97,7 +96,7 @@
 
   .mainGrid {
     display: grid;
-    grid-template-columns: 320px 1fr 380px; /* Ajusté pour plus d'équilibre */
+    grid-template-columns: 380px 1fr 380px; /* Ajusté pour plus d'équilibre */
     gap: 2rem;
     align-items: start;
     width: 100%;

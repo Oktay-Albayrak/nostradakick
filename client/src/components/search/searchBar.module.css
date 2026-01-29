@@ -3,7 +3,7 @@
   display: none; /* Mobile first : caché par défaut */
   position: relative;
   width: 100%;
-  max-width: 1200px;
+  max-width: 950px;
   margin: 1rem auto 4rem;
 }
 
