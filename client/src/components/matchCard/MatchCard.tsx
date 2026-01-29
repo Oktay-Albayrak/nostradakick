@@ -48,19 +48,39 @@ export default function MatchCard({
   const [selectedPrediction, setSelectedPrediction] = useState<string | null>(
     null,
   );
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [canUserPredict, setCanUserPredict] = useState(false);
+  const [formattedDate, setFormattedDate] = useState<{ day: string; time: string } | null>(null);
 
   // Détermination du statut
   const isFinished = match.status === "FINISHED";
   
-  // Vérifier si le match a commencé ou si on ne peut plus pronostiquer
-  const canPredict = useCallback(() => {
-    // Le match doit être SCHEDULED ou TIMED ET la date doit être dans le futur
+  // ✅ Synchroniser avec le client après hydratation
+  useEffect(() => {
+    setIsHydrated(true);
+    
     const now = new Date();
     const matchDate = new Date(match.date);
-    return (
+    const canPredict =
       (match.status === "SCHEDULED" || match.status === "TIMED") &&
-      matchDate > now
-    );
+      matchDate > now;
+    setCanUserPredict(canPredict);
+
+    // Formater la date côté client uniquement
+    const isToday = matchDate.toDateString() === now.toDateString();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+    const isTomorrow = matchDate.toDateString() === tomorrow.toDateString();
+    const time = matchDate.toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    const day = isToday
+      ? "Aujourd'hui"
+      : isTomorrow
+        ? "Demain"
+        : `${matchDate.toLocaleDateString("fr-FR", { weekday: "short" })} ${matchDate.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" })}`;
+    setFormattedDate({ day, time });
   }, [match.status, match.date]);
 
   const [modalConfig, setModalConfig] = useState({
@@ -78,7 +98,7 @@ export default function MatchCard({
 
   // Récupération du pronostic
   useEffect(() => {
-    if (!user_id || !match.id || isFinished || !canPredict()) return;
+    if (!user_id || !match.id || isFinished || !canUserPredict) return;
     const fetchUserPrediction = async () => {
       try {
         const response = await fetch(
@@ -94,9 +114,10 @@ export default function MatchCard({
       }
     };
     fetchUserPrediction();
-  }, [user_id, match.id, isFinished, canPredict]);
+  }, [user_id, match.id, isFinished, canUserPredict]);
 
   if (!match) return null;
+  if (!isHydrated) return null; // Attendre l'hydratation côté client
 
   const getStatusLabel = (status: string) => {
     const statusMap: Record<string, string> = {
@@ -116,7 +137,7 @@ export default function MatchCard({
       setModalConfig({
         isOpen: true,
         title: "⚠️ Non connecté",
-        message: "Connectez-vous pour parier",
+        message: "Ce connecter pour pronostiquer",
         confirmText: "OK",
         isConfirmation: false,
         onConfirm: () => {},
@@ -125,7 +146,7 @@ export default function MatchCard({
     }
     
     // Vérifier que le match n'a pas commencé
-    if (!canPredict()) {
+    if (!canUserPredict) {
       setModalConfig({
         isOpen: true,
         title: "⚠️ Trop tard",
@@ -180,28 +201,11 @@ export default function MatchCard({
     }
   };
 
-  const { day, time } = getFormattedDate(match.date);
   const homeTeam = match.home_team;
   const awayTeam = match.away_team;
-
-  function getFormattedDate(dateString: string) {
-    const matchDate = new Date(dateString);
-    const now = new Date();
-    const isToday = matchDate.toDateString() === now.toDateString();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(now.getDate() + 1);
-    const isTomorrow = matchDate.toDateString() === tomorrow.toDateString();
-    const time = matchDate.toLocaleTimeString("fr-FR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    const day = isToday
-      ? "Aujourd'hui"
-      : isTomorrow
-        ? "Demain"
-        : `${matchDate.toLocaleDateString("fr-FR", { weekday: "short" })} ${matchDate.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" })}`;
-    return { day, time };
-  }
+  
+  // Utiliser les valeurs par défaut si pas encore hydraté
+  const { day = "—", time = "—" } = formattedDate || {};
 
   // Le badge de statut s'affiche si forcé (Aside) ou si match fini
   const displayStatusBadge = isFinished || showStatus;
@@ -322,7 +326,7 @@ export default function MatchCard({
         )}
 
         {/* GRILLE DE PRONOS (Matchs à venir uniquement) */}
-        {!isFinished && canPredict() && showPredictions && (
+        {!isFinished && canUserPredict && showPredictions && (
           <section
             className={styles.predictionGrid}
             onClick={(e) => e.stopPropagation()}
