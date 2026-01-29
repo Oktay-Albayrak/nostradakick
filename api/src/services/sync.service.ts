@@ -3,11 +3,77 @@ import { prisma } from "../lib/prisma.ts";
 import { MatchStatus } from "../../generated/prisma/client.ts";
 import { COMPETITION_NAMES_MAP } from "../config/metadata.ts";
 import { getMatchHotStatus } from "./feature-logic.service.ts";
+import { recalculateUserStats } from "./userStat.service.ts";
 
 const FOOTBALL_API_URL = "https://api.football-data.org/v4";
 const TOKEN = process.env.FOOTBALL_DATA_API_TOKEN;
 
 const LEAGUES_TO_SYNC = ["FL1", "PL", "CL", "BL1", "SA", "PD"];
+
+/**
+ * FONCTION : Finaliser automatiquement les prédictions d'un match
+ * 
+ * Logique :
+ * - Si le match est FINISHED, calcule automatiquement le résultat
+ * - WON : la prédiction = résultat du match
+ * - LOST : la prédiction ≠ résultat du match
+ * - CANCELLED : si le match est CANCELLED/SUSPENDED/POSTPONED
+ * - Recalcule les stats utilisateur après
+ */
+async function finalizePredictionsForMatch(matchId: string, match: any) {
+  try {
+    // Récupère toutes les prédictions PENDING pour ce match
+    const predictions = await prisma.prediction.findMany({
+      where: {
+        match_id: matchId,
+        status: "PENDING"
+      },
+      include: { user: { select: { id: true } } }
+    });
+
+    if (predictions.length === 0) return;
+
+    // Détermine le résultat du match (null = match pas terminé)
+    const homeScore = match.home_score;
+    const awayScore = match.away_score;
+    const matchStatus = match.status as MatchStatus;
+
+    // Match annulé/suspendu/reporté
+    if (["CANCELLED", "SUSPENDED", "POSTPONED", "AWARDED"].includes(matchStatus)) {
+      await prisma.prediction.updateMany({
+        where: { match_id: matchId, status: "PENDING" },
+        data: { status: "CANCELLED" }
+      });
+      console.log(`✅ Prédictions annulées pour le match ${matchId}`);
+      return;
+    }
+
+    // Match pas fini
+    if (matchStatus !== "FINISHED" || homeScore === null || awayScore === null) {
+      return;
+    }
+
+    // Match fini : calcule résultat
+    let matchResult: "HOME" | "DRAW" | "AWAY";
+    if (homeScore > awayScore) matchResult = "HOME";
+    else if (awayScore > homeScore) matchResult = "AWAY";
+    else matchResult = "DRAW";
+
+    // Met à jour chaque prédiction et recalcule les stats
+    for (const prediction of predictions) {
+      const newStatus = prediction.prediction_value === matchResult ? "WON" : "LOST";
+      await prisma.prediction.update({
+        where: { id: prediction.id },
+        data: { status: newStatus }
+      });
+      await recalculateUserStats(prediction.user_id);
+    }
+
+    console.log(`✅ Prédictions finalisées pour le match ${matchId}`);
+  } catch (error) {
+    console.error(`❌ Erreur finalization prédictions ${matchId}:`, error);
+  }
+}
 
 /**
  * FONCTION : Synchronisation des classements
@@ -96,7 +162,7 @@ export async function syncAllMatches() {
     where: { rank: { lte: 5 } },
     select: { team: { select: { api_id: true } } },
   });
-  const globalTop5 = new Set(standings.map((s) => s.team.api_id));
+  const globalTop5 = new Set(standings.map((s) => s.team.api_id).filter((id) => id !== null));
 
   const promises = LEAGUES_TO_SYNC.map(async (leagueCode) => {
     try {
@@ -200,6 +266,9 @@ export async function syncAllMatches() {
             away_score: m.score?.fullTime?.away ?? null,
             venue: m.venue ?? null,
           },
+        }).then(async (dbMatch) => {
+          // Finalise automatiquement les prédictions si match terminé
+          await finalizePredictionsForMatch(dbMatch.id, dbMatch);
         });
       }
       return leagueCode;

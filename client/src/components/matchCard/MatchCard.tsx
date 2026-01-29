@@ -7,14 +7,14 @@
  * * MODIFICATIONS :
  * - Si le match est FINISHED : Affiche le statut en bas et les noms sous les logos.
  * - Si la carte est en mode compact (Aside) : Garde l'affichage des TLA via .teamTla.
- * 
+ *
  * Props :
  * - match: objet IMatch contenant tous les détails du match
  * - isHot: affiche un badge 🔥 si c'est un match "à l'affiche"
  * - showPredictions: affiche les boutons de prédiction (défaut: true)
  * - showStatus: affiche le badge de statut du match (défaut: false)
  * - showFullTeamNames: affiche les noms complets des équipes (défaut: false)
- * 
+ *
  * Cliquable : cliquer sur la carte redirige vers /matchs/{id} (UUID du match)
  * Les boutons de prédiction ne déclenchent pas la navigation.
  */
@@ -35,6 +35,7 @@ interface MatchProps {
   showPredictions?: boolean;
   showStatus?: boolean;
   showFullTeamNames?: boolean;
+  isCompact?: boolean;
 }
 
 export default function MatchCard({
@@ -42,15 +43,47 @@ export default function MatchCard({
   isHot,
   showPredictions = true,
   showStatus = false,
+  isCompact = false,
 }: MatchProps) {
   const { isLoggedIn, user_id } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPrediction, setSelectedPrediction] = useState<string | null>(
     null,
   );
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [canUserPredict, setCanUserPredict] = useState(false);
+  const [formattedDate, setFormattedDate] = useState<{ day: string; time: string } | null>(null);
 
   // Détermination du statut
   const isFinished = match.status === "FINISHED";
+  
+  // ✅ Synchroniser avec le client après hydratation
+  useEffect(() => {
+    setIsHydrated(true);
+    
+    const now = new Date();
+    const matchDate = new Date(match.date);
+    const canPredict =
+      (match.status === "SCHEDULED" || match.status === "TIMED") &&
+      matchDate > now;
+    setCanUserPredict(canPredict);
+
+    // Formater la date côté client uniquement
+    const isToday = matchDate.toDateString() === now.toDateString();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+    const isTomorrow = matchDate.toDateString() === tomorrow.toDateString();
+    const time = matchDate.toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    const day = isToday
+      ? "Aujourd'hui"
+      : isTomorrow
+        ? "Demain"
+        : `${matchDate.toLocaleDateString("fr-FR", { weekday: "short" })} ${matchDate.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" })}`;
+    setFormattedDate({ day, time });
+  }, [match.status, match.date]);
 
   const [modalConfig, setModalConfig] = useState({
     isOpen: false,
@@ -67,7 +100,7 @@ export default function MatchCard({
 
   // Récupération du pronostic
   useEffect(() => {
-    if (!user_id || !match.id || isFinished) return;
+    if (!user_id || !match.id || isFinished || !canUserPredict) return;
     const fetchUserPrediction = async () => {
       try {
         const response = await fetch(
@@ -83,9 +116,10 @@ export default function MatchCard({
       }
     };
     fetchUserPrediction();
-  }, [user_id, match.id, isFinished]);
+  }, [user_id, match.id, isFinished, canUserPredict]);
 
   if (!match) return null;
+  if (!isHydrated) return null; // Attendre l'hydratation côté client
 
   const getStatusLabel = (status: string) => {
     const statusMap: Record<string, string> = {
@@ -105,13 +139,27 @@ export default function MatchCard({
       setModalConfig({
         isOpen: true,
         title: "⚠️ Non connecté",
-        message: "Connectez-vous pour parier",
+        message: "Se connecter pour pronostiquer",
         confirmText: "OK",
         isConfirmation: false,
         onConfirm: () => {},
       });
       return;
     }
+    
+    // Vérifier que le match n'a pas commencé
+    if (!canUserPredict) {
+      setModalConfig({
+        isOpen: true,
+        title: "⚠️ Trop tard",
+        message: "Le match a déjà commencé, vous ne pouvez plus pronostiquer",
+        confirmText: "OK",
+        isConfirmation: false,
+        onConfirm: () => {},
+      });
+      return;
+    }
+    
     setPendingPrediction(predictionValue);
     setModalConfig({
       isOpen: true,
@@ -155,28 +203,11 @@ export default function MatchCard({
     }
   };
 
-  const { day, time } = getFormattedDate(match.date);
   const homeTeam = match.home_team;
   const awayTeam = match.away_team;
-
-  function getFormattedDate(dateString: string) {
-    const matchDate = new Date(dateString);
-    const now = new Date();
-    const isToday = matchDate.toDateString() === now.toDateString();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(now.getDate() + 1);
-    const isTomorrow = matchDate.toDateString() === tomorrow.toDateString();
-    const time = matchDate.toLocaleTimeString("fr-FR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    const day = isToday
-      ? "Aujourd'hui"
-      : isTomorrow
-        ? "Demain"
-        : `${matchDate.toLocaleDateString("fr-FR", { weekday: "short" })} ${matchDate.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" })}`;
-    return { day, time };
-  }
+  
+  // Utiliser les valeurs par défaut si pas encore hydraté
+  const { day = "—", time = "—" } = formattedDate || {};
 
   // Le badge de statut s'affiche si forcé (Aside) ou si match fini
   const displayStatusBadge = isFinished || showStatus;
@@ -184,7 +215,7 @@ export default function MatchCard({
   return (
     <>
       <article
-        className={`${styles.card} ${!showPredictions ? styles.compactCard : ""} ${displayStatusBadge ? styles.cardWithStatus : ""}`}
+        className={`${styles.card} ${isCompact ? styles.compactCard : ""} ${displayStatusBadge ? styles.cardWithStatus : ""}`}
       >
         <section>
           <div className={styles.competitionBadge}>
@@ -297,36 +328,44 @@ export default function MatchCard({
         )}
 
         {/* GRILLE DE PRONOS (Matchs à venir uniquement) */}
-        {!isFinished && showPredictions && (
-          <section
-            className={styles.predictionGrid}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className={`${styles.predButton} ${selectedPrediction === "HOME" ? styles.selected : ""}`}
-              onClick={() => handlePrediction("HOME")}
-              disabled={isLoading}
-            >
-              <span className={styles.btnFullName}>{homeTeam.name}</span>
-              <span className={styles.btnTlaName}>{homeTeam.tla}</span>
-            </button>
-            <button
-              className={`${styles.predButton} ${selectedPrediction === "DRAW" ? styles.selected : ""}`}
-              onClick={() => handlePrediction("DRAW")}
-              disabled={isLoading}
-            >
-              <span className={styles.btnFullName}>Match Nul</span>
-              <span className={styles.btnTlaName}>NUL</span>
-            </button>
-            <button
-              className={`${styles.predButton} ${selectedPrediction === "AWAY" ? styles.selected : ""}`}
-              onClick={() => handlePrediction("AWAY")}
-              disabled={isLoading}
-            >
-              <span className={styles.btnFullName}>{awayTeam.name}</span>
-              <span className={styles.btnTlaName}>{awayTeam.tla}</span>
-            </button>
-          </section>
+        {!isFinished && canUserPredict && showPredictions && (
+          <>
+            {isLoggedIn ? (
+              <section
+                className={styles.predictionGrid}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  className={`${styles.predButton} ${selectedPrediction === "HOME" ? styles.selected : ""}`}
+                  onClick={() => handlePrediction("HOME")}
+                  disabled={isLoading}
+                >
+                  <span className={styles.btnFullName}>{homeTeam.name}</span>
+                  <span className={styles.btnTlaName}>{homeTeam.tla}</span>
+                </button>
+                <button
+                  className={`${styles.predButton} ${selectedPrediction === "DRAW" ? styles.selected : ""}`}
+                  onClick={() => handlePrediction("DRAW")}
+                  disabled={isLoading}
+                >
+                  <span className={styles.btnFullName}>Match Nul</span>
+                  <span className={styles.btnTlaName}>NUL</span>
+                </button>
+                <button
+                  className={`${styles.predButton} ${selectedPrediction === "AWAY" ? styles.selected : ""}`}
+                  onClick={() => handlePrediction("AWAY")}
+                  disabled={isLoading}
+                >
+                  <span className={styles.btnFullName}>{awayTeam.name}</span>
+                  <span className={styles.btnTlaName}>{awayTeam.tla}</span>
+                </button>
+              </section>
+            ) : (
+              <Link href="/login" className={styles.loginLink}>
+                Se connecter
+              </Link>
+            )}
+          </>
         )}
       </article>
 
