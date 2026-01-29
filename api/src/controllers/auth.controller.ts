@@ -117,15 +117,23 @@ export async function loginUser(req: Request, res: Response) {
 }
 
 export async function getAuthenticatedUser(req: Request, res: Response) {
-  // Controler si l'utilisateur qui fait la requête (req) fourni un JWT
+  // Contrôler si l'utilisateur qui fait la requête (req) fournit un JWT
   const accessToken = extractAccessTokenFromRequest(req);
 
-  const payload = decodeJWT(accessToken);
+  // Pas de token = non connecté → 401 (normal, le client gère ce cas)
+  if (!accessToken || typeof accessToken !== "string") {
+    return res.status(401).json({ error: "Non authentifié" });
+  }
 
-  // Condition pour enlever erreur prisma
+  let payload;
+  try {
+    payload = decodeJWT(accessToken);
+  } catch {
+    return res.status(401).json({ error: "Token invalide ou expiré" });
+  }
+
   if (!payload?.userId) {
-    res.status(401).send("Utilisateur non identifié");
-    return;
+    return res.status(401).json({ error: "Utilisateur non identifié" });
   }
 
   // Récupérer le user en BDD (sans son mot de passe)
@@ -136,8 +144,7 @@ export async function getAuthenticatedUser(req: Request, res: Response) {
 
   // Si pas d'utilisateur correspondant au JWT fourni
   if (!user) {
-    res.status(401).send("Provided JWT does not match any user currently in database");
-    return;
+    return res.status(401).json({ error: "Utilisateur non trouvé" });
   }
 
   // Le renvoyer
@@ -146,10 +153,20 @@ export async function getAuthenticatedUser(req: Request, res: Response) {
 
 export async function refreshAccessToken(req: Request, res: Response) {
   // Récupérer le refresh token fourni (soit dans le body, soit dans les cookies)
-  const rawToken = req.body.refreshToken || req.cookies.refreshToken; // taKhXtq6rAlR...
+  const rawToken = req.body?.refreshToken || req.cookies?.refreshToken;
+
+  // Si aucun token n'est fourni
+  if (!rawToken) {
+    return res.status(401).json({ error: "Refresh token manquant" });
+  }
 
   // Valider son type (string)
-  const token = z.string().parse(rawToken);
+  let token: string;
+  try {
+    token = z.string().parse(rawToken);
+  } catch {
+    return res.status(400).json({ error: "Format de token invalide" });
+  }
 
   // Récupérer le refresh token en BDD (accompagné de son utilisateur)
   const refreshToken = await prisma.refreshToken.findFirst({
@@ -158,11 +175,15 @@ export async function refreshAccessToken(req: Request, res: Response) {
   }); // { id, token, expires_at, user: {...} }
 
   // Si PAS EN BDD
-  if (!refreshToken) { throw new Error("Invalid refresh token"); }
+  if (!refreshToken) {
+    return res.status(401).json({ error: "Refresh token invalide" });
+  }
 
   // Si NON VALIDE
   // Si la date actuelle est APRES la date d'expiration du token, alors il est périmé
-  if (new Date() > refreshToken.expires_at) { throw new Error ("Expired refresh token"); }
+  if (new Date() > refreshToken.expires_at) {
+    return res.status(401).json({ error: "Refresh token expiré" });
+  }
 
   // Supprimer les refreshTokens de l'utilisateur avant d'en créer un autre
   await prisma.refreshToken.deleteMany({ where: { user_id: refreshToken.user_id } });

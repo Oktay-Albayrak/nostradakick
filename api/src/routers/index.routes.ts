@@ -20,6 +20,5 @@ router.use(matchesRouter);
 router.use(predictionsRouter);
 router.use(adminRouter);
 router.use(competitionsRouter);
-router.use(teamsRouter);
 router.use(searchRouter);
 router.use(teamsRouter);

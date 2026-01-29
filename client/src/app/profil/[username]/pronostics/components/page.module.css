@@ -1,0 +1,127 @@
+.loadMoreButton {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.loadMoreButton:hover {
+  opacity: 0.8;
+}
+
+/* Pronostics Cards Mobile */
+.pronoCard {
+  background-color: var(--white);
+  color: var(--primary);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--primary);
+}
+
+.matchHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--dark-grey);
+}
+
+.competition {
+  font-weight: 600;
+  color: var(--primary);
+  font-size: 0.9rem;
+  padding-right: .2rem;
+}
+
+.matchDate {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.matchInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.teams {
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.choice {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.pick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+  border-radius: 5px;
+  background: var(--dark-grey);
+  color: var(--dark);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.pickActive {
+  background-color: var(--primary);
+  color: var(--white);
+}
+
+.pickWrong {
+  background-color: rgb(214, 0, 0);
+  color: var(--white);
+}
+
+.pickGood {
+  background-color: rgb(0, 179, 0);
+  color: var(--white);
+}
+
+.status {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.statusPending {
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  background: #fff3cd;
+  color: #856404;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.statusWon {
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  background: #d4edda;
+  color: #155724;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.statusLost {
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  background: #f8d7da;
+  color: #721c24;
+  font-size: 0.85rem;
+  font-weight: 500;
+}

@@ -18,6 +18,7 @@ export async function getAllMatches(req: Request, res: Response) {
     const isHot = req.query.filter === "hot";
     const date = req.query.date as string | undefined;
     const status = req.query.status as string | undefined;
+    const all = req.query.all === "true";
 
     const matches = await matchService.findAllMatches(
       page,
@@ -27,6 +28,7 @@ export async function getAllMatches(req: Request, res: Response) {
       isHot,
       date,
       status,
+      all,
     );
 
     res.json(matches);
@@ -83,12 +85,57 @@ export async function createOneMatch(req: Request, res: Response) {
       });
     }
 
-    const { home_team, away_team, competition, ...matchData } = req.body;
+    // Validation des données avec Zod (incluant éventuellement les IDs)
+    // Utiliser safeParse pour capturer les erreurs de validation
+    const validationResult = createMatchSchema.safeParse(req.body);
+    
+    if (!validationResult.success) {
+      const details = validationResult.error.issues.map((issue) => {
+        const path = issue.path.join(".");
+        return path ? `${path}: ${issue.message}` : issue.message;
+      });
+      console.error("Erreur de validation Zod:", validationResult.error.issues);
+      return res.status(400).json({
+        error: "Données invalides",
+        details,
+      });
+    }
+    
+    const createData = validationResult.data;
 
-    // Validation des données avec Zod
-    const createData = createMatchSchema.parse(matchData);
+    // Cas d'utilisation admin : création à partir d'IDs existants
+    if (
+      createData.home_team_id &&
+      createData.away_team_id &&
+      createData.competition_id
+    ) {
+      const match = await matchService.createMatchFromIds(
+        createData,
+        createData.home_team_id,
+        createData.away_team_id,
+        createData.competition_id
+      );
 
-    // Création du match avec création/récupération automatique des entités
+      return res.status(201).json(match);
+    }
+
+    // Si le body contient des champs *_id mais pas tous remplis → message clair
+    const { home_team, away_team, competition } = req.body;
+    if (
+      req.body.home_team_id !== undefined ||
+      req.body.away_team_id !== undefined ||
+      req.body.competition_id !== undefined
+    ) {
+      return res.status(400).json({
+        error: "Données invalides",
+        details: [
+          "Veuillez sélectionner une compétition, une équipe à domicile et une équipe à l'extérieur (en cliquant sur une proposition dans la liste).",
+        ],
+      });
+    }
+
+    // Cas de fallback (mode historique / synchro) : on attend des objets complets
+
     const match = await matchService.createMatch(
       createData,
       home_team,
@@ -100,12 +147,39 @@ export async function createOneMatch(req: Request, res: Response) {
     
   } catch (error) {
     if (error instanceof ZodError) {
+      const details = error.issues.map((issue) => {
+        const path = issue.path.join(".");
+        return path ? `${path}: ${issue.message}` : issue.message;
+      });
       return res.status(400).json({
         error: "Données invalides",
-        details: error.issues.map((issue) => issue.message),
+        details,
       });
     }
     console.error("Erreur création match:", error);
+    
+    // Retourner le message d'erreur si c'est une erreur métier connue
+    if (error instanceof Error) {
+      // Erreur de validation (IDs inexistants, etc.)
+      if (error.message.includes("n'existe pas")) {
+        return res.status(404).json({
+          error: "Ressource non trouvée",
+          message: error.message,
+        });
+      }
+      // Erreur Prisma (contraintes, etc.)
+      if (error.message.includes("Unique constraint") || error.message.includes("Foreign key constraint")) {
+        return res.status(400).json({
+          error: "Erreur de contrainte",
+          message: error.message,
+        });
+      }
+      return res.status(500).json({
+        error: "Erreur lors de la création du match",
+        message: error.message,
+      });
+    }
+    
     res.status(500).json({ message: "Erreur lors de la création du match" });
   }
 }
