@@ -37,6 +37,7 @@ export default function LoginPage() {
         // Succès : met à jour le contexte et charge user_id
         login();
         await refreshAuth(); // Attendre que user_id soit chargé
+        router.refresh();
         router.back(); // Redirection vers l'accueil
       }
     } catch (e) {
