@@ -82,7 +82,7 @@ export default function DashboardPage() {
           <h2>{userInfo.username}</h2>
           <p>E-mail : {userInfo.email}</p>
           <p>Membre depuis : {new Date(userInfo.created_at).toLocaleDateString("fr-FR")}</p>
-          <p>Rôle : {userInfo.role}</p>
+          <p>{userInfo.role}</p>
           <p>{userStats?.predictions?.length ?? 0} pronostics</p>
           <p>
             {userStats?.stats
