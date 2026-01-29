@@ -66,18 +66,18 @@
   width: 100%;
 }
 
-.pronosHeader {
+/*.pronosHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
   max-width: 400px;
   margin: 2rem 0 1rem;
-}
+}*/
 
 .pronos h2 {
   text-align: center;
-  margin: 0;
+  margin: 2rem 0 1rem;
 }
 
 .viewAllLink {
