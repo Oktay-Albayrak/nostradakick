@@ -137,7 +137,7 @@ export default function MatchCard({
       setModalConfig({
         isOpen: true,
         title: "⚠️ Non connecté",
-        message: "Ce connecter pour pronostiquer",
+        message: "Se connecter pour pronostiquer",
         confirmText: "OK",
         isConfirmation: false,
         onConfirm: () => {},
