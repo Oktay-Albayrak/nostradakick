@@ -116,11 +116,26 @@
     height: auto;
     overflow-x: hidden; /* Empêche le scroll horizontal de la sidebar */
     box-sizing: border-box;
+
+    max-height: calc(100vh - 20px);
+    overflow-y: auto;
   }
 
-  .featuredSection {
-    max-height: calc(100vh - 40px);
-    overflow-y: auto;
+  /* Pour rendre le scroll invisible mais fonctionnel */
+  .competitionList::-webkit-scrollbar,
+  .featuredSection::-webkit-scrollbar {
+    width: 5px;
+  }
+  .competitionList::-webkit-scrollbar-thumb,
+  .featuredSection::-webkit-scrollbar-thumb {
+    background: var(--action-color);
+    border-radius: 10px;
+  }
+
+  .competitionList::-webkit-scrollbar-track,
+  .featuredSection::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
   }
 
   .sidebarTitle {
