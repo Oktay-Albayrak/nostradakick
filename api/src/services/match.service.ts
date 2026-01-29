@@ -6,7 +6,6 @@ import type {
 
 /**
  * Interface pour les entités optionnelles (team/competition) lors de la création d'un match
- * Utilisée par les tâches de synchro qui créent aussi les équipes/compétitions.
  */
 interface OptionalTeam {
   name: string;
@@ -14,7 +13,6 @@ interface OptionalTeam {
   tla: string;
   crest_url: string;
   country: string;
-  api_id?: number | null;
   api_id?: number | null;
 }
 
@@ -24,12 +22,11 @@ interface OptionalCompetition {
   emblem_url: string;
   country: string;
   api_id?: number | null;
-  api_id?: number | null;
 }
 
 /**
- * Crée un match directement (pas d'upsert car l'id est auto-généré côté DB)
- * Fonction interne, réutilisée par différents scénarios de création.
+ * Crée un match directement (pas d'upsert car id auto-généré)
+ * Fonction interne (non exportée)
  */
 async function createMatchInDb(
   matchData: CreateMatchInput,
@@ -40,12 +37,9 @@ async function createMatchInDb(
   const match = await prisma.match.create({
     data: {
       date: new Date(matchData.date),
-      venue: matchData.venue ?? null,
       status: matchData.status ?? "SCHEDULED",
-      home_score:
-        matchData.home_score === undefined ? null : matchData.home_score,
-      away_score:
-        matchData.away_score === undefined ? null : matchData.away_score,
+      home_score: matchData.home_score ?? null,
+      away_score: matchData.away_score ?? null,
       home_team_id: homeTeamId,
       away_team_id: awayTeamId,
       competition_id: competitionId,
@@ -66,9 +60,8 @@ async function createMatchInDb(
 }
 
 /**
- * Cas 1 : création d'un match à partir d'objets complets (utilisé par la synchro)
- * - Crée ou met à jour la compétition et les équipes à partir de leurs noms
- * - Puis crée le match avec les IDs résultants
+ * Crée un match avec création/récupération automatique des équipes et compétition
+ * Utile pour créer un match avec des données complètes depuis le body de la requête
  */
 export async function createMatch(
   matchData: CreateMatchInput,
@@ -94,6 +87,7 @@ export async function createMatch(
       api_id: competition.api_id ?? null,
     },
     update: {
+      // Optionnel : mettre à jour les infos si besoin
       ...(competition.code !== undefined && { code: competition.code }),
 
       ...(competition.emblem_url !== undefined && {
@@ -118,6 +112,7 @@ export async function createMatch(
       api_id: homeTeam.api_id ?? null,
     },
     update: {
+      // Optionnel : mettre à jour les infos si besoin
       ...(homeTeam.short_name !== undefined && {
         short_name: homeTeam.short_name,
       }),
@@ -131,8 +126,6 @@ export async function createMatch(
       }),
 
       ...(homeTeam.country !== undefined && {
-        country: homeTeam.country,
-      }),
         country: homeTeam.country,
       }),
     },
@@ -170,8 +163,6 @@ export async function createMatch(
       ...(awayTeam.country !== undefined && {
         country: awayTeam.country,
       }),
-        country: awayTeam.country,
-      }),
     },
   });
 
@@ -191,7 +182,6 @@ export async function findAllMatches(
   isHot: boolean = false,
   date?: string,
   status?: string, // Paramètre ajouté pour basculer entre passé/futur
-  all: boolean = false, // Paramètre pour désactiver les filtres par défaut (pour l'admin)
 ) {
   // Calcul du nombre d'éléments à sauter pour la pagination
   const skip = (page - 1) * limit;
@@ -201,40 +191,8 @@ export async function findAllMatches(
 
   /**
    * 1. GESTION DU FILTRE TEMPOREL (HIÉRARCHIE)
-   * Si all=true, on ignore les filtres par défaut (pour la page admin)
-   * mais on exclut quand même les matchs terminés (FINISHED, AWARDED)
    */
-  if (all) {
-    // Mode "all" (page admin) : par défaut on n'affiche que les matchs à venir (date >= now)
-    // pour ne pas voir les matchs déjà passés. Si status="past" on affiche les terminés.
-    if (date) {
-      const startOfDay = new Date(date);
-      startOfDay.setHours(0, 0, 0, 0);
-      const endOfDay = new Date(date);
-      endOfDay.setHours(23, 59, 59, 999);
-      whereConditions.date = {
-        gte: startOfDay,
-        lte: endOfDay,
-      };
-    }
-    if (status === "past") {
-      // Matchs passés / terminés
-      whereConditions.date = {
-        lt: new Date(),
-      };
-      whereConditions.status = {
-        in: ["FINISHED", "AWARDED"],
-      };
-    } else {
-      // Par défaut : uniquement matchs à venir (date >= now) et non terminés
-      whereConditions.date = {
-        gte: new Date(),
-      };
-      whereConditions.status = {
-        notIn: ["FINISHED", "AWARDED"],
-      };
-    }
-  } else if (date) {
+  if (date) {
     // PRIORITÉ MAX : Sélection d'un jour précis (Pastilles ou Calendrier)
     // On affiche uniquement les matchs de ce jour-là
     const startOfDay = new Date(date);
