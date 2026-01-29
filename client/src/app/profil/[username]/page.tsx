@@ -54,14 +54,17 @@ export default async function Profil({ params }: PageProps) {
       <section className={styles.profil}>
         <Image
           className={styles.avatar}
-          src="/default-avatar.jpg"
+          src={data.avatar_url || `/default-avatar.png`}
           width={200}
           height={200}
           alt={`Avatar de ${user.username}`}
         />
         <div className={styles.bio}>
           <h2>{user.username}</h2>
-          <p>Membre depuis : {new Date(user.created_at).toLocaleDateString("fr-FR")}</p>
+          <p>
+            Membre depuis :{" "}
+            {new Date(user.created_at).toLocaleDateString("fr-FR")}
+          </p>
           <p>{userStats.predictions?.length ?? 0} pronostics</p>
           <p>{points} points</p>
         </div>
@@ -71,19 +74,47 @@ export default async function Profil({ params }: PageProps) {
         <section className={styles.pronos}>
           <h2>Derniers pronos</h2>
           <div>
-            {userStats?.predictions?.sort((a, b) => new Date(b.match.date).getTime() - new Date(a.match.date).getTime()).slice(0, 4).map((p, index) => (
-              <article key={p.id || index} className={styles.prono}>
-                <p>
-                  {p.match.home_team.name} - {p.match.away_team.name}
-                </p>
-                <div className={styles.choice}>
-                  <p className={p.prediction_value === "HOME" ? styles.active : ""}>1</p>
-                  <p className={p.prediction_value === "DRAW" ? styles.active : ""}>N</p>
-                  <p className={p.prediction_value === "AWAY" ? styles.active : ""}>2</p>
-                </div>
-              </article>
-            ))}
-            <Link href={`/profil/${username}/pronostics`} className={styles.goPronos}>
+            {userStats?.predictions
+              ?.sort(
+                (a, b) =>
+                  new Date(b.match.date).getTime() -
+                  new Date(a.match.date).getTime(),
+              )
+              .slice(0, 4)
+              .map((p, index) => (
+                <article key={p.id || index} className={styles.prono}>
+                  <p>
+                    {p.match.home_team.name} - {p.match.away_team.name}
+                  </p>
+                  <div className={styles.choice}>
+                    <p
+                      className={
+                        p.prediction_value === "HOME" ? styles.active : ""
+                      }
+                    >
+                      1
+                    </p>
+                    <p
+                      className={
+                        p.prediction_value === "DRAW" ? styles.active : ""
+                      }
+                    >
+                      N
+                    </p>
+                    <p
+                      className={
+                        p.prediction_value === "AWAY" ? styles.active : ""
+                      }
+                    >
+                      2
+                    </p>
+                  </div>
+                </article>
+              ))}
+            <Link
+              href={`/profil/${username}/pronostics`}
+              className={styles.goPronos}
+            >
               Voir tous ses pronostics ➜
             </Link>
           </div>
@@ -93,15 +124,35 @@ export default async function Profil({ params }: PageProps) {
           <h2>Statistiques</h2>
           <div>
             <article className={styles.stat}>
-              <Image className={styles.logo} src="/croissance.png" width={50} height={50} alt="Série" />
-              <p>Meilleure série gagnante : {userStats.stats?.best_streak ?? 0}</p>
+              <Image
+                className={styles.logo}
+                src="/croissance.png"
+                width={50}
+                height={50}
+                alt="Série"
+              />
+              <p>
+                Meilleure série gagnante : {userStats.stats?.best_streak ?? 0}
+              </p>
             </article>
             <article className={styles.stat}>
-              <Image className={styles.logo} src="/prix.png" width={50} height={50} alt="Gagnants" />
+              <Image
+                className={styles.logo}
+                src="/prix.png"
+                width={50}
+                height={50}
+                alt="Gagnants"
+              />
               <p>Pronostics gagnants : {wins}</p>
             </article>
             <article className={styles.stat}>
-              <Image className={styles.logo} src="/taux.png" width={50} height={50} alt="Taux" />
+              <Image
+                className={styles.logo}
+                src="/taux.png"
+                width={50}
+                height={50}
+                alt="Taux"
+              />
               <p>Taux de réussite :{winRate}%</p>
             </article>
           </div>
