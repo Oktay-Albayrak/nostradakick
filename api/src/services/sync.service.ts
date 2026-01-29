@@ -162,9 +162,7 @@ export async function syncAllMatches() {
     where: { rank: { lte: 5 } },
     select: { team: { select: { api_id: true } } },
   });
-  const globalTop5: Set<number> = new Set(
-    standings.map((s) => s.team.api_id).filter((id): id is number => id !== null)
-  );
+  const globalTop5 = new Set(standings.map((s) => s.team.api_id).filter((id) => id !== null));
 
   const promises = LEAGUES_TO_SYNC.map(async (leagueCode) => {
     try {

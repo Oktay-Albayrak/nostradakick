@@ -51,7 +51,6 @@ export default function ArchiveControls({
 
   const lastDays = generateLastDays();
 
-  const selectedTeam = searchParams.get("team"); // On récupère l'équipe si elle existe
   const currentStatus = searchParams.get("status");
 
   const handleToggleArchive = () => {
