@@ -5,41 +5,62 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 import { IUser } from "@/types/user";
+import { IUserStats } from "@/types/userStats";
 
 export default function DashboardPage() {
-  const [userMe, setUserMe] = useState<IUser | null>(null);
+  const [userInfo, setUserInfo] = useState<IUser | null>(null);
+  const [userStats, setUserStats] = useState<IUserStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const loadUser = async () => {
+    const loadData = async () => {
       try {
+        // 1. Récupérer l'utilisateur connecté
         const userMeResponse = await fetch("http://localhost:4000/api/auth/me", {
           credentials: "include",
           cache: "no-store",
         });
 
-        if (userMeResponse.ok) {
-          const data: IUser = await userMeResponse.json();
-          setUserMe(data);
+        if (!userMeResponse.ok) {
+          setUserInfo(null);
+          setIsLoading(false);
+          return;
+        }
+
+        const userData: IUser = await userMeResponse.json();
+        setUserInfo(userData);
+
+        // 2. Récupérer les stats complètes (avec pronos et stats)
+        const statsResponse = await fetch(
+          `http://localhost:4000/api/users/${userData.username}`,
+          {
+            cache: "no-store",
+          }
+        );
+
+        if (statsResponse.ok) {
+          const statsData: IUserStats = await statsResponse.json();
+          setUserStats(statsData);
         } else {
-          setUserMe(null);
+          setUserStats(null);
         }
       } catch (error) {
-        console.error("Erreur lors du chargement de l'utilisateur:", error);
-        setUserMe(null);
+        console.error("Erreur lors du chargement des données:", error);
+        setUserInfo(null);
+        setUserStats(null);
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadUser();
+    loadData();
   }, []);
 
   if (isLoading) {
     return <div>Chargement...</div>;
   }
 
-  if (!userMe) {
+  if (!userInfo) {
     return (
       <div>
         Non connecté. <Link href="/login">Se connecter</Link>
@@ -52,18 +73,23 @@ export default function DashboardPage() {
       <section className={styles.profil}>
         <Image
           className={styles.avatar}
-          src={userMe.avatar_url || "/default-avatar.jpg"}
+          src={userInfo.avatar_url || "/default-avatar.jpg"}
           width={200}
           height={200}
           alt="Avatar du membre"
         />
         <div className={styles.bio}>
-          <h2>{userMe.username}</h2>
-          <p>E-mail : {userMe.email}</p>
-          <p>Membre depuis : {new Date(userMe.created_at).toLocaleDateString()}</p>
-          <p>Rôle : {userMe.role}</p>
-          <p>600 pronostics</p>
-          <p>5450 points gagnés</p>
+          <h2>{userInfo.username}</h2>
+          <p>E-mail : {userInfo.email}</p>
+          <p>Membre depuis : {new Date(userInfo.created_at).toLocaleDateString("fr-FR")}</p>
+          <p>{userInfo.role}</p>
+          <p>{userStats?.predictions?.length ?? 0} pronostics</p>
+          <p>
+            {userStats?.stats
+              ? Math.max(0, userStats.stats.wins_count * 5 - (userStats.stats.losses_count || 0))
+              : 0}{" "}
+            points gagnés
+          </p>
           <Link href="/profil/edit" className={styles.editButton}>
             Modifier mon profil
           </Link>
@@ -73,47 +99,27 @@ export default function DashboardPage() {
         <section className={styles.pronos}>
           <div className={styles.pronosHeader}>
             <h2>Mes derniers pronos</h2>
+          </div>
+          <div>
+            {userStats?.predictions?.sort((a, b) => new Date(b.match.date).getTime() - new Date(a.match.date).getTime()).slice(0, 4).map((p, index) => (
+              <article key={p.id || index} className={styles.prono}>
+                <p>
+                  {p.match.home_team.name} - {p.match.away_team.name}
+                </p>
+                <div className={styles.choice}>
+                  <p className={p.prediction_value === "HOME" ? styles.active : ""}>1</p>
+                  <p className={p.prediction_value === "DRAW" ? styles.active : ""}>N</p>
+                  <p className={p.prediction_value === "AWAY" ? styles.active : ""}>2</p>
+                </div>
+              </article>
+            ))}
             <Link href="/dashboard/pronostics" className={styles.viewAllLink}>
               Voir tous mes pronostics →
             </Link>
           </div>
-          <div>
-            <article className={styles.prono}>
-              <p>Havre AC - O. de Marseille</p>
-              <div className={styles.choice}>
-                <p className={styles.active}>1</p>
-                <p>N</p>
-                <p>2</p>
-              </div>
-            </article>
-            <article className={styles.prono}>
-              <p>Paris FC - O. Lyonnais</p>
-              <div className={styles.choice}>
-                <p className={styles.active}>1</p>
-                <p>N</p>
-                <p>2</p>
-              </div>
-            </article>
-            <article className={styles.prono}>
-              <p>Paris SG - Lille</p>
-              <div className={styles.choice}>
-                <p className={styles.active}>1</p>
-                <p>N</p>
-                <p>2</p>
-              </div>
-            </article>
-            <article className={styles.prono}>
-              <p>SC Frileuse - Havre CS</p>
-              <div className={styles.choice}>
-                <p>1</p>
-                <p className={styles.active}>N</p>
-                <p>2</p>
-              </div>
-            </article>
-          </div>
         </section>
         <section className={styles.stats}>
-          <h2>Mes stats</h2>
+          <h2>Mes statistiques</h2>
           <div>
             <article className={styles.stat}>
               <Image
@@ -123,7 +129,7 @@ export default function DashboardPage() {
                 height={50}
                 alt="Meilleure série gagnante"
               />
-              <p>Meilleure série gagnante : 12</p>
+              <p>Meilleure série gagnante : {userStats?.stats?.best_streak ?? 0}</p>
             </article>
             <article className={styles.stat}>
               <Image
@@ -131,9 +137,9 @@ export default function DashboardPage() {
                 src="/prix.png"
                 width={50}
                 height={50}
-                alt="Pronostics L.1 gagnants"
+                alt="Pronostics gagnants"
               />
-              <p>Pronostics L.1 gagnants : 372</p>
+              <p>Pronostics gagnants : {userStats?.stats?.wins_count ?? 0}</p>
             </article>
             <article className={styles.stat}>
               <Image
@@ -143,7 +149,16 @@ export default function DashboardPage() {
                 height={50}
                 alt="Taux de réussite"
               />
-              <p>Taux de réussite : 78 %</p>
+              <p>
+                Taux de réussite :{" "}
+                {userStats?.stats && userStats.stats.wins_count + userStats.stats.losses_count > 0
+                  ? (
+                      ((userStats.stats.wins_count * 100) /
+                        (userStats.stats.wins_count + userStats.stats.losses_count)) as number
+                    ).toFixed(2)
+                  : 0}
+                %
+              </p>
             </article>
           </div>
         </section>
