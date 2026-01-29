@@ -1,22 +1,43 @@
+/* ==========================================================================
+   FOOTER - Styles de base (Mobile First)
+   ========================================================================== */
+
 .footer {
-  margin-top: auto;
+  margin-top: auto; /* Pousse le footer vers le bas si le contenu est court */
   width: 100%;
   background-color: var(--primary);
-  color: #ffffff;
-  padding: 2rem 1rem;
+  color: var(--white);
+
+  /* ⚠️ TRÈS IMPORTANT : On ajoute du padding en bas sur mobile 
+     pour que le texte ne soit pas caché par la barre de navigation fixe (60px + marge) */
+  padding: 2rem 1rem 80px 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .footerContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  gap: 2rem;
   max-width: 1200px;
   margin: 0 auto;
-  position: relative;
 }
 
-/* NAV */
+/* --- LOGO (En haut sur mobile via l'ordre par défaut ou flex) --- */
+
+.footerLogo img {
+  height: 80px;
+  width: auto;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.footerLogo:hover img {
+  transform: scale(1.05);
+}
+
+/* --- NAVIGATION PIED DE PAGE --- */
+
 .footerNav ul {
   list-style: none;
   padding: 0;
@@ -24,56 +45,63 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-}
-
-.footerNav li {
-  margin: 0;
+  gap: 1rem;
 }
 
 .footerNav a {
-  color: #ffffff;
+  color: var(--white);
   text-decoration: none;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  transition:
+    opacity 0.2s ease,
+    color 0.2s ease;
 }
 
 .footerNav a:hover {
-  text-decoration: underline;
+  opacity: 1;
+  color: var(--action-color);
 }
 
 /* ✅ Accessibilité clavier */
 .footerNav a:focus-visible {
-  outline: 3px solid #ffffff;
+  outline: 2px solid var(--action-color);
   outline-offset: 4px;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
-/* LOGO */
-.footerLogo {
-  order: -1; /* mobile : logo en premier */
-}
+/* --- COPYRIGHT / TEXTE DROITE --- */
 
-.footerLogo img {
-  height: 100px;
-  width: auto;
-  display: block;
-}
-
-/* Texte droite (copyright) */
 .footerRight {
-  font-size: 0.95rem;
-  opacity: 0.95;
+  font-size: 0.85rem;
+  opacity: 0.6;
   text-align: center;
+  line-height: 1.4;
 }
 
-/* Desktop */
+/* ==========================================================================
+   DESKTOP (Min-width: 920px)
+   ========================================================================== */
+
 @media (min-width: 920px) {
+  .footer {
+    /* Sur desktop, la barre de navigation mobile disparaît, 
+       on peut donc remettre un padding normal en bas */
+    padding: 3rem 2rem;
+  }
+
   .footerContainer {
     flex-direction: row;
     justify-content: space-between;
-    align-items: center;
+    padding: 0 2rem;
+  }
 
-    /* ✅ évite les chevauchements avec le logo en absolute */
-    padding: 0 3.5rem;
+  .footerLogo {
+    order: 0; /* On remet le logo au centre ou selon l'ordre HTML */
+  }
+
+  .footerLogo img {
+    height: 150px;
   }
 
   .footerNav {
@@ -83,16 +111,13 @@
   .footerNav ul {
     flex-direction: row;
     justify-content: flex-start;
-    gap: 2rem;
-  }
-
-  .footerLogo {
-    order: 0;
+    gap: 2.5rem;
   }
 
   .footerRight {
     flex: 1;
     display: flex;
     justify-content: flex-end;
+    text-align: right;
   }
 }

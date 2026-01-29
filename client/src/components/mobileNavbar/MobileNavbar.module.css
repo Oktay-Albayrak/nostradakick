@@ -5,15 +5,57 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
+  height: 65px;
   width: 100%;
-  padding: .5rem 0;
-  background: var(--primary);
-  opacity: 95%;
+  padding: 0.5rem 0;
+
+  /* Style visuel : Fond semi-transparent avec flou */
+  background: rgba(
+    26,
+    58,
+    122,
+    0.95
+  ); /* Utilise une variable RGB si possible, sinon var(--primary) */
+  backdrop-filter: blur(10px); /* Effet premium de flou derrière la barre */
+  -webkit-backdrop-filter: blur(10px); /* Support Safari */
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: env(
+    safe-area-inset-bottom
+  ); /* Support pour l'encoche des iPhones récents */
+  z-index: 1000; /* Toujours au-dessus du contenu */
 }
 
 .icon {
   width: 30px;
   height: 30px;
+  opacity: 0.8;
+  transition: all 0.2s ease;
+  object-fit: contain;
+}
+
+.avatarLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.userAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 2px solid var(--action-color);
+  background: white;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+.nav a:active,
+.nav div:active {
+  transform: scale(0.9); /* Feedback tactile */
+}
+
+.nav a:hover .icon {
+  opacity: 1;
 }
 
 @media (min-width: 650px) {
