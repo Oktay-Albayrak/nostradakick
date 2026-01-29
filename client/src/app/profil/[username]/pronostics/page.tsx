@@ -2,23 +2,12 @@ import styles from "./page.module.css";
 import { notFound } from "next/navigation";
 import { IUserStats } from "@/types/userStats";
 import ReturnButton from "@/components/ReturnButton/ReturnButton";
+import PredictionList from "./components/PredictionList";
 
 // On définit le type des props
 interface PageProps {
   params: Promise<{ username: string }>;
 }
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-
-  return new Intl.DateTimeFormat('fr-FR', {
-    weekday: 'short', // "mer."
-    day: '2-digit',   // "07"
-    month: '2-digit', // "01"
-    hour: '2-digit',  // "19"
-    minute: '2-digit' // "45"
-  }).format(date);
-};
 
 export default async function ProfilPronos({ params }: PageProps) {
   // 1. On récupère le username
@@ -36,6 +25,10 @@ export default async function ProfilPronos({ params }: PageProps) {
   }
 
   const user: IUserStats = await response.json();
+
+  const sortedPredictions = user.predictions?.sort((a, b) =>
+    new Date(b.match.date).getTime() - new Date(a.match.date).getTime()
+  ) || [];
 
   // Calculs préparés côté serveur
   const wins = user.stats?.wins_count ?? 0;
@@ -78,7 +71,7 @@ export default async function ProfilPronos({ params }: PageProps) {
         <main className={styles.pronosticsContent}>
           <h1 className={styles.sectionTitle}>Pronostics de {user.username}</h1>
 
-          <div className={styles.pronosticsGrid}>
+          {/* <div className={styles.pronosticsGrid}>
             {user.predictions?.map((p, index) => (
               <article key={p.id || index} className={styles.pronoCard}>
                 <div className={styles.matchHeader}>
@@ -87,18 +80,63 @@ export default async function ProfilPronos({ params }: PageProps) {
                 </div>
                 <div className={styles.matchInfo}>
                   <p className={styles.teams}>{p.match.home_team.name} - {p.match.away_team.name}</p>
-                  <div className={styles.choice}>
-                    <span className={`${styles.pick} ${p.prediction_value === "HOME" ? styles.pickActive : ""}`}>1</span>
-                    <span className={`${styles.pick} ${p.prediction_value === "DRAW" ? styles.pickActive : ""}`}>N</span>
-                    <span className={`${styles.pick} ${p.prediction_value === "AWAY" ? styles.pickActive : ""}`}>2</span>
-                  </div>
+                  {p.status === "PENDING" && 
+                    <div className={styles.choice}>
+                      <span className={`${styles.pick} ${p.prediction_value === "HOME" ? styles.pickActive : ""}`}>1</span>
+                      <span className={`${styles.pick} ${p.prediction_value === "DRAW" ? styles.pickActive : ""}`}>N</span>
+                      <span className={`${styles.pick} ${p.prediction_value === "AWAY" ? styles.pickActive : ""}`}>2</span>
+                    </div>
+                  }
+                  {(["LOST", "WON"].includes(p.status) && p.match.home_score !== null && p.match.away_score !== null) && (() => {
+                    const h = p.match.home_score;
+                    const a = p.match.away_score;
+                    const actualResult = h > a ? "HOME" : a > h ? "AWAY" : "DRAW";
+
+                    return (
+                      <div className={styles.choice}>
+                        <span className={`
+                          ${styles.pick}
+                          ${actualResult === "HOME" ? styles.pickGood : ""} 
+                          ${p.prediction_value === "HOME" && actualResult !== "HOME" ? styles.pickWrong : ""}
+                        `}>
+                          1
+                        </span>
+                        <span className={`
+                          ${styles.pick}
+                          ${actualResult === "DRAW" ? styles.pickGood : ""}
+                          ${p.prediction_value === "DRAW" && actualResult !== "DRAW" ? styles.pickWrong : ""}
+                        `}>
+                          N
+                        </span>
+                        <span className={`
+                          ${styles.pick}
+                          ${actualResult === "AWAY" ? styles.pickGood : ""}
+                          ${p.prediction_value === "AWAY" && actualResult !== "AWAY" ? styles.pickWrong : ""}
+                        `}>
+                          2
+                        </span>
+                      </div>
+                    );
+                  })()}
+                  
                 </div>
                 <div className={styles.status}>
-                  <span className={styles.statusPending}>{p.status}</span>
+                  {p.status === "PENDING" ? (
+                    <span className={styles.statusPending}>En attente</span>
+                  )
+                  : (p.status === "WON" ? (
+                    <span className={styles.statusWon}>✓ Gagné</span>
+                  )
+                  : (
+                    <span className={styles.statusLost}>✗ Perdu</span>
+                  ))}
                 </div>
               </article>
             ))}
-          </div>
+          </div> */}
+          <PredictionList
+            predictions={sortedPredictions}
+          />
         </main>
 
         {/* 5. COLONNE DROITE : STATS RAPIDES */}
