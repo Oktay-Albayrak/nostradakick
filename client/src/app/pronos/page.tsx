@@ -92,20 +92,25 @@ export default async function Pronos() {
                 <div className={styles.userInfo}>
                   <Image
                     className={styles.avatar}
-                    src="/default-avatar.jpg"
+                    src={group.user.avatar_url ?? "/default-avatar.jpg"}
                     width={200}
                     height={200}
                     alt="Avatar du membre"
                   />
                   <div className={styles.profilColumn}>
-                    <span className={styles.username}>{group.user.username}</span>
+                    <span className={styles.username}>
+                      {group.user.username}
+                    </span>
                   </div>
                 </div>
               </Link>
               {group.latestPredictions.map((prono) => (
                 <div key={prono.id} className={styles.pronoRow}>
                   <div className={styles.matchInfo}>
-                    <Link href={`/matchs/${prono.match.api_id}`} className={styles.pronoLabel}>
+                    <Link
+                      href={`/matchs/${prono.match.api_id}`}
+                      className={styles.pronoLabel}
+                    >
                       {prono.match.home_team.name} -{" "}
                       {prono.match.away_team.name}
                     </Link>
@@ -132,7 +137,12 @@ export default async function Pronos() {
                   </div>
                 </div>
               ))}
-              <Link href={`/profil/${group.user.username}/pronostics`} className={styles.seeLink}>Voir tout ses pronos ➜</Link>
+              <Link
+                href={`/profil/${group.user.username}/pronostics`}
+                className={styles.seeLink}
+              >
+                Voir tout ses pronos ➜
+              </Link>
             </div>
           ))}
         </div>
