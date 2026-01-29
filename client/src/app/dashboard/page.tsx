@@ -101,7 +101,7 @@ export default function DashboardPage() {
             <h2>Mes derniers pronos</h2>
           </div>
           <div>
-            {userStats?.predictions?.slice(0, 4).map((p, index) => (
+            {userStats?.predictions?.sort((a, b) => new Date(b.match.date).getTime() - new Date(a.match.date).getTime()).slice(0, 4).map((p, index) => (
               <article key={p.id || index} className={styles.prono}>
                 <p>
                   {p.match.home_team.name} - {p.match.away_team.name}
