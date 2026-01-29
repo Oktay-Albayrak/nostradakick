@@ -84,7 +84,7 @@
   color: var(--primary);
 }
 
-@media (min-width: 1120px) {
+@media (min-width: 1280px) {
   .archiveMobileBtn {
     display: none;
   }

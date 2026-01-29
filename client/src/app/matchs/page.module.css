@@ -89,14 +89,14 @@
 }
 
 /* --- DESKTOP (>= 1120px) --- */
-@media (min-width: 1120px) {
+@media (min-width: 1280px) {
   .mobileFilters {
     display: none;
   }
 
   .mainGrid {
     display: grid;
-    grid-template-columns: 380px 1fr 380px; /* Ajusté pour plus d'équilibre */
+    grid-template-columns: 380px minmax(0, 1fr) 380px; /* Ajusté pour plus d'équilibre */
     gap: 2rem;
     align-items: start;
     width: 100%;
