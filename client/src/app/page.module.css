@@ -529,7 +529,7 @@
 }
 
 /* --- RESPONSIVE --- */
-@media (min-width: 650px) {
+@media (min-width: 770px) {
   .featureCard:last-child {
     grid-column: 1 / -1;
     max-width: 100%;
@@ -597,7 +597,7 @@
   }
 }
 
-@media (min-width: 1120px) {
+@media (min-width: 1280px) {
   .mainGrid {
     grid-template-columns: 2fr 1fr;
     gap: 3rem;
