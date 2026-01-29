@@ -48,7 +48,7 @@
 }
 
 .userGroup {
-  padding: .5rem;
+  padding: 0.5rem;
   border-radius: 16px;
   height: fit-content;
   box-shadow: var(--box-shadow);
@@ -62,8 +62,8 @@
   align-items: center;
   border: 1px solid var(--dark-grey);
   border-radius: 16px;
-  padding: .5rem;
-  margin-top: .5rem;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
   background: var(--white);
   color: var(--dark);
 }
@@ -72,17 +72,18 @@
 .userInfo {
   display: flex;
   align-items: center;
-  margin-bottom: .5rem;
+  margin-bottom: 0.5rem;
   gap: 1rem;
   width: 100%;
 }
 
 /* AVATAR */
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   flex-shrink: 0;
+  border: 2px solid var(--primary-light);
 }
 
 /* COLONNE DU PROFIL - Pseudo + Timestamp */
@@ -152,7 +153,7 @@
 .seeLink {
   display: block;
   width: fit-content;
-  margin: .5rem auto;
+  margin: 0.5rem auto;
   color: var(--white);
 }
 
@@ -167,5 +168,5 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 8rem;
     grid-auto-flow: dense;
-  } 
+  }
 }
