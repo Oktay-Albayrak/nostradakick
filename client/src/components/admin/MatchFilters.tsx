@@ -34,10 +34,10 @@ export default function MatchFilters({
       );
     }
 
-    // Filtre par compétition
+    // Filtre par compétition (id pour gérer les compétitions sans code / créées à la main)
     if (selectedCompetition !== "all") {
       filtered = filtered.filter(
-        (match) => match.competition.code === selectedCompetition
+        (match) => match.competition.id === selectedCompetition
       );
     }
 
@@ -71,7 +71,7 @@ export default function MatchFilters({
       >
         <option value="all">Toutes les compétitions</option>
         {competitions.map((comp) => (
-          <option key={comp.id} value={comp.code}>
+          <option key={comp.id} value={comp.id}>
             {comp.name}
           </option>
         ))}

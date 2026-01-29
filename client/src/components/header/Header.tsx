@@ -7,7 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function Header() {
 
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, role } = useAuth();
 
   return (
     <header className={styles.header}>
@@ -25,6 +25,9 @@ export default function Header() {
         <Link className={styles.navlinks} href="/">Accueil</Link>
         <Link className={styles.navlinks} href="/matchs">Matchs</Link>
         <Link className={styles.navlinks} href="/pronos">Pronos</Link>
+        {isLoggedIn && role === "ADMIN" && (
+          <Link className={styles.navlinks} href="/admin">Dashboard</Link>
+        )}
       </nav>
       <div className={styles.buttons}>
         {!isLoggedIn && (

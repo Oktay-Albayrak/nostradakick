@@ -6,7 +6,14 @@ import styles from "./admin.module.css";
 interface Competition {
   id: string;
   name: string;
-  code: string;
+  code?: string | null;
+}
+
+export interface CreateCompetitionData {
+  name: string;
+  code?: string;
+  emblem_url: string;
+  country: string;
 }
 
 interface CompetitionSearchInputProps {
@@ -15,7 +22,7 @@ interface CompetitionSearchInputProps {
   placeholder?: string;
   label: string;
   disabled?: boolean;
-  onCreateNew?: (name: string, code: string) => Promise<Competition>;
+  onCreateNew?: (data: CreateCompetitionData) => Promise<Competition>;
 }
 
 export default function CompetitionSearchInput({
@@ -33,10 +40,13 @@ export default function CompetitionSearchInput({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newCompetitionName, setNewCompetitionName] = useState("");
   const [newCompetitionCode, setNewCompetitionCode] = useState("");
+  const [newCompetitionEmblemUrl, setNewCompetitionEmblemUrl] = useState("");
+  const [newCompetitionCountry, setNewCompetitionCountry] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [selectedCompetition, setSelectedCompetition] = useState<Competition | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const createFormRef = useRef<HTMLDivElement>(null);
 
   // Charger la compétition sélectionnée au montage si value est définie
   useEffect(() => {
@@ -44,6 +54,13 @@ export default function CompetitionSearchInput({
       fetchCompetitionById(value);
     }
   }, [value]);
+
+  // Faire défiler le formulaire de création dans la vue quand il s'ouvre
+  useEffect(() => {
+    if (showCreateForm && createFormRef.current) {
+      createFormRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [showCreateForm]);
 
   // Fermer le dropdown si on clique en dehors
   useEffect(() => {
@@ -123,23 +140,27 @@ export default function CompetitionSearchInput({
   }
 
   async function handleCreateNew() {
-    if (!newCompetitionName.trim() || !newCompetitionCode.trim() || !onCreateNew) return;
+    if (!newCompetitionName.trim() || !newCompetitionCountry.trim() || !onCreateNew) return;
 
     setIsCreating(true);
     try {
-      const newCompetition = await onCreateNew(
-        newCompetitionName.trim(),
-        newCompetitionCode.trim().toUpperCase()
-      );
+      const newCompetition = await onCreateNew({
+        name: newCompetitionName.trim(),
+        code: newCompetitionCode.trim() || undefined,
+        emblem_url: newCompetitionEmblemUrl.trim(),
+        country: newCompetitionCountry.trim(),
+      });
       setSelectedCompetition(newCompetition);
       setSearchQuery(newCompetition.name);
       onChange(newCompetition.id);
       setShowCreateForm(false);
       setNewCompetitionName("");
       setNewCompetitionCode("");
+      setNewCompetitionEmblemUrl("");
+      setNewCompetitionCountry("");
     } catch (error) {
       console.error("Erreur lors de la création de la compétition:", error);
-      alert("Erreur lors de la création de la compétition");
+      alert(error instanceof Error ? error.message : "Erreur lors de la création de la compétition");
     } finally {
       setIsCreating(false);
     }
@@ -149,6 +170,11 @@ export default function CompetitionSearchInput({
     <div style={{ position: "relative" }}>
       <label className={styles.modalLabel}>
         {label}
+        {onCreateNew && (
+          <span style={{ display: "block", fontSize: "0.8rem", color: "#666", marginTop: "2px" }}>
+            Pas trouvé ? Tapez un nom puis cliquez sur « + Créer » pour afficher le formulaire.
+          </span>
+        )}
         <input
           ref={inputRef}
           type="text"
@@ -203,12 +229,13 @@ export default function CompetitionSearchInput({
                     e.currentTarget.style.backgroundColor = "white";
                   }}
                 >
-                  {competition.name} ({competition.code})
+                  {competition.name}{competition.code ? ` (${competition.code})` : ""}
                 </div>
               ))}
               {onCreateNew && (
                 <div
                   onClick={() => {
+                    setNewCompetitionName(searchQuery);
                     setShowCreateForm(true);
                     setShowDropdown(false);
                   }}
@@ -230,6 +257,7 @@ export default function CompetitionSearchInput({
               {onCreateNew && (
                 <div
                   onClick={() => {
+                    setNewCompetitionName(searchQuery);
                     setShowCreateForm(true);
                     setShowDropdown(false);
                   }}
@@ -252,13 +280,14 @@ export default function CompetitionSearchInput({
 
       {showCreateForm && onCreateNew && (
         <div
+          ref={createFormRef}
           style={{
             position: "absolute",
             top: "100%",
             left: 0,
             right: 0,
             backgroundColor: "white",
-            border: "1px solid #2196f3",
+            border: "2px solid #2196f3",
             borderRadius: "4px",
             padding: "12px",
             zIndex: 1001,
@@ -266,14 +295,14 @@ export default function CompetitionSearchInput({
             marginTop: "4px",
           }}
         >
-          <div style={{ marginBottom: "8px", fontWeight: "bold" }}>
-            Créer une nouvelle compétition
+          <div style={{ marginBottom: "8px", fontWeight: "bold", color: "#1976d2" }}>
+            Créer une nouvelle compétition (nom, code, emblème, pays)
           </div>
           <input
             type="text"
             value={newCompetitionName}
             onChange={(e) => setNewCompetitionName(e.target.value)}
-            placeholder="Nom de la compétition"
+            placeholder="Nom de la compétition *"
             className={styles.modalInput}
             style={{ marginBottom: "8px" }}
             disabled={isCreating}
@@ -282,17 +311,35 @@ export default function CompetitionSearchInput({
             type="text"
             value={newCompetitionCode}
             onChange={(e) => setNewCompetitionCode(e.target.value)}
-            placeholder="Code (ex: WC98)"
+            placeholder="Code (ex: WC98, optionnel)"
             className={styles.modalInput}
             style={{ marginBottom: "8px" }}
             disabled={isCreating}
             maxLength={10}
           />
+          <input
+            type="text"
+            value={newCompetitionEmblemUrl}
+            onChange={(e) => setNewCompetitionEmblemUrl(e.target.value)}
+            placeholder="URL de l'emblème"
+            className={styles.modalInput}
+            style={{ marginBottom: "8px" }}
+            disabled={isCreating}
+          />
+          <input
+            type="text"
+            value={newCompetitionCountry}
+            onChange={(e) => setNewCompetitionCountry(e.target.value)}
+            placeholder="Pays *"
+            className={styles.modalInput}
+            style={{ marginBottom: "8px" }}
+            disabled={isCreating}
+          />
           <div style={{ display: "flex", gap: "8px" }}>
             <button
               type="button"
               onClick={handleCreateNew}
-              disabled={!newCompetitionName.trim() || !newCompetitionCode.trim() || isCreating}
+              disabled={!newCompetitionName.trim() || !newCompetitionCountry.trim() || isCreating}
               className={styles.modalConfirmButton}
               style={{ flex: 1, padding: "6px 12px" }}
             >
@@ -304,6 +351,8 @@ export default function CompetitionSearchInput({
                 setShowCreateForm(false);
                 setNewCompetitionName("");
                 setNewCompetitionCode("");
+                setNewCompetitionEmblemUrl("");
+                setNewCompetitionCountry("");
               }}
               className={styles.modalCancelButton}
               style={{ flex: 1, padding: "6px 12px" }}
