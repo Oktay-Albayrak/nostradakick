@@ -32,7 +32,7 @@ export default function HomeContent({
         credentials: "include",
         // Si tu utilises un Token dans le localStorage, décommente ça :
         /* headers: { 
-         "Authorization": `Bearer ${localStorage.getItem('votre_token_key')}` 
+        "Authorization": `Bearer ${localStorage.getItem('votre_token_key')}` 
       } */
       })
         .then((res) => {
