@@ -139,6 +139,14 @@
   width: 80%;
 }
 
+/* --- RESPONSIVE --- */
+
+@media (max-width: 770px) {
+.welcomeMain {
+  width: 100%;
+}
+}
+
 .welcomeSection {
   padding: 4rem 1rem 0; /* On donne un peu d'air après le Header */
 }
