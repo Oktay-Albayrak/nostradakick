@@ -142,7 +142,8 @@
 /* --- RESPONSIVE --- */
 
 @media (max-width: 770px) {
-.welcomeMain {
+
+  .welcomeMain {
   width: 100%;
 }
 }
