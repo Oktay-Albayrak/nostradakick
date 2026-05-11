@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 /* eslint-disable react/no-unescaped-entities */
 import styles from "./page.module.css";
 import MatchCard from "@/components/matchCard/MatchCard";
@@ -11,7 +12,7 @@ import HomeContent from "@/components/HomeContent/HomeContent";
 
 export default async function Home() {
   // Récupération des matchs de l'API et on récupère 6 matchs à afficher
-  const matchResponse = await fetch("http://localhost:4000/api/matches");
+  const matchResponse = await fetch(`${API_URL}/api/matches`);
   if (!matchResponse.ok) {
     return <div>Erreur lors du chargement des matchs</div>;
   }
@@ -21,7 +22,7 @@ export default async function Home() {
 
   // Récupération des prédictions de l'API et on en récupère 4 à afficher
   const predictionsResponse = await fetch(
-    "http://localhost:4000/api/predictions",
+    `${API_URL}/api/predictions`,
   );
   if (!predictionsResponse.ok) {
     return <div>Erreur lors du chargement des derniers pronos</div>;

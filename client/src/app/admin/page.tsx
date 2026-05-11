@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
@@ -21,7 +22,7 @@ export default async function AdminDashboard() {
       headers["Cookie"] = `accessToken=${accessToken}`;
     }
 
-    const userResponse = await fetch("http://localhost:4000/api/auth/me", {
+    const userResponse = await fetch(`${API_URL}/api/auth/me`, {
       cache: "no-store",
       headers,
     });

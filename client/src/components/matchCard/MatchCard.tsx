@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 /**
  * COMPOSANT MATCHCARD
  * * Affiche une carte de match avec :
@@ -104,7 +105,7 @@ export default function MatchCard({
     const fetchUserPrediction = async () => {
       try {
         const response = await fetch(
-          `http://localhost:4000/api/predictions?user_id=${user_id}&match_id=${match.id}`,
+          `${API_URL}/api/predictions?user_id=${user_id}&match_id=${match.id}`,
           { credentials: "include" },
         );
         if (response.ok) {
@@ -175,7 +176,7 @@ export default function MatchCard({
     if (!pendingPrediction || !user_id) return;
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:4000/api/predictions", {
+      const response = await fetch(`${API_URL}/api/predictions`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

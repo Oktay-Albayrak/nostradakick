@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
@@ -60,7 +61,7 @@ export default async function AdminPronostics() {
       headers["Cookie"] = `accessToken=${accessToken}`;
     }
 
-    const userResponse = await fetch("http://localhost:4000/api/auth/me", {
+    const userResponse = await fetch(`${API_URL}/api/auth/me`, {
       cache: "no-store",
       headers,
     });
@@ -94,7 +95,7 @@ export default async function AdminPronostics() {
       headers["Cookie"] = `accessToken=${accessToken}`;
     }
 
-    const response = await fetch("http://localhost:4000/api/predictions", {
+    const response = await fetch(`${API_URL}/api/predictions`, {
       cache: "no-store",
       headers,
     });

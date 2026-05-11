@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 "use client";
 
 import { useState } from "react";
@@ -69,7 +70,7 @@ export default function CreateMatchModal({
   }
 
   async function createNewTeam(data: CreateTeamData) {
-    const response = await fetch("http://localhost:4000/api/teams", {
+    const response = await fetch(`${API_URL}/api/teams`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -93,7 +94,7 @@ export default function CreateMatchModal({
   }
 
   async function createNewCompetition(data: CreateCompetitionData) {
-    const response = await fetch("http://localhost:4000/api/competitions", {
+    const response = await fetch(`${API_URL}/api/competitions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -210,7 +211,7 @@ export default function CreateMatchModal({
           payload.featured_name = formData.featured_name.trim();
         }
 
-        const response = await fetch("http://localhost:4000/api/matches", {
+        const response = await fetch(`${API_URL}/api/matches`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -251,7 +252,7 @@ export default function CreateMatchModal({
         }
 
         const response = await fetch(
-          `http://localhost:4000/api/matches/${match.id}`,
+          `${API_URL}/api/matches/${match.id}`,
           {
             method: "PATCH",
             headers: {

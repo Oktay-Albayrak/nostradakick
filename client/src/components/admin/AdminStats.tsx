@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 "use client";
 
 import { useEffect, useState } from "react";
@@ -19,7 +20,7 @@ export default function AdminStats() {
         setIsLoading(true);
         setError(null);
 
-        const response = await fetch("http://localhost:4000/api/admin/stats", {
+        const response = await fetch(`${API_URL}/api/admin/stats`, {
           credentials: "include", // Important : envoie automatiquement les cookies
           cache: "no-store",
           headers: {

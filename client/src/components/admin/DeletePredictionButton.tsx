@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 "use client";
 
 import { useState } from "react";
@@ -33,7 +34,7 @@ export default function DeletePredictionButton({
 
     try {
       const response = await fetch(
-        `http://localhost:4000/api/predictions/${predictionId}`,
+        `${API_URL}/api/predictions/${predictionId}`,
         {
           method: "DELETE",
           credentials: "include",

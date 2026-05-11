@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 
@@ -26,7 +27,7 @@ export default function HomeContent({
   useEffect(() => {
     // On ne lance le fetch que si l'utilisateur est considéré comme connecté
     if (isLoggedIn) {
-      fetch("http://localhost:4000/api/auth/me", {
+      fetch(`${API_URL}/api/auth/me`, {
         method: "GET",
         // Si tu utilises des cookies (sessions), cette ligne est CRUCIALE :
         credentials: "include",

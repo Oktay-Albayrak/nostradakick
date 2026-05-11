@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
@@ -27,7 +28,7 @@ export default async function AdminMatchs() {
       headers["Cookie"] = `accessToken=${accessToken}`;
     }
 
-    const userResponse = await fetch("http://localhost:4000/api/auth/me", {
+    const userResponse = await fetch(`${API_URL}/api/auth/me`, {
       cache: "no-store",
       headers,
     });
@@ -66,7 +67,7 @@ export default async function AdminMatchs() {
     // Le paramètre all=true désactive les filtres par défaut pour afficher tous les matchs
     // (sauf les matchs terminés FINISHED/AWARDED)
     const matchesResponse = await fetch(
-      "http://localhost:4000/api/matches?page=1&limit=1000&all=true",
+      `${API_URL}/api/matches?page=1&limit=1000&all=true`,
       {
         cache: "no-store",
         headers,
@@ -75,7 +76,7 @@ export default async function AdminMatchs() {
 
     // Récupérer les compétitions pour les filtres
     const competitionsResponse = await fetch(
-      "http://localhost:4000/api/competitions",
+      `${API_URL}/api/competitions`,
       {
         cache: "no-store",
         headers,

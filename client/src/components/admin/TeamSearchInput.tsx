@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -83,7 +84,7 @@ export default function TeamSearchInput({
 
   async function fetchTeamById(teamId: string) {
     try {
-      const response = await fetch(`http://localhost:4000/api/teams?limit=1000`);
+      const response = await fetch(`${API_URL}/api/teams?limit=1000`);
       if (response.ok) {
         const allTeams: Team[] = await response.json();
         const team = allTeams.find((t) => t.id === teamId);
@@ -107,7 +108,7 @@ export default function TeamSearchInput({
     setIsSearching(true);
     try {
       const response = await fetch(
-        `http://localhost:4000/api/teams?q=${encodeURIComponent(query)}&limit=10`
+        `${API_URL}/api/teams?q=${encodeURIComponent(query)}&limit=10`
       );
       if (response.ok) {
         const results: Team[] = await response.json();

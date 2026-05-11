@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 // Page de détail d'un match (/matchs/[id]) avec stats de prédictions
 "use client";
 
@@ -40,7 +41,7 @@ export default function MatchDetailPage({ params }: MatchDetailPageProps) {
         console.log("🔍 Fetching match with id:", id);
 
         const response = await fetch(
-          `http://localhost:4000/api/matches/${id}`,
+          `${API_URL}/api/matches/${id}`,
           {
             cache: 'no-store'
           }

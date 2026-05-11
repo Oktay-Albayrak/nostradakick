@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./page.module.css";
@@ -26,7 +27,7 @@ export default async function Pronos() {
   let predictions: IPrediction[] = [];
 
   try {
-    const response = await fetch("http://localhost:4000/api/predictions", {
+    const response = await fetch(`${API_URL}/api/predictions`, {
       cache: "no-store",
     });
 

@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 "use client"
 
 import { useAuth } from "@/context/AuthContext";
@@ -10,7 +11,7 @@ export default function LogoutPage() {
 
   async function disconnection() {
     try {
-      const response = await fetch("http://localhost:4000/api/auth/logout", {
+      const response = await fetch(`${API_URL}/api/auth/logout`, {
         method: "POST",
         credentials: 'include'
       })

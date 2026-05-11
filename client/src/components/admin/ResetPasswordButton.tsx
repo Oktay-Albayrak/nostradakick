@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 "use client";
 
 import { useState } from "react";
@@ -81,7 +82,7 @@ export default function ResetPasswordButton({
 
     try {
       const response = await fetch(
-        `http://localhost:4000/api/users/${userId}`,
+        `${API_URL}/api/users/${userId}`,
         {
           method: "PATCH",
           headers: {

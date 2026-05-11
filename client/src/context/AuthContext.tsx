@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 // Contexte global pour l'état d'authentification
 "use client";
 
@@ -49,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    */
   const refreshAuth = async () => {
     try {
-      let response = await fetch("http://localhost:4000/api/auth/me", {
+      let response = await fetch(`${API_URL}/api/auth/me`, {
         method: "GET",
         credentials: "include", // Envoie les cookies de session
       });
@@ -57,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // 2. Si l'access token est expiré ou invalide (ex: 401)
       if (!response.ok) {
         // 3. Deuxième tentative : on appelle /refresh pour obtenir un nouvel Access Token
-        const refreshResponse = await fetch("http://localhost:4000/api/auth/refresh", {
+        const refreshResponse = await fetch(`${API_URL}/api/auth/refresh`, {
           method: "POST",
           credentials: "include",
         });
@@ -65,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (refreshResponse.ok) {
           console.log("✅ Token rafraîchi avec succès");
           // 4. On re-tente l'appel /me original pour récupérer les données user
-          response = await fetch("http://localhost:4000/api/auth/me", {
+          response = await fetch(`${API_URL}/api/auth/me`, {
             method: "GET",
             credentials: "include",
           });

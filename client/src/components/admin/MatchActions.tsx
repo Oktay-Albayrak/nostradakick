@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 "use client";
 
 import { useState } from "react";
@@ -31,7 +32,7 @@ export default function MatchActions({ match, competitions }: MatchActionsProps)
 
     try {
       const response = await fetch(
-        `http://localhost:4000/api/matches/${match.id}`,
+        `${API_URL}/api/matches/${match.id}`,
         {
           method: "DELETE",
           credentials: "include",

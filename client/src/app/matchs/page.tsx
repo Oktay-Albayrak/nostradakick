@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 import MatchCard from "@/components/matchCard/MatchCard";
 import styles from "./page.module.css";
 import { ICompetition, IMatch } from "@/types/match";
@@ -42,11 +43,11 @@ export default async function Matchs({
   });
 
   const [leaguesRes, matchesRes, featuredRes] = await Promise.all([
-    fetch("http://localhost:4000/api/competitions"),
-    fetch(`http://localhost:4000/api/matches?${query.toString()}`, {
+    fetch(`${API_URL}/api/competitions`),
+    fetch(`${API_URL}/api/matches?${query.toString()}`, {
       cache: "no-store",
     }),
-    fetch(`http://localhost:4000/api/matches?filter=hot&limit=6`, {
+    fetch(`${API_URL}/api/matches?filter=hot&limit=6`, {
       next: { revalidate: 300 },
     }),
   ]);

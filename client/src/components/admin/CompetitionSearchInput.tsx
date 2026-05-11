@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -81,7 +82,7 @@ export default function CompetitionSearchInput({
 
   async function fetchCompetitionById(competitionId: string) {
     try {
-      const response = await fetch(`http://localhost:4000/api/competitions?limit=1000`);
+      const response = await fetch(`${API_URL}/api/competitions?limit=1000`);
       if (response.ok) {
         const allCompetitions: Competition[] = await response.json();
         const competition = allCompetitions.find((c) => c.id === competitionId);
@@ -105,7 +106,7 @@ export default function CompetitionSearchInput({
     setIsSearching(true);
     try {
       const response = await fetch(
-        `http://localhost:4000/api/competitions?q=${encodeURIComponent(query)}&limit=10`
+        `${API_URL}/api/competitions?q=${encodeURIComponent(query)}&limit=10`
       );
       if (response.ok) {
         const results: Competition[] = await response.json();

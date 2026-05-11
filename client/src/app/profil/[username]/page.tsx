@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 import Image from "next/image";
 import styles from "./page.module.css";
 import { notFound } from "next/navigation";
@@ -16,7 +17,7 @@ export default async function Profil({ params }: PageProps) {
 
   // 2. On récupère les données directement sur le serveur
   // Note : "cache: 'no-store'" ou "next: { revalidate: 60 }" permet de gérer la mise en cache
-  const response = await fetch(`http://localhost:4000/api/users/${username}`, {
+  const response = await fetch(`${API_URL}/api/users/${username}`, {
     cache: "no-store",
   });
 

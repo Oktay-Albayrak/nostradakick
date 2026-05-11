@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -44,7 +45,7 @@ export default function SearchBar() {
       const timer = setTimeout(async () => {
         try {
           const response = await fetch(
-            `http://localhost:4000/api/search/suggestions?q=${encodeURIComponent(query)}`,
+            `${API_URL}/api/search/suggestions?q=${encodeURIComponent(query)}`,
           );
           const data = await response.json();
           setResults(data);

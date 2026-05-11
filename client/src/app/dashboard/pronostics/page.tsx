@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 "use client";
 
 import styles from "./page.module.css";
@@ -14,7 +15,7 @@ export default function DashboardPronostics() {
     const loadData = async () => {
       try {
         // 1. Récupérer l'utilisateur connecté
-        const userMeResponse = await fetch("http://localhost:4000/api/auth/me", {
+        const userMeResponse = await fetch(`${API_URL}/api/auth/me`, {
           credentials: "include",
           cache: "no-store",
         });
@@ -29,7 +30,7 @@ export default function DashboardPronostics() {
 
         // 2. Récupérer les stats complètes
         const statsResponse = await fetch(
-          `http://localhost:4000/api/users/${userData.username}`,
+          `${API_URL}/api/users/${userData.username}`,
           {
             cache: "no-store",
           }

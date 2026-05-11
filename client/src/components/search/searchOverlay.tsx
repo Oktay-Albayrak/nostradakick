@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 "use client";
 
 import { useState, useEffect } from "react";
@@ -28,7 +29,7 @@ export default function SearchOverlay({
     if (query.length >= 3) {
       const timer = setTimeout(async () => {
         const response = await fetch(
-          `http://localhost:4000/api/search/suggestions?q=${encodeURIComponent(query)}`,
+          `${API_URL}/api/search/suggestions?q=${encodeURIComponent(query)}`,
         );
         const data = await response.json();
         setResults(data);

@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 "use client";
 
 import { useState, useEffect } from "react";
@@ -77,7 +78,7 @@ export default function InfiniteMatches({
 
       // 5. On appelle l'API avec l'URL complète
       const response = await fetch(
-        `http://localhost:4000/api/matches?${params.toString()}`,
+        `${API_URL}/api/matches?${params.toString()}`,
       );
       const newMatches: IMatch[] = await response.json();
 

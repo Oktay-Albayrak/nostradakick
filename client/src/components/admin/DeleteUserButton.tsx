@@ -1,3 +1,4 @@
+import { API_URL } from "@/config/api";
 "use client";
 
 import { useState } from "react";
@@ -31,7 +32,7 @@ export default function DeleteUserButton({
 
     try {
       const response = await fetch(
-        `http://localhost:4000/api/users/${userId}`,
+        `${API_URL}/api/users/${userId}`,
         {
           method: "DELETE",
           credentials: "include",
