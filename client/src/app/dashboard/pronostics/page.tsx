@@ -1,5 +1,6 @@
-import { API_URL } from "@/config/api";
 "use client";
+
+import { API_URL } from "@/config/api";
 
 import styles from "./page.module.css";
 import { useEffect, useState } from "react";

@@ -1,6 +1,7 @@
-import { API_URL } from "@/config/api";
 // Page de connexion : formulaire email/password avec validation serveur et refreshAuth après login
 "use client";
+
+import { API_URL } from "@/config/api";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";

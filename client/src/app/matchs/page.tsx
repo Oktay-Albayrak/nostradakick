@@ -141,7 +141,7 @@ export default async function Matchs({
             {leagues.map((league) => (
               <li key={league.id} className={styles.sidebarItem}>
                 <Link
-                  href={getUrl(league.code, isHotFilter)}
+                  href={getUrl(league.code ?? undefined, isHotFilter)}
                   className={
                     selectedLeague === league.code ? styles.activeLeague : ""
                   }

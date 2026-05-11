@@ -1,5 +1,6 @@
-import { API_URL } from "@/config/api";
 "use client"
+
+import { API_URL } from "@/config/api";
 
 import { useState } from 'react';
 import Link from "next/link";

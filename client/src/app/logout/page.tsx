@@ -1,5 +1,6 @@
-import { API_URL } from "@/config/api";
 "use client"
+
+import { API_URL } from "@/config/api";
 
 import { useAuth } from "@/context/AuthContext";
 import { notFound, useRouter } from "next/navigation";

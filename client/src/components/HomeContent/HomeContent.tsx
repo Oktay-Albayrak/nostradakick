@@ -1,6 +1,7 @@
-import { API_URL } from "@/config/api";
 /* eslint-disable react/no-unescaped-entities */
 "use client";
+
+import { API_URL } from "@/config/api";
 
 import { useAuth } from "@/context/AuthContext";
 import styles from "../../app/page.module.css";

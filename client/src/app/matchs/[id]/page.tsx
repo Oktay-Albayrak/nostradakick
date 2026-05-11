@@ -1,6 +1,7 @@
-import { API_URL } from "@/config/api";
 // Page de détail d'un match (/matchs/[id]) avec stats de prédictions
 "use client";
+
+import { API_URL } from "@/config/api";
 
 import { notFound } from "next/navigation";
 import Link from "next/link";

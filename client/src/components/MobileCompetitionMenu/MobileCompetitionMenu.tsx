@@ -46,7 +46,7 @@ export default function MobileCompetitionMenu({
             </li>
             {leagues.map((league) => (
               <li key={league.id} onClick={() => setIsOpen(false)}>
-                <Link href={buildUrl(league.code)}>{league.name}</Link>
+                <Link href={buildUrl(league.code ?? undefined)}>{league.name}</Link>
               </li>
             ))}
           </ul>

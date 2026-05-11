@@ -1,4 +1,3 @@
-import { API_URL } from "@/config/api";
 /**
  * COMPOSANT MATCHCARD
  * * Affiche une carte de match avec :
@@ -22,6 +21,7 @@ import { API_URL } from "@/config/api";
 
 "use client";
 
+import { API_URL } from "@/config/api";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";

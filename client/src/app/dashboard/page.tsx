@@ -1,5 +1,6 @@
-import { API_URL } from "@/config/api";
 "use client";
+
+import { API_URL } from "@/config/api";
 
 import Image from "next/image";
 import Link from "next/link";

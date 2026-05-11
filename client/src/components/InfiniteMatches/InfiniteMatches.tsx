@@ -1,5 +1,6 @@
-import { API_URL } from "@/config/api";
 "use client";
+
+import { API_URL } from "@/config/api";
 
 import { useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer"; // Hook pour détecter la visibilité

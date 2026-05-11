@@ -1,5 +1,6 @@
-import { API_URL } from "@/config/api";
 "use client";
+
+import { API_URL } from "@/config/api";
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -115,7 +116,7 @@ export default function SearchBar() {
                   key={league.id}
                   className={styles.resultItem}
                   onClick={() =>
-                    navigateTo(getSmartPath("league", league.code))
+                    navigateTo(getSmartPath("league", league.code ?? ""))
                   }
                 >
                   <div className={styles.logoContainer}>

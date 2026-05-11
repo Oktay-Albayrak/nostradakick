@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { API_URL } from "@/config/api";
 /* eslint-disable react/no-unescaped-entities */
 import styles from "./page.module.css";

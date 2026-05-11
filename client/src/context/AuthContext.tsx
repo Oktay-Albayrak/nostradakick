@@ -1,6 +1,7 @@
-import { API_URL } from "@/config/api";
 // Contexte global pour l'état d'authentification
 "use client";
+
+import { API_URL } from "@/config/api";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 

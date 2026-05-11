@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { API_URL } from "@/config/api";
 import styles from "./page.module.css";
 import { notFound } from "next/navigation";
