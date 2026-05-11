@@ -214,8 +214,8 @@ export async function logoutUser(req: Request, res: Response) {
     }
 
     // 2. Nettoyer les cookies sur le navigateur
-    res.clearCookie("accessToken", { httpOnly: true, secure: true, sameSite: 'strict' });
-    res.clearCookie("refreshToken", { httpOnly: true, secure: true, sameSite: 'strict', path: "/api/auth/refresh" });
+    res.clearCookie("accessToken", { httpOnly: true, secure: true, sameSite: "none" });
+    res.clearCookie("refreshToken", { httpOnly: true, secure: true, sameSite: "none", path: "/api/auth/refresh" });
 
     return res.status(204).end();
   } catch (error) {
@@ -243,13 +243,17 @@ export async function generateRefreshToken(user: User) {
 
 function setTokensInCookies(res: Response, accessToken: string, refreshToken: string) {
   res.cookie("accessToken", accessToken, {
-    maxAge: 1 * 60 * 60 * 1000, // 1h en MS
-    httpOnly: true // en HTTPOnly, les cookies ne sont pas lisible par le code frontend (console.log(document.cookies) -> rien !)) => sécurité !
+    maxAge: 1 * 60 * 60 * 1000,
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
   });
 
   res.cookie("refreshToken", refreshToken, {
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours en MS
+    maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    path: "/api/auth/refresh" // Pour préciser que le client ne doit envoyer le cookie que s'il fait une requête vers la route /api/auth/refresh (et pas sur les autres routes !)
+    secure: true,
+    sameSite: "none",
+    path: "/api/auth/refresh",
   });
 }
