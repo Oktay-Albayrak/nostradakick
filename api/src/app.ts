@@ -8,8 +8,16 @@ import { router as apiRouter } from "./routers/index.routes.ts";
 export const app: Application = express();
 
 // Autoriser les CORS (Cross-Origin Requests)
+// ALLOWED_ORIGIN accepte plusieurs origines séparées par virgule
+const allowedOrigins = config.allowedOrigin.split(",").map((o) => o.trim());
 app.use(cors({
-  origin: config.allowedOrigin,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS: origine non autorisée: ${origin}`));
+    }
+  },
   credentials: true
 }));
 
