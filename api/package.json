@@ -21,8 +21,7 @@
     "========= Pour la prod =========": "===========================",
     "build": "prisma generate",
     "start": "node index.ts",
-    "postinstall": "prisma generate",
-    "start": "node index.ts"
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
