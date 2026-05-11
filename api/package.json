@@ -17,7 +17,11 @@
     "dev": "node --watch --env-file=.env index.ts",
     "sync": "ts-node src/jobs/sync.now.ts",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "========= Pour la prod =========": "===========================",
+    "build": "prisma generate",
+    "start": "node index.ts",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
