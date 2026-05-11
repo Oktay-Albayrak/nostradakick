@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Ubuntu } from "next/font/google";
+import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import Footer from "@/components/footer/Footer";
 import Header from "@/components/header/Header";
