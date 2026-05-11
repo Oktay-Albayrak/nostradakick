@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.ts",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "========= Pour la BDD prisma =========": "===========================",
     "db:seed": "ts-node prisma/seed.ts",
