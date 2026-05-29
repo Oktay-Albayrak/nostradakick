@@ -55,7 +55,7 @@ Pourquoi ? Les polices doivent être lisibles et modernes, tout en reflétant le
 
 Pourquoi ? Le logo est le symbole visuel de la marque. Il doit être reconnaissable, moderne et adapté au thème du football et des pronostics.
 
-![alt text](Logo_de_NostradaKick.png)
+![alt text](logo.png)
 
 
 
