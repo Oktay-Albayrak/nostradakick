@@ -1,5 +1,6 @@
 import { app } from "./src/app.ts";
 import { config } from "./config.ts";
+import { requireAdmin } from "./src/middleware/auth.middleware.ts";
 
 // Cron jobs désactivés sur Render (football-data.org bloque les IPs cloud)
 // Sync manuelle : cd api && npm run sync
@@ -18,7 +19,7 @@ import {
 } from "./src/services/sync.service.ts";
 
 // Route de test pour synchroniser TOUTES les compétitions manuellement
-app.get("/api/admin/test-sync-competitions", async (req, res) => {
+app.get("/api/admin/test-sync-competitions", requireAdmin, async (req, res) => {
   try {
     // On teste avec toutes les compétitions
     await syncAllCompetitions();
@@ -35,7 +36,7 @@ app.get("/api/admin/test-sync-competitions", async (req, res) => {
 });
 
 // Route de test pour synchroniser TOUS les matchs manuellement
-app.get("/api/admin/test-sync-matches", async (req, res) => {
+app.get("/api/admin/test-sync-matches", requireAdmin, async (req, res) => {
   try {
     await syncAllMatches();
     res.json({
@@ -50,7 +51,7 @@ app.get("/api/admin/test-sync-matches", async (req, res) => {
   }
 });
 
-app.get("/api/admin/test-sync-standig", async (req, res) => {
+app.get("/api/admin/test-sync-standing", requireAdmin, async (req, res) => {
   try {
     // On teste avec toutes les compétitions
     await syncStandings();
