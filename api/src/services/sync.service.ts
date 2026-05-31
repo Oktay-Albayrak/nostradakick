@@ -162,16 +162,26 @@ export async function syncAllMatches() {
     where: { rank: { lte: 5 } },
     select: { team: { select: { api_id: true } } },
   });
+
+    console.log(`📊 Top 5 récupéré : ${standings.length} équipes`);
+
   const globalTop5 = new Set(standings.map((s) => s.team.api_id).filter((id) => id !== null));
+
+    console.log(`📥 Début des appels football-data pour ${LEAGUES_TO_SYNC.length} ligues...`);
 
   const promises = LEAGUES_TO_SYNC.map(async (leagueCode) => {
     try {
+
+            console.log(`📥 [${leagueCode}] Appel API...`);
+
       const response = await axios.get(
         `${FOOTBALL_API_URL}/competitions/${leagueCode}/matches`,
         {
           headers: { "X-Auth-Token": TOKEN },
         },
       );
+
+            console.log(`📥 [${leagueCode}] HTTP ${response.status} - ${response.data?.matches?.length ?? 0} matchs reçus`);
 
       const { matches, competition } = response.data;
       const displayName = COMPETITION_NAMES_MAP[leagueCode] || competition.name;
@@ -273,7 +283,13 @@ export async function syncAllMatches() {
       }
       return leagueCode;
     } catch (error: any) {
-      console.error(`❌ Erreur ${leagueCode}:`, error.message);
+      console.error(`❌ Erreur ${leagueCode}:`, {
+        message: error.message,
+        httpStatus: error.response?.status,
+        httpBody: error.response?.data,
+        errorCode: error.code,
+        stack: error.stack?.split('\n').slice(0, 3),
+      });
     }
   });
 
