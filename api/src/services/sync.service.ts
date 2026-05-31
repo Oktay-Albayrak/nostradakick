@@ -4,6 +4,7 @@ import { MatchStatus } from "../../generated/prisma/client.ts";
 import { COMPETITION_NAMES_MAP } from "../config/metadata.ts";
 import { getMatchHotStatus } from "./feature-logic.service.ts";
 import { recalculateUserStats } from "./userStat.service.ts";
+import { errorMonitor } from "node:events";
 
 const FOOTBALL_API_URL = "https://api.football-data.org/v4";
 const TOKEN = process.env.FOOTBALL_DATA_API_TOKEN;
@@ -285,9 +286,11 @@ export async function syncAllMatches() {
     } catch (error: any) {
       console.error(`❌ Erreur ${leagueCode}:`, {
         message: error.message,
+        code: error.code,
+        name: error.name,
+        meta: error.meta,
         httpStatus: error.response?.status,
         httpBody: error.response?.data,
-        errorCode: error.code,
         stack: error.stack?.split('\n').slice(0, 3),
       });
     }
