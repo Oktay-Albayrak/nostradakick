@@ -4,10 +4,10 @@ import { requireAdmin } from "./src/middleware/auth.middleware.ts";
 
 // Cron jobs désactivés sur Render (football-data.org bloque les IPs cloud)
 // Sync manuelle : cd api && npm run sync
-// import "./src/jobs/syncMatches.cronJob.ts";
-// import "./src/jobs/syncCompetitions.cronJob.ts";
-// import "./src/jobs/syncStandings.cronJob.ts";
-// import "./src/jobs/syncMetadaCompetitions.cronJob.ts";
+import "./src/jobs/syncMatches.cronJob.ts";
+import "./src/jobs/syncCompetitions.cronJob.ts";
+import "./src/jobs/syncStandings.cronJob.ts";
+import "./src/jobs/syncMetadaCompetitions.cronJob.ts";
 
 
 
