@@ -29,4 +29,4 @@ console.log('⏳ Synchronisation des Teams prévue dans 3 minutes...');
 setTimeout(() => {
   console.log("\n🌎 Lancement de la synchronisation des pays des équipe etc...\n");
   syncCompetitionsMetadata().catch(err => console.error('Erreur sync teams countries:', err));
-}, 2 * 60 * 1000); // 4 minutes en millisecondes*/
+}, 3 * 60 * 1000); // 3 minutes en millisecondes*/

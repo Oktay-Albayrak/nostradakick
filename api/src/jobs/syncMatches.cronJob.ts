@@ -64,9 +64,11 @@ console.log('⏰ Cron Job démarré (Matchs) - Synchronisation toutes les 20 min
 
 
 
-console.log('⏳ Synchronisation des matchs prévue immédiatement...');
+console.log('⏳ Synchronisation des matchs prévue dans 1 minute (attente démarrage Render)...');
 
 // ## SYNCHRONISATION AU DÉMARRAGE DU SERVEUR
 // Récupère tout les infos des matchs (Équipes, etc) et d'avoir des données fraîches dès le lancement du serveur
-console.log('\n📡 Synchronisation initiale des competitions au démarrage...\n');
-syncMatchesAndUpdateStats().catch(err => console.error('Erreur sync initiale competitions:', err));
+setTimeout(() => {
+  console.log("\n⚽ Lancement de la synchronisation initiale des matchs...\n");
+  syncMatchesAndUpdateStats().catch(err => console.error('Erreur sync initiale matchs:', err));
+}, 1 * 60 * 1000); // 1 minute
