@@ -159,6 +159,7 @@ export async function syncAllMatches() {
   console.log(`\n⚽ Lancement synchro matchs : ${new Date().toISOString()}`);
 
   // LOGIQUE : Récupérer les IDs Top 5 pour calculer les matchs "Hot"
+  console.log(`📊 Récupération Top 5 Prisma...`);
   const standings = await prisma.standing.findMany({
     where: { rank: { lte: 5 } },
     select: { team: { select: { api_id: true } } },
@@ -181,10 +182,9 @@ export async function syncAllMatches() {
           headers: { "X-Auth-Token": TOKEN },
         },
       );
+            const { matches, competition } = response.data;
+            console.log(`📥 [${leagueCode}] HTTP ${response.status} - ${matches?.length ?? 0} matchs reçus`);
 
-            console.log(`📥 [${leagueCode}] HTTP ${response.status} - ${response.data?.matches?.length ?? 0} matchs reçus`);
-
-      const { matches, competition } = response.data;
       const displayName = COMPETITION_NAMES_MAP[leagueCode] || competition.name;
 
       const dbComp = await prisma.competition.upsert({
@@ -210,6 +210,7 @@ export async function syncAllMatches() {
 
         // LOGIQUE : Calcul du statut "Hot"
         const { isHot, name: hotName } = getMatchHotStatus(m, globalTop5);
+
 
         // Note: On crée l'équipe si elle n'existe pas, sans faire d'appel API supplémentaire
         const [homeTeam, awayTeam] = await Promise.all([
@@ -251,7 +252,7 @@ export async function syncAllMatches() {
           }),
         ]);
 
-        await prisma.match.upsert({
+        const dbMatch = await prisma.match.upsert({
           where: {
             api_id: m.id,
           },
@@ -277,11 +278,11 @@ export async function syncAllMatches() {
             away_score: m.score?.fullTime?.away ?? null,
             venue: m.venue ?? null,
           },
-        }).then(async (dbMatch) => {
+        });
+
           // Finalise automatiquement les prédictions si match terminé
           await finalizePredictionsForMatch(dbMatch.id, dbMatch);
-        });
-      }
+        }
       return leagueCode;
     } catch (error: any) {
       console.error(`❌ Erreur ${leagueCode}:`, {
