@@ -5,6 +5,7 @@ export const COMPETITION_NAMES_MAP: Record<string, string> = {
   BL1: "Bundesliga",
   SA: "Serie A",
   CL: "Champions League",
+  WC: "Coupe du Monde",
 };
 
 export const CL_ELITE_IDS = [

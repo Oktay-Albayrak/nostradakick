@@ -30,7 +30,7 @@ export async function getAllCompetitions(req: Request, res: Response) {
         }
       : {
           code: {
-            in: ["PL", "FL1", "PD", "BL1", "SA", "CL"],
+            in: ["PL", "FL1", "PD", "BL1", "SA", "CL", "WC"],
           },
         };
 
