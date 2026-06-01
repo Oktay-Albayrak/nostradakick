@@ -9,7 +9,7 @@ import { errorMonitor } from "node:events";
 const FOOTBALL_API_URL = "https://api.football-data.org/v4";
 const TOKEN = process.env.FOOTBALL_DATA_API_TOKEN;
 
-const LEAGUES_TO_SYNC = ["FL1", "PL", "CL", "BL1", "SA", "PD"];
+const LEAGUES_TO_SYNC = ["FL1", "PL", "CL", "BL1", "SA", "PD", "WC"];
 
 /**
  * FONCTION : Finaliser automatiquement les prédictions d'un match
@@ -158,8 +158,6 @@ export async function syncStandings() {
 export async function syncAllMatches() {
   console.log(`\n⚽ Lancement synchro matchs : ${new Date().toISOString()}`);
 
-  await prisma.$connect();
-
   // LOGIQUE : Récupérer les IDs Top 5 pour calculer les matchs "Hot"
   console.log(`📊 Récupération Top 5 Prisma...`);
   const standings = await prisma.standing.findMany({
@@ -208,6 +206,7 @@ export async function syncAllMatches() {
 
       // On traite les matchs de la ligue
       for (const m of matches) {
+
         if (!m.homeTeam?.id || !m.awayTeam?.id) continue;
 
         // LOGIQUE : Calcul du statut "Hot"
