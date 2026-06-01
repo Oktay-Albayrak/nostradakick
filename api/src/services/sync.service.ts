@@ -158,8 +158,6 @@ export async function syncStandings() {
 export async function syncAllMatches() {
   console.log(`\n⚽ Lancement synchro matchs : ${new Date().toISOString()}`);
 
-  await prisma.$connect();
-
   // LOGIQUE : Récupérer les IDs Top 5 pour calculer les matchs "Hot"
   console.log(`📊 Récupération Top 5 Prisma...`);
   const standings = await prisma.standing.findMany({
