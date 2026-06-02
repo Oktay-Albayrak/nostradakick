@@ -215,7 +215,7 @@ export async function logoutUser(req: Request, res: Response) {
 
     // 2. Nettoyer les cookies sur le navigateur
     res.clearCookie("accessToken", { httpOnly: true, secure: true, sameSite: "none" });
-    res.clearCookie("refreshToken", { httpOnly: true, secure: true, sameSite: "none", path: "/api/auth/refresh" });
+    res.clearCookie("refreshToken", { httpOnly: true, secure: true, sameSite: "none", /*path: "/api/auth/refresh"*/  });
 
     return res.status(204).end();
   } catch (error) {
@@ -254,6 +254,6 @@ function setTokensInCookies(res: Response, accessToken: string, refreshToken: st
     httpOnly: true,
     secure: true,
     sameSite: "none",
-    path: "/api/auth/refresh",
+    // path: "/api/auth/refresh",
   });
 }

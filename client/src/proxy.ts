@@ -4,7 +4,11 @@ import type { NextRequest } from 'next/server'
 export function proxy(request: NextRequest) {
   // 1. Extraction du cookie
   // Le middleware a accès aux cookies de la requête HTTP
-  const token = request.cookies.get('accessToken')?.value;
+  const accessToken = request.cookies.get('accessToken')?.value;
+  const refreshToken = request.cookies.get('refreshToken')?.value
+
+  // L'utilisateur est "potentiellement connecté" si au moins un cookie existe
+  const hasAuth = !!accessToken || !!refreshToken;
 
   // 2. Définition des chemins
   const { pathname } = request.nextUrl;
@@ -14,17 +18,17 @@ export function proxy(request: NextRequest) {
 
   // 3. Logique de redirection
   // CAS A : L'utilisateur est connecté mais tente d'aller sur /login
-  if (isAuthRoute && token) {
+  if (isAuthRoute && hasAuth) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
   // CAS B : L'utilisateur n'est PAS connecté et tente d'aller sur une page privée
-  if (isProtectedRoute && !token) {
+  if (isProtectedRoute && !hasAuth) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
   // CAS C : L'utilisateur n'est PAS connecté et tente d'aller sur une page admin
-  if (isAdminRoute && !token) {
+  if (isAdminRoute && !hasAuth) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
