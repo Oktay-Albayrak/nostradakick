@@ -254,6 +254,6 @@ function setTokensInCookies(res: Response, accessToken: string, refreshToken: st
     httpOnly: true,
     secure: true,
     sameSite: "none",
-    // path: "/api/auth/refresh",
+    path: "/api/auth/refresh",
   });
 }
