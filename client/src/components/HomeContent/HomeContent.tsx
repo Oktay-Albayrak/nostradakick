@@ -1,11 +1,8 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 
-import { API_URL } from "@/config/api";
-
 import { useAuth } from "@/context/AuthContext";
 import styles from "../../app/page.module.css";
-import { useEffect, useState } from "react";
 import Image from "next/image";
 
 interface HomeContentProps {
@@ -21,42 +18,11 @@ export default function HomeContent({
   trendingBar,
   mainGrid,
 }: HomeContentProps) {
-  const { isLoggedIn } = useAuth();
-  const [currentUsername, setCurrentUsername] = useState("Champion");
-  const [userAvatar, setUserAvatar] = useState<string | null>(null);
+  const { isLoggedIn, user } = useAuth();
 
-  useEffect(() => {
-    // On ne lance le fetch que si l'utilisateur est considéré comme connecté
-    if (isLoggedIn) {
-      fetch(`${API_URL}/api/auth/me`, {
-        method: "GET",
-        // Si tu utilises des cookies (sessions), cette ligne est CRUCIALE :
-        credentials: "include",
-        // Si tu utilises un Token dans le localStorage, décommente ça :
-        /* headers: { 
-        "Authorization": `Bearer ${localStorage.getItem('votre_token_key')}` 
-      } */
-      })
-        .then((res) => {
-          if (!res.ok) throw new Error("Session invalide ou expirée");
-          return res.json();
-        })
-        .then((data) => {
-          // data devrait contenir l'objet utilisateur complet
-          if (data && data.username) {
-            setCurrentUsername(data.username);
-            if (data.avatar) setUserAvatar(data.avatar);
-          }
-        })
-        .catch((err) => {
-          console.error("Erreur auth/me:", err);
-          setCurrentUsername("Kickeur"); // Fallback propre
-        });
-    }
-  }, [isLoggedIn]);
-
-  const avatarUrl = userAvatar
-    ? userAvatar
+  const currentUsername = user?.username ?? "Kickeur";
+  const avatarUrl = user?.avatar_url
+    ? user.avatar_url
     : `https://api.dicebear.com/7.x/adventurer/png?seed=${currentUsername}&backgroundColor=b6e3f4,c0aede,d1d4f9`;
 
   return (

@@ -14,6 +14,7 @@ interface AuthContextType {
   login: () => void;
   logout: () => void;
   refreshAuth: () => Promise<void>;
+  authFetch: (input: string, init?: RequestInit) => Promise<Response>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -104,12 +105,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const authFetch = async (input: string, init: RequestInit = {}): Promise<Response> => {
+    const fetchOptions: RequestInit = { ...init, credentials: "include" };
+
+    let response = await fetch(input, fetchOptions);
+
+    if (response.status === 401) {
+      const refreshResponse = await fetch(`${API_URL}/api/auth/refresh`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (refreshResponse.ok) {
+        await refreshAuth();
+        response = await fetch(input, fetchOptions);
+      } else {
+        logout();
+      }
+    }
+
+    return response;
+  };
+
   useEffect(() => {
     refreshAuth();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user_id, role, user, login, logout, refreshAuth }}>
+    <AuthContext.Provider value={{ isLoggedIn, user_id, role, user, login, logout, refreshAuth, authFetch }}>
       {/* 
         Affichage conditionnel :
         - Si isLoading = true : affiche un écran de chargement

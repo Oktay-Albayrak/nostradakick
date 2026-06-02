@@ -10,7 +10,7 @@ import { IUserStats } from "@/types/userStats";
 import { useAuth } from "@/context/AuthContext";
 
 export default function DashboardPage() {
-  const { user, isLoggedIn } = useAuth();
+  const { user, isLoggedIn, authFetch } = useAuth();
 
   const [userStats, setUserStats] = useState<IUserStats | null>(null);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
@@ -25,13 +25,10 @@ export default function DashboardPage() {
 
     const loadStats = async () => {
       try {
-        // 1. Récupérer l'utilisateur connecté
-        const statsResponse = await fetch(
-          `${API_URL}/api/auth/me`, 
-          {
-          cache: "no-store",
-        }
-      );
+        const statsResponse = await authFetch(
+          `${API_URL}/api/users/${user.username}`,
+          { cache: "no-store" }
+        );
 
         if (statsResponse.ok) {
           const statsData: IUserStats = await statsResponse.json(); 
