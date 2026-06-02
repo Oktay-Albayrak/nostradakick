@@ -6,63 +6,52 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
-import { IUser } from "@/types/user";
 import { IUserStats } from "@/types/userStats";
+import { useAuth } from "@/context/AuthContext";
 
 export default function DashboardPage() {
-  const [userInfo, setUserInfo] = useState<IUser | null>(null);
+  const { user, isLoggedIn, authFetch } = useAuth();
+
   const [userStats, setUserStats] = useState<IUserStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
 
   useEffect(() => {
-    const loadData = async () => {
+
+    if (!isLoggedIn || !user) {
+      setIsLoadingStats(false);
+      return;
+    }
+
+
+    const loadStats = async () => {
       try {
-        // 1. Récupérer l'utilisateur connecté
-        const userMeResponse = await fetch(`${API_URL}/api/auth/me`, {
-          credentials: "include",
-          cache: "no-store",
-        });
-
-        if (!userMeResponse.ok) {
-          setUserInfo(null);
-          setIsLoading(false);
-          return;
-        }
-
-        const userData: IUser = await userMeResponse.json();
-        setUserInfo(userData);
-
-        // 2. Récupérer les stats complètes (avec pronos et stats)
-        const statsResponse = await fetch(
-          `${API_URL}/api/users/${userData.username}`,
-          {
-            cache: "no-store",
-          }
+        const statsResponse = await authFetch(
+          `${API_URL}/api/users/${user.username}`,
+          { cache: "no-store" }
         );
 
         if (statsResponse.ok) {
-          const statsData: IUserStats = await statsResponse.json();
+          const statsData: IUserStats = await statsResponse.json(); 
           setUserStats(statsData);
         } else {
           setUserStats(null);
         }
       } catch (error) {
         console.error("Erreur lors du chargement des données:", error);
-        setUserInfo(null);
         setUserStats(null);
       } finally {
-        setIsLoading(false);
+        setIsLoadingStats(false);
       }
     };
 
-    loadData();
-  }, []);
+    loadStats();
+  }, [isLoggedIn, user]);
 
-  if (isLoading) {
+  if (isLoadingStats) {
     return <div>Chargement...</div>;
   }
 
-  if (!userInfo) {
+  if (!user) {
     return (
       <div>
         Non connecté. <Link href="/login">Se connecter</Link>
@@ -75,16 +64,16 @@ export default function DashboardPage() {
       <section className={styles.profil}>
         <Image
           className={styles.avatar}
-          src={userInfo.avatar_url || "/default-avatar.jpg"}
+          src={user.avatar_url || "/default-avatar.jpg"}
           width={200}
           height={200}
           alt="Avatar du membre"
         />
         <div className={styles.bio}>
-          <h2>{userInfo.username}</h2>
-          <p>E-mail : {userInfo.email}</p>
-          <p>Membre depuis : {new Date(userInfo.created_at).toLocaleDateString("fr-FR")}</p>
-          <p>{userInfo.role}</p>
+          <h2>{user.username}</h2>
+          <p>E-mail : {user.email}</p>
+          <p>Membre depuis : {new Date(user.created_at).toLocaleDateString("fr-FR")}</p>
+          <p>{user.role}</p>
           <p>{userStats?.predictions?.length ?? 0} pronostics</p>
           <p>
             {userStats?.stats

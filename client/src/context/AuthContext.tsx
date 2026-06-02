@@ -2,6 +2,7 @@
 "use client";
 
 import { API_URL } from "@/config/api";
+import { IUser } from "@/types/user";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
@@ -9,9 +10,11 @@ interface AuthContextType {
   isLoggedIn: boolean;
   user_id: string | null;
   role: "MEMBER" | "ADMIN" | null;
+  user: IUser | null;
   login: () => void;
   logout: () => void;
   refreshAuth: () => Promise<void>;
+  authFetch: (input: string, init?: RequestInit) => Promise<Response>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,6 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user_id, setUserId] = useState<string | null>(null);
   const [role, setRole] = useState<"MEMBER" | "ADMIN" | null>(null);
+  const [user, setUser] = useState<IUser | null>(null); 
 
   // État de chargement pour éviter les flashs d'UI pendant la vérification
   // Important : on ne montre pas l'appli tant qu'on ne sait pas l'état auth
@@ -34,6 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoggedIn(false);
     setUserId(null);
     setRole(null);
+    setUser(null);
   };
 
   /**
@@ -76,6 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setIsLoggedIn(false);
           setUserId(null);
           setRole(null);
+          setUser(null);
         }
       }
 
@@ -85,16 +91,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoggedIn(true);
         setUserId(userData.id);
         setRole(userData.role ?? null);
+        setUser(userData);
       }
     } catch (error) {
       console.error("Erreur auth:", error);
       setIsLoggedIn(false);
       setUserId(null);
       setRole(null);
+      setUser(null);
     } finally {
       // On s'assure que le chargement s'arrête quoi qu'il arrive
       setIsLoading(false); 
     }
+  };
+
+  const authFetch = async (input: string, init: RequestInit = {}): Promise<Response> => {
+    const fetchOptions: RequestInit = { ...init, credentials: "include" };
+
+    let response = await fetch(input, fetchOptions);
+
+    if (response.status === 401) {
+      const refreshResponse = await fetch(`${API_URL}/api/auth/refresh`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (refreshResponse.ok) {
+        await refreshAuth();
+        response = await fetch(input, fetchOptions);
+      } else {
+        logout();
+      }
+    }
+
+    return response;
   };
 
   useEffect(() => {
@@ -102,7 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user_id, role, login, logout, refreshAuth }}>
+    <AuthContext.Provider value={{ isLoggedIn, user_id, role, user, login, logout, refreshAuth, authFetch }}>
       {/* 
         Affichage conditionnel :
         - Si isLoading = true : affiche un écran de chargement

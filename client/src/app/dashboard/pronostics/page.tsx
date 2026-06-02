@@ -1,6 +1,7 @@
 "use client";
 
 import { API_URL } from "@/config/api";
+import { useAuth } from "@/context/AuthContext";
 
 import styles from "./page.module.css";
 import { useEffect, useState } from "react";
@@ -9,32 +10,22 @@ import ReturnButton from "@/components/ReturnButton/ReturnButton";
 import PredictionList from "./components/PredictionList";
 
 export default function DashboardPronostics() {
+  const { user: authUser, authFetch } = useAuth();
   const [user, setUser] = useState<IUserStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        // 1. Récupérer l'utilisateur connecté
-        const userMeResponse = await fetch(`${API_URL}/api/auth/me`, {
-          credentials: "include",
-          cache: "no-store",
-        });
-
-        if (!userMeResponse.ok) {
+        if (!authUser) {
           setUser(null);
           setIsLoading(false);
           return;
         }
 
-        const userData = await userMeResponse.json();
-
-        // 2. Récupérer les stats complètes
-        const statsResponse = await fetch(
-          `${API_URL}/api/users/${userData.username}`,
-          {
-            cache: "no-store",
-          }
+        const statsResponse = await authFetch(
+          `${API_URL}/api/users/${authUser.username}`,
+          { cache: "no-store" }
         );
 
         if (statsResponse.ok) {
@@ -52,7 +43,7 @@ export default function DashboardPronostics() {
     };
 
     loadData();
-  }, []);
+  }, [authUser]);
 
   if (isLoading) {
     return <div>Chargement...</div>;

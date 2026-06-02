@@ -46,7 +46,7 @@ export default function MatchCard({
   showStatus = false,
   isCompact = false,
 }: MatchProps) {
-  const { isLoggedIn, user_id } = useAuth();
+  const { isLoggedIn, user_id, authFetch } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPrediction, setSelectedPrediction] = useState<string | null>(
     null,
@@ -104,9 +104,8 @@ export default function MatchCard({
     if (!user_id || !match.id || isFinished || !canUserPredict) return;
     const fetchUserPrediction = async () => {
       try {
-        const response = await fetch(
+        const response = await authFetch(
           `${API_URL}/api/predictions?user_id=${user_id}&match_id=${match.id}`,
-          { credentials: "include" },
         );
         if (response.ok) {
           const prediction = await response.json();
@@ -176,9 +175,8 @@ export default function MatchCard({
     if (!pendingPrediction || !user_id) return;
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/predictions`, {
+      const response = await authFetch(`${API_URL}/api/predictions`, {
         method: "POST",
-        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user_id,
