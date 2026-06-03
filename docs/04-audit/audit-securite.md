@@ -41,7 +41,6 @@ Conformément aux CGU de Vercel et Render et à la législation française sur l
 ### Format de chaque finding
 
 ```
-
 [SEVERITY: HIGH/MEDIUM/LOW/INFO] Titre de la vulnérabilité
 
 - Description :
@@ -49,8 +48,20 @@ Conformément aux CGU de Vercel et Render et à la législation française sur l
 - Impact :
 - Recommandation :
 - Statut : Open / Mitigated / Closed
-
 ```
+
+
+### [SEVERITY: LOW] Suppression d'utilisateur bloquée par contrainte FK
+
+- **Description** : La table `RefreshToken` référence `User.id` sans `onDelete: Cascade`. Toute tentative de suppression d'un utilisateur via Prisma échoue avec une violation de contrainte de clé étrangère.
+- **Reproduction** : Tentative de suppression d'un user avec des refresh tokens actifs → erreur Postgres.
+- **Impact** : 
+  - Fonctionnalité admin cassée (DeleteUserButton inopérant)
+  - Conformité RGPD impactée (droit à l'oubli impossible techniquement)
+- **Recommandation** : Ajouter `onDelete: Cascade` sur toutes les relations FK pointant vers User, créer une migration Prisma. Alternative : implémenter un soft delete (champ `deleted_at`) plus respectueux du RGPD.
+- **Statut** : Open (identifié, non corrigé)
+
+
 
 ## 4. Points positifs identifiés
 
