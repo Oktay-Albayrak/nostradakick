@@ -4,6 +4,7 @@ import { API_URL } from "@/config/api";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import styles from "./admin.module.css";
 
 interface DeleteUserButtonProps {
@@ -15,6 +16,7 @@ export default function DeleteUserButton({
   userId,
   username,
 }: DeleteUserButtonProps) {
+  const { authFetch } = useAuth();
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -32,11 +34,10 @@ export default function DeleteUserButton({
     setError(null);
 
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${API_URL}/api/users/${userId}`,
         {
           method: "DELETE",
-          credentials: "include",
         }
       );
 

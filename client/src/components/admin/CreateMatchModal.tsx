@@ -4,6 +4,7 @@ import { API_URL } from "@/config/api";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import styles from "./admin.module.css";
 import { IMatch, ICompetition } from "@/types/match";
 import TeamSearchInput, { type CreateTeamData } from "./TeamSearchInput";
@@ -20,6 +21,7 @@ export default function CreateMatchModal({
   competitions,
   onClose,
 }: CreateMatchModalProps) {
+  const { authFetch } = useAuth();
   const router = useRouter();
   const isEditMode = !!match;
 
@@ -71,12 +73,11 @@ export default function CreateMatchModal({
   }
 
   async function createNewTeam(data: CreateTeamData) {
-    const response = await fetch(`${API_URL}/api/teams`, {
+    const response = await authFetch(`${API_URL}/api/teams`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include",
       body: JSON.stringify({
         name: data.name,
         tla: data.tla,
@@ -95,12 +96,11 @@ export default function CreateMatchModal({
   }
 
   async function createNewCompetition(data: CreateCompetitionData) {
-    const response = await fetch(`${API_URL}/api/competitions`, {
+    const response = await authFetch(`${API_URL}/api/competitions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include",
       body: JSON.stringify({
         name: data.name,
         ...(data.code && { code: data.code }),
@@ -212,12 +212,11 @@ export default function CreateMatchModal({
           payload.featured_name = formData.featured_name.trim();
         }
 
-        const response = await fetch(`${API_URL}/api/matches`, {
+        const response = await authFetch(`${API_URL}/api/matches`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include",
           body: JSON.stringify(payload),
         });
 
@@ -252,14 +251,13 @@ export default function CreateMatchModal({
           payload.featured_name = formData.featured_name.trim();
         }
 
-        const response = await fetch(
+        const response = await authFetch(
           `${API_URL}/api/matches/${match.id}`,
           {
             method: "PATCH",
             headers: {
               "Content-Type": "application/json",
             },
-            credentials: "include",
             body: JSON.stringify(payload),
           }
         );
