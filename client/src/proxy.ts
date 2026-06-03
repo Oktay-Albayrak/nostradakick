@@ -41,5 +41,11 @@ export function proxy(request: NextRequest) {
 
 // 4. Le Matcher (Le filtre), défini les routes sur lesquelles le middleware s'active
 export const config = {
-  matcher: ['/login', '/register', '/dashboard/:path*', '/admin/:path*'],
+  matcher: 
+  [
+    '/login', 
+    '/register', 
+    // '/dashboard/:path*', 
+    // '/admin/:path*'
+  ],
 }
