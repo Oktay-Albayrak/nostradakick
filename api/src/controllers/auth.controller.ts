@@ -14,7 +14,7 @@ export async function registerUser(req: Request, res: Response) {
       .max(50, 'Le nom d\'utilisateur ne peut pas dépasser 50 caractères')
       .regex(
         /^[a-zA-Z0-9_-]+$/,
-        'Le nom d\'utilisateur ne peut contenir que des lettres, chiffres, tirets et underscores'
+        'Le pseudo ne peut contenir que des lettres, chiffres, tirets et underscores'
       ),
 
     email: z.email('Email invalide'),
