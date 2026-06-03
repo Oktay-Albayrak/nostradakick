@@ -3,6 +3,7 @@
 import { API_URL } from "@/config/api";
 
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 import styles from "./admin.module.css";
 
 interface ResetPasswordButtonProps {
@@ -14,6 +15,7 @@ export default function ResetPasswordButton({
   userId,
   username,
 }: ResetPasswordButtonProps) {
+  const { authFetch } = useAuth();
   const [isResetting, setIsResetting] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [newPassword, setNewPassword] = useState("");
@@ -82,14 +84,13 @@ export default function ResetPasswordButton({
     setError(null);
 
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${API_URL}/api/users/${userId}`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include",
           body: JSON.stringify({
             password: newPassword,
           }),

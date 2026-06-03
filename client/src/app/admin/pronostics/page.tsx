@@ -1,12 +1,12 @@
-export const dynamic = "force-dynamic";
+"use client";
 
 import { API_URL } from "@/config/api";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 import { IPrediction } from "@/types/prediction";
-import { IUser } from "@/types/user";
+import { useAuth } from "@/context/AuthContext";
 import PredictionActions from "@/components/admin/PredictionActions";
 
 function formatDate(dateString: string): string {
@@ -47,69 +47,64 @@ function getStatusLabel(status: string): string {
   }
 }
 
-export default async function AdminPronostics() {
-  // Récupération du cookie accessToken
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
+export default function AdminPronostics() {
+  const { isLoggedIn, role, authFetch } = useAuth();
+  const router = useRouter();
+  
+  const [predictions, setPredictions] = useState<IPrediction[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+
+  const isAuthorized = isLoggedIn && role === "ADMIN";
 
   // Vérification de l'authentification et du rôle ADMIN
-  let currentUser: IUser | null = null;
-  try {
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-    };
-    
-    if (accessToken) {
-      headers["Cookie"] = `accessToken=${accessToken}`;
+  useEffect(() => {
+    // Redirection si non authentifié ou non admin
+    if (!isLoggedIn) {
+      router.replace("/login");
+      return;
     }
-
-    const userResponse = await fetch(`${API_URL}/api/auth/me`, {
-      cache: "no-store",
-      headers,
-    });
-
-    if (userResponse.ok) {
-      currentUser = await userResponse.json();
+    if (role !== "ADMIN") {
+      router.replace("/dashboard");
     }
-  } catch (e) {
-    console.error("Erreur lors de la vérification de l'utilisateur:", e);
-  }
-
-  // Redirection si non authentifié ou non admin
-  if (!currentUser) {
-    redirect("/login");
-  }
-
-  if (currentUser.role !== "ADMIN") {
-    redirect("/dashboard");
-  }
+  }, [isLoggedIn, role, router]);
 
   // Récupération des pronostics
-  let predictions: IPrediction[] = [];
-  let error: string | null = null;
+  useEffect(() => {
+    if (!isAuthorized) return;
 
-  try {
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-    };
-    
-    if (accessToken) {
-      headers["Cookie"] = `accessToken=${accessToken}`;
+    async function loadData() {
+      try {
+        setIsLoadingData(true);
+        setError(null);
+
+        const response = await authFetch(`${API_URL}/api/predictions`, {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          setError("Erreur lors du chargement des pronostics");
+        } else {
+          const data = await response.json();
+          setPredictions(data);
+        }
+      } catch (e) {
+        setError("Impossible de charger les pronostics");
+        console.error("Erreur:", e);
+      } finally {
+        setIsLoadingData(false);
+      }
     }
 
-    const response = await fetch(`${API_URL}/api/predictions`, {
-      cache: "no-store",
-      headers,
-    });
+    loadData();
+  }, [isAuthorized, authFetch]);
 
-    if (!response.ok) {
-      error = "Erreur lors du chargement des pronostics";
-    } else {
-      predictions = await response.json();
-    }
-  } catch (e) {
-    error = "Impossible de charger les pronostics";
-    console.error("Erreur:", e);
+  if (!isAuthorized || isLoadingData) {
+    return (
+      <div style={{ padding: "2rem", textAlign: "center" }}>
+        Chargement...
+      </div>
+    );
   }
 
   return (

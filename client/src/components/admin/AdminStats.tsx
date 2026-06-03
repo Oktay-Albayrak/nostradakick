@@ -4,6 +4,7 @@ import { API_URL } from "@/config/api";
 
 import { useEffect, useState } from "react";
 import { IAdminStats } from "@/types/admin";
+import { useAuth } from "@/context/AuthContext";
 import styles from "../../app/admin/page.module.css";
 
 function formatNumber(num: number): string {
@@ -11,6 +12,7 @@ function formatNumber(num: number): string {
 }
 
 export default function AdminStats() {
+  const { authFetch } = useAuth();
   const [stats, setStats] = useState<IAdminStats | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -21,8 +23,7 @@ export default function AdminStats() {
         setIsLoading(true);
         setError(null);
 
-        const response = await fetch(`${API_URL}/api/admin/stats`, {
-          credentials: "include", // Important : envoie automatiquement les cookies
+        const response = await authFetch(`${API_URL}/api/admin/stats`, {
           cache: "no-store",
           headers: {
             "Content-Type": "application/json",
@@ -43,7 +44,7 @@ export default function AdminStats() {
     }
 
     fetchStats();
-  }, []);
+  }, [authFetch]);
 
   if (isLoading) {
     return (

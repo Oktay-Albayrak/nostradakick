@@ -4,6 +4,7 @@ import { API_URL } from "@/config/api";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import styles from "./admin.module.css";
 import { IMatch, ICompetition } from "@/types/match";
 import CreateMatchModal from "./CreateMatchModal";
@@ -14,6 +15,7 @@ interface MatchActionsProps {
 }
 
 export default function MatchActions({ match, competitions }: MatchActionsProps) {
+  const { authFetch } = useAuth();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,11 +34,10 @@ export default function MatchActions({ match, competitions }: MatchActionsProps)
     setError(null);
 
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${API_URL}/api/matches/${match.id}`,
         {
           method: "DELETE",
-          credentials: "include",
         }
       );
 
