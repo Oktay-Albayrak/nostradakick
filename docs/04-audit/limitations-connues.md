@@ -73,7 +73,9 @@ Ce document liste les limitations identifiées dans le projet NostradaKick. Tout
 
 ## 🔧 Limitations admin (bugs partiels)
 
-- **Suppression d'utilisateur** : la fonction `DeleteUserButton` est implémentée côté frontend mais l'appel API échoue. À investiguer (potentiellement un appel serveur manquant ou mal structuré).
+- **Suppression d'utilisateur** : la fonction `DeleteUserButton` est implémentée côté frontend mais l'appel API échoue.
+  - **Cause identifiée** : Contrainte de clé étrangère sur la table `RefreshToken` qui empêche la suppression en cascade.
+  - **Solution** : Ajouter `onDelete: Cascade` sur la relation Prisma + créer une migration. Ou implémenter un soft delete (champ `deleted_at`) plus respectueux du RGPD.
 
 - **Création / modification de match** : quelques ajustements UX/validation manquants, verifier la structure du code et les appel serveur.
 
