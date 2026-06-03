@@ -3,7 +3,6 @@
 import { API_URL } from "@/config/api";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import styles from "./admin.module.css";
 import { IMatch, ICompetition } from "@/types/match";
@@ -40,11 +39,11 @@ interface UpdateMatchPayload {
 
 export default function CreateMatchModal({
   match,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   competitions,
   onClose,
 }: CreateMatchModalProps) {
   const { authFetch } = useAuth();
-  const router = useRouter();
   const isEditMode = !!match;
 
   const matchTime = match ? new Date(match.date).toTimeString().slice(0, 5) : "00:00";
