@@ -21,7 +21,9 @@
     "========= Pour la prod =========": "===========================",
     "build": "prisma generate",
     "start": "node index.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "========= Pour Docker ==========": "========================",
+    "docker:dev": "node --watch --env-file=.env index.ts"
   },
   "keywords": [],
   "author": "",
