@@ -26,7 +26,7 @@
 
 **NostradaKick** est une application web de pronostics football, réalisée en **équipe de 4 personnes** sur 4 sprints (Scrum, du Sprint 0 de conception au Sprint 3) dans le cadre du projet de fin de cursus **Concepteur Développeur d'Applications** (RNCP 6, École O'clock).
 
-Le projet permet aux utilisateurs de pronostiquer les résultats de matchs des plus grandes compétitions européennes (Ligue 1, Premier League, La Liga, Bundesliga, Serie A, Champions League), de suivre leurs statistiques (séries de victoires, ratio) et de comparer leurs performances.
+Le projet permet aux utilisateurs de pronostiquer les résultats de matchs des plus grandes compétitions européennes (Ligue 1, Premier League, La Liga, Bundesliga, Serie A, Champions League) ainsi que la Coupe du Monde 2026, de suivre leurs statistiques (séries de victoires, ratio) et de comparer leurs performances.
 
 > 💡 Ce repository est le **fork personnel** du projet original. Il a été nettoyé et republié pour servir de portfolio.
 
@@ -39,7 +39,7 @@ Le projet permet aux utilisateurs de pronostiquer les résultats de matchs des p
 - **Pronostiquer** les matchs à venir (victoire / nul / défaite)
 - **Modifier** ses pronostics tant que le match n'a pas commencé
 - **Dashboard personnel** : statistiques (séries de victoires, ratio) et historique
-- **Filtrage** des matchs par compétition (6 ligues majeures)
+- **Filtrage** des matchs par compétition (7 compétitions disponibles)
 - **Recherche** parmi les équipes et matchs
 
 ### 🛡️ Côté administrateur
@@ -60,7 +60,7 @@ Le projet permet aux utilisateurs de pronostiquer les résultats de matchs des p
 ### Backend (`/api`)
 - **Node.js 22** + **Express 5**
 - **TypeScript 5**
-- **Prisma ORM 7** (avec adapter PostgreSQL)
+- **Prisma ORM 7** (avec adapter Neon serverless)
 - **Zod** (validation des entrées)
 - **Argon2** (hash de mots de passe)
 - **JWT** (`jsonwebtoken`) avec cookies httpOnly + secure + sameSite
@@ -82,6 +82,7 @@ Le projet permet aux utilisateurs de pronostiquer les résultats de matchs des p
 ## 📂 Structure du projet
 
 ```
+
 nostradakick/
 ├── api/                          # Backend Express (Node.js / TypeScript / Prisma)
 │   ├── src/
@@ -117,10 +118,22 @@ nostradakick/
 │   └── package.json
 │
 └── docs/                         # Documentation de conception
-    ├── 01-cahier-des-charges/
-    ├── 02-conception/
-    ├── 03-design/
-    └── 04-audit/
+├── 01-cahier-des-charges/
+│
+├── 02-conception/
+│
+├── 03-design/
+│    ├── maquettes/
+│    ├── screenshots/
+│    ├── wireframes/
+│    ├── charte-graphique.md
+│    └── logo.png
+│
+└── 04-audit/
+├── ecarts-conception-realisation.md
+├── limitations-connues.md
+└── audit-securite.md
+
 ```
 
 ---
@@ -139,6 +152,31 @@ Le projet intègre plusieurs mesures de sécurité applicative :
 | **Injection SQL** | Requêtes paramétrées via Prisma ORM |
 | **Variables sensibles** | Validation au démarrage via `getEnv()` (échec rapide si manquantes) |
 
+---
+
+## 🛡️ Démarche sécurité
+
+Un **audit de sécurité auto-réalisé** est en cours sur ce projet, en environnement local :
+
+- 🔍 Tests réalisés **en local uniquement** (respect des CGU des hébergeurs et de l'article 323-1 du Code pénal)
+- 🛠️ Outils : Burp Suite Community, OWASP Top 10 (2023)
+- 📝 Démarche : lecture du code orientée sécurité + tests manuels (brute force, BOLA, IDOR, etc.)
+
+👉 **[Démarche complète et rapport d'audit](docs/04-audit/audit-securite.md)** _(en cours de rédaction)_
+
+---
+
+## ⚠️ Limitations connues
+
+Ce projet a été réalisé dans le cadre d'une formation. Plusieurs limitations sont volontairement documentées :
+
+- 📱 Authentification mobile iOS bloquée par l'ITP (cross-domain Vercel ↔ Render)
+- 🔐 Pas de rate limiting / Helmet (axes d'amélioration sécurité)
+- 👤 Pas de modification username / MDP / email / suppression compte utilisateur
+- 📧 Pas d'email de confirmation à l'inscription
+- 📋 Conformité RGPD partielle (bandeau cookies, droit à l'oubli)
+
+👉 **[Liste détaillée](docs/04-audit/limitations-connues.md)**
 
 ---
 
@@ -260,9 +298,15 @@ Les variables nécessaires sont décrites dans les fichiers `.env.example` :
 
 **Problème** : le déploiement front (Vercel) et back (Render) sur **deux domaines différents** posait un problème de transmission des cookies JWT (httpOnly) entre les domaines, empêchant l'authentification.
 
-**Solution** : configuration des cookies avec `sameSite: "none"` + `secure: true`, combinée à la configuration CORS multi-origines avec `credentials: true`.
+**Solution** : configuration des cookies avec `sameSite: "none"` + `secure: true`, combinée à la configuration CORS multi-origines avec `credentials: true`. Migration de l'adapter Prisma `pg` vers `@prisma/adapter-neon` pour la stabilité avec Neon serverless.
 
-### 3. Calcul idempotent des statistiques utilisateur
+### 3. Architecture d'auth en client components (cross-domain)
+
+**Problème** : les Server Components et le middleware Next.js ne peuvent pas lire les cookies posés sur un domaine tiers (l'API Render). Toute page protégée en Server Component renvoyait vers `/login` malgré une session active.
+
+**Solution** : conversion des pages protégées (`/dashboard`, `/admin/*`) en **Client Components** utilisant `useAuth()` + `authFetch()`. Le wrapper `authFetch` gère automatiquement le refresh du token et le logout en cascade en cas d'échec.
+
+### 4. Calcul idempotent des statistiques utilisateur
 
 **Problème** : recalculer les statistiques utilisateur (séries de victoires, nombre de wins/losses) à chaque finalisation de match risquait de créer des incohérences ou des doublons en cas d'exécution répétée du processus de synchronisation.
 
@@ -290,7 +334,10 @@ La documentation complète du projet est disponible dans le dossier [`docs/`](./
 - **Cahier des charges** ([`docs/01-cahier-des-charges/`](./docs/01-cahier-des-charges/))
 - **Conception** ([`docs/02-conception/`](./docs/02-conception/)) : MCD, MLD, ERD, diagrammes de séquence, architecture
 - **Design** ([`docs/03-design/`](./docs/03-design/)) : maquettes, wireframes, charte graphique, screenshots
-- **Audit** ([`docs/04-audit/`](./docs/04-audit/)) : écarts entre conception initiale (Sprint 0) et réalisation finale
+- **Audit & démarche sécurité** ([`docs/04-audit/`](./docs/04-audit/)) :
+  - [Écarts conception/réalisation](./docs/04-audit/ecarts-conception-realisation.md)
+  - [Limitations connues](./docs/04-audit/limitations-connues.md)
+  - 🛡️ [Audit de sécurité](./docs/04-audit/audit-securite.md)
 
 📄 Le dossier complet du projet CDA est également disponible en PDF : [`docs/dossier-projet-cda.pdf`](./docs/dossier-projet-cda.pdf)
 
