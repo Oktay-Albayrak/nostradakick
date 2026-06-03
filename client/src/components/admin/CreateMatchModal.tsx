@@ -16,6 +16,28 @@ interface CreateMatchModalProps {
   onClose: () => void;
 }
 
+// ✅ Interface pour le payload de création de match
+interface CreateMatchPayload {
+  date: string;
+  status: string;
+  home_team_id: string | number;
+  away_team_id: string | number;
+  competition_id: string | number;
+  is_featured: boolean;
+  home_score?: number;
+  away_score?: number;
+  featured_name?: string;
+}
+
+// ✅ Interface pour le payload de modification de match
+interface UpdateMatchPayload {
+  status: string;
+  is_featured: boolean;
+  home_score?: number;
+  away_score?: number;
+  featured_name?: string;
+}
+
 export default function CreateMatchModal({
   match,
   competitions,
@@ -189,8 +211,8 @@ export default function CreateMatchModal({
       const dateTime = new Date(`${dateString}T${timeString}`);
       
       if (!isEditMode) {
-        // Pour la création, l'id est auto-généré par Prisma
-        const payload: any = {
+        // Pour la création, l'id est auto-généré par Prisma + utilisation de l'interface pour creation = CreateMatchPayload
+        const payload: CreateMatchPayload = {
           date: dateTime.toISOString(),
           status: formData.status,
           home_team_id: formData.home_team_id,
@@ -234,8 +256,8 @@ export default function CreateMatchModal({
           window.location.href = "/admin/matchs";
         }, 800);
       } else {
-        // Pour la modification
-        const payload: any = {
+        // Pour la modification + utilisation de l'interface pour les modification = UpdateMatchPayload
+        const payload: UpdateMatchPayload = {
           status: formData.status,
           is_featured: formData.is_featured,
         };
