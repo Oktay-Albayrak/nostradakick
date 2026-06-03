@@ -43,11 +43,13 @@ Identité visuelle, maquettes, wireframes et captures du rendu final.
 - [`wireframes/`](./03-design/wireframes/) — Wireframes (Desktop + Mobile)
 - [`screenshots/`](./03-design/screenshots/) — Captures du rendu final déployé
 
-### [04 — Audit](./04-audit/)
+### [04 — Audit & démarche sécurité](./04-audit/)
 
-Analyse a posteriori du projet, comparant la conception initiale (Sprint 0) à l'implémentation finale.
+Analyse a posteriori du projet, recensement des limitations et démarche sécurité.
 
-- [`ecarts-conception-realisation.md`](./04-audit/ecarts-conception-realisation.md) — Tableau des écarts identifié entre la documentation Sprint 0 et le code final
+- [`ecarts-conception-realisation.md`](./04-audit/ecarts-conception-realisation.md) — Tableau des écarts identifiés entre la documentation Sprint 0 et le code final
+- [`limitations-connues.md`](./04-audit/limitations-connues.md) — Limitations conscientes du projet (sécurité backend, RGPD, bugs assumés, infrastructure cross-domain)
+- 🛡️ [`audit-securite.md`](./04-audit/audit-securite.md) — Audit de sécurité auto-réalisé en environnement local (en cours de rédaction)
 
 ---
 
