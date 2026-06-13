@@ -156,13 +156,14 @@ Le projet intègre plusieurs mesures de sécurité applicative :
 
 ## 🛡️ Démarche sécurité
 
-Un **audit de sécurité auto-réalisé** est en cours sur ce projet, en environnement local :
+Un **audit de sécurité personnel** est en cours sur ce projet, en environnement local. Il s'agit d'une **démarche d'apprentissage (non complète)** réalisée dans le cadre de ma reconversion vers la cybersécurité offensive :
 
 - 🔍 Tests réalisés **en local uniquement** (respect des CGU des hébergeurs et de l'article 323-1 du Code pénal)
-- 🛠️ Outils : Burp Suite Community, OWASP Top 10 (2023)
-- 📝 Démarche : lecture du code orientée sécurité + tests manuels (brute force, BOLA, IDOR, etc.)
+- 🛠️ Outils : OWASP ZAP, Burp Suite Community
+- 📝 Démarche : scan automatisé + revue de code orientée sécurité + test manuel ciblé (IDOR sur POST /api/predictions)
+- 🎯 Référentiel : OWASP Top 10 2025
 
-👉 **[Démarche complète et rapport d'audit](docs/04-audit/audit-securite.md)** _(en cours de rédaction)_
+👉 **[Démarche et findings](docs/04-audit/audit-securite.md)** _(en cours de rédaction)_
 
 ---
 
@@ -337,7 +338,7 @@ La documentation complète du projet est disponible dans le dossier [`docs/`](./
 - **Audit & démarche sécurité** ([`docs/04-audit/`](./docs/04-audit/)) :
   - [Écarts conception/réalisation](./docs/04-audit/ecarts-conception-realisation.md)
   - [Limitations connues](./docs/04-audit/limitations-connues.md)
-  - 🛡️ [Audit de sécurité](./docs/04-audit/audit-securite.md)
+  - 🛡️ [Démarche sécurité — apprentissage personnel](./docs/04-audit/audit-securite.md)
 
 📄 Le dossier complet du projet CDA est également disponible en PDF : [`docs/dossier-projet-cda.pdf`](./docs/dossier-projet-cda.pdf)
 
