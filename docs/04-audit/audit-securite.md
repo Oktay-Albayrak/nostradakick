@@ -7,7 +7,10 @@
 ## 1. Contexte et scope
 
 ### Objectif
-Audit de sécurité applicative auto-réalisé (non complet) pour identifier les vulnérabilités potentielles du projet NostradaKick et documenter une démarche défensive.
+
+Démarche d'apprentissage personnel en sécurité applicative, dans le cadre d'une reconversion vers la cybersécurité offensive. L'objectif est de mettre en pratique les méthodes et outils de base d'un audit (scan automatisé, revue de code, test manuel ciblé) sur mon projet de fin de formation NostradaKick, afin d'identifier des vulnérabilités potentielles et de documenter une démarche défensive.
+
+> ⚠️ Cet audit n'est **pas un livrable professionnel** — c'est un exercice pédagogique limité en profondeur et en scope.
 
 ### Périmètre testé
 - **Backend** : API Express (en local sur `localhost:4000`)
@@ -22,28 +25,28 @@ Conformément aux CGU de Vercel et Render et à la législation française sur l
 ## 2. Méthodologie
 
 ### Outils utilisés
-- **OWASP ZAP v2.17** (scanner automatique)
-- **Burp Suite Community Edition v2026.4.3** (proxy + intruder + scan manuel + repeater)
 
+- **OWASP ZAP v2.17** — scan automatisé (passif + actif) après navigation manuelle authentifiée
+- **Burp Suite Community Edition v2026.4.3** — test manuel ciblé (Repeater)
+- **Lecture manuelle du code source** — focus authentification, autorisations, validations
 ```
 Lancement du navigateur Chrome isolé via terminal :
 
 google-chrome --user-data-dir=/tmp/chrome-burp \
---proxy-server="127.0.0.1:8081" \
---proxy-bypass-list="<-loopback>" \
---ignore-certificate-errors \
-http://localhost:3000
+  --proxy-server="127.0.0.1:8081" \
+  --proxy-bypass-list="<-loopback>" \
+  --ignore-certificate-errors \
+  http://localhost:3000
 ```
-- **OWASP Top 10 (2025)** comme checklist de référence
-- **Lecture manuelle du code source** (focus auth, validations, autorisations)
+### Démarche (3 couches)
 
-### Démarche
-1. Reconnaissance du périmètre (routes API, endpoints publics/protégés)
-2. Tests d'authentification (brute force, JWT manipulation, refresh token)
-3. Tests d'autorisation (BOLA, élévation de privilèges, IDOR)
-4. Tests d'injection (SQL via Prisma, XSS, command injection)
-5. Tests de configuration (headers HTTP, cookies, CORS)
-6. Synthèse et recommandations
+1. **Reconnaissance et scan automatisé** : cartographie des endpoints avec ZAP, scoping par technologie (PostgreSQL + Next.js + React + JavaScript), scan actif avec analyse des en-têtes HTTP, cookies et structure des réponses.
+2. **Test manuel ciblé** : validation d'un point d'autorisation critique via Burp Repeater (test IDOR sur `POST /api/predictions`).
+3. **Revue de code orientée sécurité** : lecture des contrôleurs sensibles (auth, prédictions, admin), vérification des middlewares de protection, contrôle de l'usage des secrets et de la validation des entrées.
+
+### Référentiel
+
+- **OWASP Top 10 (2025)** comme grille de lecture des findings
 
 
 ### Format de chaque finding
@@ -332,18 +335,16 @@ Dériver `user_id` exclusivement du JWT côté serveur au lieu de le comparer au
 
 ## 5. Findings Lecture manuelle code source + Tests visuels
 
+
 ### [SEVERITY: LOW] Suppression d'utilisateur bloquée par contrainte FK
 
 - **Description** : La table `RefreshToken` référence `User.id` sans `onDelete: Cascade`. Toute tentative de suppression d'un utilisateur via Prisma échoue avec une violation de contrainte de clé étrangère.
-
-- **Reproduction** : Tentative de suppression d'un user avec des refresh tokens actifs → erreur Postgres.
-
-- **Impact** : 
+- **Reproduction** : Tentative de suppression d'un user avec des refresh tokens actifs → erreur Postgres (Foreign Key violation).
+- **Impact** :
   - Fonctionnalité admin cassée (DeleteUserButton inopérant)
   - Conformité RGPD impactée (droit à l'oubli impossible techniquement)
-
+- **Mapping OWASP** : A06:2025 — Insecure Design (cycle de vie utilisateur non couvert par le schéma de données)
 - **Recommandation** : Ajouter `onDelete: Cascade` sur toutes les relations FK pointant vers User, créer une migration Prisma. Alternative : implémenter un soft delete (champ `deleted_at`) plus respectueux du RGPD.
-
 - **Statut** : Open (identifié, non corrigé)
 
 ---
@@ -434,6 +435,6 @@ L'audit pourra être enrichi ultérieurement en fonction de l'évolution du proj
 
 **Auteur** : Oktay Albayrak
 
-**Date de démarrage** : courant juin 2026
+**Statut** : audit en cours (juin 2026)
 
 **Date de mise à jour** : Terminé le 19/06/2026

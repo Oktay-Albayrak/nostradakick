@@ -426,7 +426,7 @@ La documentation complète du projet est disponible dans le dossier [`docs/`](./
 - **Audit & démarche sécurité** ([`docs/04-audit/`](./docs/04-audit/)) :
   - [Écarts conception/réalisation](./docs/04-audit/ecarts-conception-realisation.md)
   - [Limitations connues](./docs/04-audit/limitations-connues.md)
-  - 🛡️ [**Audit de sécurité complet**](./docs/04-audit/audit-securite.md)
+  - 🛡️ [**Audit de sécurité**](./docs/04-audit/audit-securite.md)
 
 📄 Le dossier complet du projet CDA est également disponible en PDF : [`docs/dossier-projet-cda.pdf`](./docs/dossier-projet-cda.pdf)
 
