@@ -49,7 +49,9 @@ Analyse a posteriori du projet, recensement des limitations et démarche sécuri
 
 - [`ecarts-conception-realisation.md`](./04-audit/ecarts-conception-realisation.md) — Tableau des écarts identifiés entre la documentation Sprint 0 et le code final
 - [`limitations-connues.md`](./04-audit/limitations-connues.md) — Limitations conscientes du projet (sécurité backend, RGPD, bugs assumés, infrastructure cross-domain)
-- 🛡️ [`audit-securite.md`](./04-audit/audit-securite.md) — Audit de sécurité auto-réalisé en environnement local (en cours de rédaction)
+- 🛡️ [`audit-securite.md`](./04-audit/audit-securite.md) — Audit de sécurité auto-réalisé en environnement local (OWASP ZAP + Burp Suite + lecture de code, aligné OWASP Top 10 2025)
+- [`audit_ZAP_2-17/`](./04-audit/audit_ZAP_2-17/) — Captures d'écran des findings ZAP + rapport HTML complet nettoyé
+- [`audit_Burp_Suite_Community_Edition/`](./04-audit/audit_Burp_Suite_Community_Edition/) — Captures d'écran du test IDOR réalisé avec Burp Suite Repeater
 
 ---
 
