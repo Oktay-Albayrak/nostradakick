@@ -82,58 +82,143 @@ Le projet permet aux utilisateurs de pronostiquer les résultats de matchs des p
 ## 📂 Structure du projet
 
 ```
-
 nostradakick/
-├── api/                          # Backend Express (Node.js / TypeScript / Prisma)
-│   ├── src/
-│   │   ├── controllers/          # Logique des routes
-│   │   ├── services/             # Logique métier (sync, userStat...)
-│   │   ├── routers/              # Définition des routes
-│   │   ├── middleware/           # requireAuth, requireAdmin
-│   │   ├── validations/          # Schémas Zod
-│   │   ├── jobs/                 # Cron jobs (sync football-data)
-│   │   ├── config/               # Métadonnées des compétitions
-│   │   ├── lib/                  # Prisma client, utils
-│   │   └── app.ts                # Configuration Express
-│   ├── prisma/
-│   │   ├── schema.prisma         # Schéma de la BDD
-│   │   ├── migrations/           # Migrations Prisma
-│   │   ├── seed.ts               # Seeding initial
-│   │   └── cleanMatches.ts       # Script de nettoyage des matchs
-│   ├── tests/                    # Tests manuels (REST Client + SQL)
-│   ├── config.ts                 # Variables d'environnement validées
-│   ├── index.ts                  # Point d'entrée API
-│   └── package.json
-│
-├── client/                       # Frontend Next.js (React / TypeScript)
-│   ├── src/
-│   │   ├── app/                  # Pages (App Router)
-│   │   ├── components/           # Composants React
-│   │   ├── context/              # AuthContext
-│   │   ├── types/                # Types TypeScript partagés
-│   │   ├── utils/                # Fonctions utilitaires (format, etc.)
-│   │   ├── config/api.ts         # URL de l'API
-│   │   └── proxy.ts              # Middleware Next.js (protection des routes)
-│   ├── next.config.ts
-│   └── package.json
-│
-└── docs/                         # Documentation de conception
-├── 01-cahier-des-charges/
-│
-├── 02-conception/
-│
-├── 03-design/
-│    ├── maquettes/
-│    ├── screenshots/
-│    ├── wireframes/
-│    ├── charte-graphique.md
-│    └── logo.png
-│
-└── 04-audit/
-├── ecarts-conception-realisation.md
-├── limitations-connues.md
-└── audit-securite.md
 
+├── api/                          # Backend Express (Node.js / TypeScript / Prisma)
+
+│   ├── src/
+
+│   │   ├── controllers/          # Logique des routes
+
+│   │   ├── services/             # Logique métier (sync, userStat...)
+
+│   │   ├── routers/              # Définition des routes
+
+│   │   ├── middleware/           # requireAuth, requireAdmin
+
+│   │   ├── validations/          # Schémas Zod
+
+│   │   ├── jobs/                 # Cron jobs (sync football-data)
+
+│   │   ├── config/               # Métadonnées des compétitions
+
+│   │   ├── lib/                  # Prisma client, utils
+
+│   │   └── app.ts                # Configuration Express
+
+│   ├── prisma/
+
+│   │   ├── schema.prisma         # Schéma de la BDD
+
+│   │   ├── migrations/           # Migrations Prisma
+
+│   │   ├── seed.ts               # Seeding initial
+
+│   │   └── cleanMatches.ts       # Script de nettoyage des matchs
+
+│   ├── tests/                    # Tests manuels (REST Client + SQL)
+
+│   ├── config.ts                 # Variables d'environnement validées
+
+│   ├── index.ts                  # Point d'entrée API
+
+│   └── package.json
+
+│
+
+├── client/                       # Frontend Next.js (React / TypeScript)
+
+│   ├── src/
+
+│   │   ├── app/                  # Pages (App Router)
+
+│   │   ├── components/           # Composants React
+
+│   │   ├── context/              # AuthContext
+
+│   │   ├── types/                # Types TypeScript partagés
+
+│   │   ├── utils/                # Fonctions utilitaires (format, etc.)
+
+│   │   ├── config/api.ts         # URL de l'API
+
+│   │   └── proxy.ts              # Middleware Next.js (protection des routes)
+
+│   ├── next.config.ts
+
+│   └── package.json
+
+│
+
+└── docs/                         # Documentation de conception
+
+├── 01-cahier-des-charges/
+
+│
+
+├── 02-conception/
+
+│
+
+├── 03-design/
+
+│    ├── maquettes/
+
+│    ├── screenshots/
+
+│    ├── wireframes/
+
+│    ├── charte-graphique.md
+
+│    └── logo.png
+
+│
+
+├── 04-audit/
+
+│    ├── audit_Burp_Suite_Community_Edition/    # Captures Burp (test IDOR)
+
+│    │    ├── burp-idor-predictions-request.png
+
+│    │    └── burp-idor-predictions-response.png
+
+│    │
+
+│    ├── audit_ZAP_2-17/                        # Scan OWASP ZAP
+
+│    │    ├── screenshot/                       # Captures des findings ZAP
+
+│    │    │    ├── Paramètres/                  # Captures des paramètres ZAP
+
+│    │    │    ├── alertes.png
+
+│    │    │    ├── arborescence_API.png
+
+│    │    │    ├── arborescence_Client.png
+
+│    │    │    ├── arborescence_Client2.png
+
+│    │    │    ├── csp_failure_to_define.png
+
+│    │    │    ├── csp_header_not_set.png
+
+│    │    │    └── missing_anti_clickjacking.png
+
+│    │    └── ZAP-Report-localhost/             # Rapport HTML complet nettoyé
+
+│    │         └── ZAP-Report-localhost.html
+
+│    │
+
+│    ├── audit-securite.md                      # Rapport d'audit complet
+
+│    ├── ecarts-conception-realisation.md
+
+│    └── limitations-connues.md
+
+│
+
+└── dossier-projet-cda.pdf
 ```
 
 ---
@@ -151,19 +236,22 @@ Le projet intègre plusieurs mesures de sécurité applicative :
 | **Protection des routes** | Middlewares `requireAuth` / `requireAdmin` (backend) + `proxy.ts` (frontend Next.js) |
 | **Injection SQL** | Requêtes paramétrées via Prisma ORM |
 | **Variables sensibles** | Validation au démarrage via `getEnv()` (échec rapide si manquantes) |
+| **Contrôle d'autorisation** | Vérification du `user_id` du body vs JWT sur les endpoints sensibles (test IDOR négatif confirmé) |
 
 ---
 
 ## 🛡️ Démarche sécurité
 
-Un **audit de sécurité personnel** est en cours sur ce projet, en environnement local. Il s'agit d'une **démarche d'apprentissage (non complète)** réalisée dans le cadre de ma reconversion vers la cybersécurité offensive :
+Un **audit de sécurité auto-réalisé** a été mené sur ce projet, en environnement local :
 
 - 🔍 Tests réalisés **en local uniquement** (respect des CGU des hébergeurs et de l'article 323-1 du Code pénal)
-- 🛠️ Outils : OWASP ZAP, Burp Suite Community
-- 📝 Démarche : scan automatisé + revue de code orientée sécurité + test manuel ciblé (IDOR sur POST /api/predictions)
-- 🎯 Référentiel : OWASP Top 10 2025
+- 🛠️ Outils : **OWASP ZAP v2.17**, **Burp Suite Community Edition v2026.4.3**, **OWASP Top 10 (2025)** comme checklist de référence
+- 📝 Démarche en trois couches :
+  - **Scan automatique** avec OWASP ZAP (cartographie des routes, identification des Medium/Low/Info)
+  - **Test manuel ciblé** avec Burp Suite Repeater (test IDOR sur `POST /api/predictions`)
+  - **Lecture de code source** orientée sécurité (auth, validations, autorisations, contraintes FK)
 
-👉 **[Démarche et findings](docs/04-audit/audit-securite.md)** _(en cours de rédaction)_
+👉 **[Démarche complète et rapport d'audit](docs/04-audit/audit-securite.md)**
 
 ---
 
@@ -172,10 +260,10 @@ Un **audit de sécurité personnel** est en cours sur ce projet, en environnemen
 Ce projet a été réalisé dans le cadre d'une formation. Plusieurs limitations sont volontairement documentées :
 
 - 📱 Authentification mobile iOS bloquée par l'ITP (cross-domain Vercel ↔ Render)
-- 🔐 Pas de rate limiting / Helmet (axes d'amélioration sécurité)
-- 👤 Pas de modification username / MDP / email / suppression compte utilisateur
-- 📧 Pas d'email de confirmation à l'inscription
-- 📋 Conformité RGPD partielle (bandeau cookies, droit à l'oubli)
+- 🔐 Pas de rate limiting / Helmet (axes d'amélioration sécurité — détaillés dans l'[audit de sécurité](docs/04-audit/audit-securite.md))
+- 👤 Pas de modification du nom d'utilisateur, du mot de passe, de l'email ni de suppression de compte
+- 📧 Pas d'email de confirmation à l'inscription ni de récupération de mot de passe oublié
+- 📋 Conformité RGPD partielle (bandeau cookies, droit à l'oubli techniquement bloqué par contrainte FK)
 
 👉 **[Liste détaillée](docs/04-audit/limitations-connues.md)**
 
@@ -338,7 +426,7 @@ La documentation complète du projet est disponible dans le dossier [`docs/`](./
 - **Audit & démarche sécurité** ([`docs/04-audit/`](./docs/04-audit/)) :
   - [Écarts conception/réalisation](./docs/04-audit/ecarts-conception-realisation.md)
   - [Limitations connues](./docs/04-audit/limitations-connues.md)
-  - 🛡️ [Démarche sécurité — apprentissage personnel](./docs/04-audit/audit-securite.md)
+  - 🛡️ [**Audit de sécurité**](./docs/04-audit/audit-securite.md)
 
 📄 Le dossier complet du projet CDA est également disponible en PDF : [`docs/dossier-projet-cda.pdf`](./docs/dossier-projet-cda.pdf)
 
@@ -354,6 +442,6 @@ Projet réalisé dans le cadre de la certification CDA Niveau 6 (RNCP 6).
 
 **Réalisé pendant la formation CDA — École O'clock**
 
-🔗 [LinkedIn](https://www.linkedin.com/in/oktay-albayrak-862b40285/)
+🔗 [LinkedIn](https://www.linkedin.com/in/oktay-albayrak-cyber/)
 
 </div>
