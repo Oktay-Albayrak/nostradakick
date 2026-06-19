@@ -115,9 +115,7 @@ Sans CSP, les payloads suivants s'exécuteraient sans restriction :
 
 - **Recommandation** : 
 Configurer le header `Content-Security-Policy` côté serveur Next.js. 
-  - Deux approches possibles :Note : la sévérité `NONE` est utilisée pour les tests négatifs (vulnérabilité testée mais défense en place et fonctionnelle).
-
-
+  - Deux approches possibles :
 
   1. **Via `next.config.ts`** avec la fonction `headers()` :
   
@@ -435,6 +433,6 @@ L'audit pourra être enrichi ultérieurement en fonction de l'évolution du proj
 
 **Auteur** : Oktay Albayrak
 
-**Statut** : audit en cours (juin 2026)
+**Statut** : Audit finalisé (v1)
 
-**Date de mise à jour** : Terminé le 19/06/2026
+**Date de finalisation** : 19/06/2026

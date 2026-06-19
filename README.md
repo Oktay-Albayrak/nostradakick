@@ -83,142 +83,68 @@ Le projet permet aux utilisateurs de pronostiquer les résultats de matchs des p
 
 ```
 nostradakick/
-
 ├── api/                          # Backend Express (Node.js / TypeScript / Prisma)
-
 │   ├── src/
-
 │   │   ├── controllers/          # Logique des routes
-
 │   │   ├── services/             # Logique métier (sync, userStat...)
-
 │   │   ├── routers/              # Définition des routes
-
 │   │   ├── middleware/           # requireAuth, requireAdmin
-
 │   │   ├── validations/          # Schémas Zod
-
 │   │   ├── jobs/                 # Cron jobs (sync football-data)
-
 │   │   ├── config/               # Métadonnées des compétitions
-
 │   │   ├── lib/                  # Prisma client, utils
-
 │   │   └── app.ts                # Configuration Express
-
 │   ├── prisma/
-
 │   │   ├── schema.prisma         # Schéma de la BDD
-
 │   │   ├── migrations/           # Migrations Prisma
-
 │   │   ├── seed.ts               # Seeding initial
-
 │   │   └── cleanMatches.ts       # Script de nettoyage des matchs
-
 │   ├── tests/                    # Tests manuels (REST Client + SQL)
-
 │   ├── config.ts                 # Variables d'environnement validées
-
 │   ├── index.ts                  # Point d'entrée API
-
 │   └── package.json
-
 │
-
 ├── client/                       # Frontend Next.js (React / TypeScript)
-
 │   ├── src/
-
 │   │   ├── app/                  # Pages (App Router)
-
 │   │   ├── components/           # Composants React
-
 │   │   ├── context/              # AuthContext
-
 │   │   ├── types/                # Types TypeScript partagés
-
 │   │   ├── utils/                # Fonctions utilitaires (format, etc.)
-
 │   │   ├── config/api.ts         # URL de l'API
-
 │   │   └── proxy.ts              # Middleware Next.js (protection des routes)
-
 │   ├── next.config.ts
-
 │   └── package.json
-
 │
-
 └── docs/                         # Documentation de conception
-
-├── 01-cahier-des-charges/
-
-│
-
-├── 02-conception/
-
-│
-
-├── 03-design/
-
-│    ├── maquettes/
-
-│    ├── screenshots/
-
-│    ├── wireframes/
-
-│    ├── charte-graphique.md
-
-│    └── logo.png
-
-│
-
-├── 04-audit/
-
-│    ├── audit_Burp_Suite_Community_Edition/    # Captures Burp (test IDOR)
-
-│    │    ├── burp-idor-predictions-request.png
-
-│    │    └── burp-idor-predictions-response.png
-
-│    │
-
-│    ├── audit_ZAP_2-17/                        # Scan OWASP ZAP
-
-│    │    ├── screenshot/                       # Captures des findings ZAP
-
-│    │    │    ├── Paramètres/                  # Captures des paramètres ZAP
-
-│    │    │    ├── alertes.png
-
-│    │    │    ├── arborescence_API.png
-
-│    │    │    ├── arborescence_Client.png
-
-│    │    │    ├── arborescence_Client2.png
-
-│    │    │    ├── csp_failure_to_define.png
-
-│    │    │    ├── csp_header_not_set.png
-
-│    │    │    └── missing_anti_clickjacking.png
-
-│    │    └── ZAP-Report-localhost/             # Rapport HTML complet nettoyé
-
-│    │         └── ZAP-Report-localhost.html
-
-│    │
-
-│    ├── audit-securite.md                      # Rapport d'audit complet
-
-│    ├── ecarts-conception-realisation.md
-
-│    └── limitations-connues.md
-
-│
-
-└── dossier-projet-cda.pdf
+    ├── 01-cahier-des-charges/
+    ├── 02-conception/
+    ├── 03-design/
+    │   ├── maquettes/
+    │   ├── screenshots/
+    │   ├── wireframes/
+    │   ├── charte-graphique.md
+    │   └── logo.png
+    ├── 04-audit/
+    │   ├── audit_Burp_Suite_Community_Edition/    # Captures Burp (test IDOR)
+    │   │   ├── burp-idor-predictions-request.png
+    │   │   └── burp-idor-predictions-response.png
+    │   ├── audit_ZAP_2-17/                        # Scan OWASP ZAP
+    │   │   ├── screenshot/                        # Captures des findings ZAP
+    │   │   │   ├── Paramètres/                    # Captures des paramètres ZAP
+    │   │   │   ├── alertes.png
+    │   │   │   ├── arborescence_API.png
+    │   │   │   ├── arborescence_Client.png
+    │   │   │   ├── arborescence_Client2.png
+    │   │   │   ├── csp_failure_to_define.png
+    │   │   │   ├── csp_header_not_set.png
+    │   │   │   └── missing_anti_clickjacking.png
+    │   │   └── ZAP-Report-localhost/              # Assets ZAP (CSS, thèmes, icônes)
+    │   │   └── ZAP-Report-localhost.html          # Rapport HTML complet nettoyé
+    │   ├── audit-securite.md                      # Rapport d'audit complet
+    │   ├── ecarts-conception-realisation.md
+    │   └── limitations-connues.md
+    └── dossier-projet-cda.pdf
 ```
 
 ---
